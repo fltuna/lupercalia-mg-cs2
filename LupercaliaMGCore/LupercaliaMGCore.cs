@@ -20,9 +20,9 @@ namespace LupercaliaMGCore {
 
         public override string ModuleName => "Lupercalia MG Core";
 
-        public override string ModuleVersion => "1.0.0";
+        public override string ModuleVersion => "1.0.1";
 
-        public override string ModuleAuthor => "faketuna";
+        public override string ModuleAuthor => "faketuna, Spitice";
 
         public override string ModuleDescription => "Provides core MG feature in CS2 with CounterStrikeSharp";
 
