@@ -24,6 +24,7 @@ namespace LupercaliaMGCore {
         /*
         *   Team based body color
         */
+        public readonly FakeConVar<bool> m_CVIsTeamColorEnabled = new("lp_mg_teamcolor_enabled", "Should apply team color after respawn", true);
         public readonly FakeConVar<string> m_CVTeamColorCT  = new("lp_mg_teamcolor_ct", "Counter Terrorist's Body color. R, G, B", "0, 0, 255");
         public readonly FakeConVar<string> m_CVTeamColorT = new("lp_mg_teamcolor_t", "Terrorist's Body color. R, G, B", "255, 0, 0");
 
@@ -218,6 +219,7 @@ namespace LupercaliaMGCore {
             /*
             *   Team based body color
             */
+            writeConVarConfig(config, m_CVIsTeamColorEnabled);
             writeConVarConfig(config, m_CVTeamColorCT);
             writeConVarConfig(config, m_CVTeamColorT);
             config.WriteLine("\n");
