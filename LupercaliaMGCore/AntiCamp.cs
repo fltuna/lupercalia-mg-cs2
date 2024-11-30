@@ -207,12 +207,26 @@ namespace LupercaliaMGCore {
             SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
             client.PrintToCenterAlert(m_CSSPlugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);
             glowingTimer[client] = m_CSSPlugin.AddTimer(timerInterval, () => {
-                if(playerGlowingTime[client] <= 0.0F) {
-                    stopPlayerGlowing(client);
-                    isPlayerWarned[client] = false;
-                    glowingTimer[client].Kill();
+                // Fixing spitice#3 : KeyNotFoundException by using try-catch
+                // `playerGlowingTime[client] <= 0.0F` seems to be problematic but not 100% sure
+                try
+                {
+                    if (playerGlowingTime[client] <= 0.0F)
+                    {
+                        stopPlayerGlowing(client);
+                        isPlayerWarned[client] = false;
+                        glowingTimer[client].Kill();
+                    }
+                    playerGlowingTime[client] -= timerInterval;
                 }
-                playerGlowingTime[client] -= timerInterval;
+                catch (Exception e)
+                {
+                    SimpleLogging.LogDebug($"[Anti Camp] Failed to update Glowing Timer. Terminating...");
+                    glowingTimer[client].Kill();
+                    isPlayerWarned[client] = false;
+                    playerGlowingTime[client] = 0.0F;
+                    return;
+                }
             }, TimerFlags.REPEAT);
         }
 
