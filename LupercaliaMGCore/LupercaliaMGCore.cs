@@ -80,6 +80,9 @@ namespace LupercaliaMGCore {
 
             new JoinTeamFix(this);
             Logger.LogInformation("Join team fix initialized");
+
+            new HideLegs(this);
+            Logger.LogInformation("Hide legs has been initialized");
         }
     }
 }
