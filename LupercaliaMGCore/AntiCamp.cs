@@ -38,7 +38,7 @@ namespace LupercaliaMGCore {
                 }
 
                 foreach(var client in Utilities.GetPlayers()) {
-                    if(!client.IsValid || client.IsBot || client.IsHLTV)
+                    if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                         continue;
 
                     initClientInformation(client);
@@ -53,7 +53,7 @@ namespace LupercaliaMGCore {
                 return;
 
             foreach(var client in Utilities.GetPlayers()) {
-                if(!client.IsValid || client.IsBot || client.IsHLTV)
+                if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                     continue;
 
                 if(client.Team == CsTeam.None || client.Team == CsTeam.Spectator)
@@ -105,7 +105,7 @@ namespace LupercaliaMGCore {
             if(client == null) 
                 return HookResult.Continue;
 
-            if(!client.IsValid || client.IsBot || client.IsHLTV)
+            if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                 return HookResult.Continue;
 
             stopPlayerGlowing(client);
@@ -119,7 +119,7 @@ namespace LupercaliaMGCore {
             if(client == null) 
                 return HookResult.Continue;
 
-            if(!client.IsValid || client.IsBot || client.IsHLTV)
+            if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                 return HookResult.Continue;
 
             stopPlayerGlowing(client);
@@ -149,7 +149,7 @@ namespace LupercaliaMGCore {
             if(client == null) 
                 return HookResult.Continue;
 
-            if(!client.IsValid || client.IsBot || client.IsHLTV)
+            if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                 return HookResult.Continue;
 
             initClientInformation(client);
@@ -163,7 +163,7 @@ namespace LupercaliaMGCore {
             if(client == null) 
                 return HookResult.Continue;
 
-            if(!client.IsValid || client.IsBot || client.IsHLTV)
+            if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                 return HookResult.Continue;
             
             if(isClientInformationAccessible(client))
@@ -179,7 +179,7 @@ namespace LupercaliaMGCore {
             if(client == null)
                 return;
 
-            if(!client.IsValid || client.IsBot || client.IsHLTV)
+            if(!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                 return;
             
             if(isClientInformationAccessible(client))
@@ -206,28 +206,21 @@ namespace LupercaliaMGCore {
             isPlayerWarned[client] = true;
             SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
             client.PrintToCenterAlert(m_CSSPlugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);
-            glowingTimer[client] = m_CSSPlugin.AddTimer(timerInterval, () => {
-                // Fixing spitice#3 : KeyNotFoundException by using try-catch
-                // `playerGlowingTime[client] <= 0.0F` seems to be problematic but not 100% sure
-                try
+
+            void check() {
+                m_CSSPlugin.AddTimer(timerInterval, () =>
                 {
-                    if (playerGlowingTime[client] <= 0.0F)
+                    if (playerGlowingTime[client] <= 0.0)
                     {
-                        stopPlayerGlowing(client);
                         isPlayerWarned[client] = false;
-                        glowingTimer[client].Kill();
+                        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glowing timer has ended.");
+                        return;
                     }
                     playerGlowingTime[client] -= timerInterval;
-                }
-                catch (Exception e)
-                {
-                    SimpleLogging.LogDebug($"[Anti Camp] Failed to update Glowing Timer. Terminating...");
-                    glowingTimer[client].Kill();
-                    isPlayerWarned[client] = false;
-                    playerGlowingTime[client] = 0.0F;
-                    return;
-                }
-            }, TimerFlags.REPEAT);
+                    check();
+                }, TimerFlags.STOP_ON_MAPCHANGE);
+            };
+            check();
         }
 
         private void startPlayerGlowing(CCSPlayerController client) {
@@ -274,6 +267,7 @@ namespace LupercaliaMGCore {
             modelGlow.Glow.GlowTeam = -1;
             modelGlow.Glow.GlowType = 3;
             modelGlow.Glow.GlowRangeMin = 100;
+            modelGlow.Render = Color.FromArgb(0, 255, 255, 255);
 
             modelRelay.AcceptInput("FollowEntity", playerPawn, modelRelay, "!activator");
             modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
