@@ -24,8 +24,18 @@ namespace LupercaliaMGCore
             m_CSSPlugin.AddCommand("css_legs", "Toggles the visibility of the firstperson legs view model", CommandLegs);
         }
 
+        private bool isEnabled
+        {
+            get => PluginSettings.getInstance.m_CVHideLegsEnabled.Value;
+        }
+
         private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
         {
+            if (!isEnabled)
+            {
+                return HookResult.Continue;
+            }
+
             CCSPlayerController? player = @event.Userid;
 
             if (player == null || !player.IsValid)
@@ -33,7 +43,7 @@ namespace LupercaliaMGCore
                 return HookResult.Continue;
             }
 
-            UpdateHideLegs(player);
+            updateHideLegs(player);
 
             return HookResult.Continue;
         }
@@ -45,25 +55,31 @@ namespace LupercaliaMGCore
                 return;
             }
 
+            if (!isEnabled)
+            {
+                player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["HideLegs.Command.Notification.NotAvailable"]));
+                return;
+            }
+
             bool isHideLegsActive = !m_steamIdToIsHideLegsActive.GetValueOrDefault(player.SteamID, false);
             m_steamIdToIsHideLegsActive[player.SteamID] = isHideLegsActive;
 
             var messageName = isHideLegsActive ? "HideLegs.Command.Notification.HideLegs" : "HideLegs.Command.Notification.ShowLegs";
             player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer[messageName]));
 
-            UpdateHideLegs(player);
+            updateHideLegs(player);
         }
 
-        private void UpdateHideLegs(CCSPlayerController player)
+        private void updateHideLegs(CCSPlayerController player)
         {
             bool isHideLegsActive = m_steamIdToIsHideLegsActive.GetValueOrDefault(player.SteamID, false);
-            SetLegsVisibility(player, !isHideLegsActive);
+            setLegsVisibility(player, !isHideLegsActive);
         }
 
         // Borrowed from
         // - https://github.com/dran1x/CS2-HideLowerBody
         // - https://github.com/1Mack/CS2-HideLegs
-        private void SetLegsVisibility(CCSPlayerController player, bool isVisible)
+        private void setLegsVisibility(CCSPlayerController player, bool isVisible)
         {
             CBasePlayerPawn? playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null)

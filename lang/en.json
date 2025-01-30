@@ -27,7 +27,7 @@
     "Respawn.Notification.Respawned": "You have been Auto-Respawned!",
     "HideLegs.Command.Notification.HideLegs": "Your legs model is now {red}hidden{default}.",
     "HideLegs.Command.Notification.ShowLegs": "Your legs model is now {green}visible{default}.",
-    "HideLegs.Command.Notification.NotAvailable": "Hidelegs feature is not available now.",
+    "HideLegs.Command.Notification.NotAvailable": "Hide legs feature is not available now.",
     "Omikuji.Command.Notification.NotReady": "Your omikuji is not ready! Please wait!",
     "Omikuji.Command.Notification.Cooldown": "Your omikuji is in cooldown! Please wait for {0} seconds.",
     "Omikuji.Command.Notification.Drawing": "{0} is drawing the omikuji!",

@@ -27,7 +27,7 @@
     "Respawn.Notification.Respawned": "リスポーンしました!",
     "HideLegs.Command.Notification.HideLegs": "足モデルを{red}非表示{default}にします",
     "HideLegs.Command.Notification.ShowLegs": "足モデルが{green}表示{default}されます",
-    "HideLegs.Command.Notification.NotAvailable": "現在足モデル非表示機能は使用できません",
+    "HideLegs.Command.Notification.NotAvailable": "足モデル非表示機能は現在使用できません",
     "Omikuji.Command.Notification.NotReady": "おみくじはまだ準備ができていません! しばらくお待ちください!",
     "Omikuji.Command.Notification.Cooldown": "おみくじはクールダウン中です! {0}秒お待ちください。",
     "Omikuji.Command.Notification.Drawing": "{0}が おみくじを引いています!",

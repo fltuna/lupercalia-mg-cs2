@@ -153,6 +153,11 @@ namespace LupercaliaMGCore {
         public readonly FakeConVar<double> m_CVOmikujiEventAllPlayerRespawnSelectionWeight = new("lp_mg_omikuji_event_all_player_respawn_selection_weight", "Selection weight of this event", 30.0D);
 
         /*
+         * Hide Legs
+         */
+        public readonly FakeConVar<bool> m_CVHideLegsEnabled = new("lp_mg_hide_legs_enabled", "Hide legs feature is enabled", false);
+
+        /*
         *   For debugging purpose
         */
         public readonly FakeConVar<bool> m_CVDebuggingEnabled = new("lp_mg_debug_enabled", "Enable debugging feature?", false);
@@ -371,6 +376,12 @@ namespace LupercaliaMGCore {
             writeConVarConfig(config, m_CVOmikujiEventPlayerLocationSwapSelectionWeight);
             writeConVarConfig(config, m_CVOmikujiEventPlayerRespawnSelectionWeight);
             writeConVarConfig(config, m_CVOmikujiEventAllPlayerRespawnSelectionWeight);
+            config.WriteLine("\n");
+
+            /*
+             * Hide legs
+             */
+            writeConVarConfig(config, m_CVHideLegsEnabled);
             config.WriteLine("\n");
 
             /*
