@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Entities;
 using System.Drawing;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Timers;
 
 namespace LupercaliaMGCore
 {
@@ -43,7 +44,10 @@ namespace LupercaliaMGCore
                 return HookResult.Continue;
             }
 
-            updateHideLegs(player);
+            m_CSSPlugin.AddTimer(0.5f, () =>
+            {
+                updateHideLegs(player);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
 
             return HookResult.Continue;
         }
