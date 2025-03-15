@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Admin;
 
 namespace LupercaliaMGCore {
     public class VoteRoundRestart
@@ -19,6 +20,7 @@ namespace LupercaliaMGCore {
             m_CSSPlugin = plugin;
 
             m_CSSPlugin.AddCommand("css_vrr", "Vote round restart command.", CommandVoteRestartRound);
+            m_CSSPlugin.AddCommand("css_restart", "Restarts round (admins only)", CommandForceRestartRound);
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
         }
 
@@ -55,6 +57,22 @@ namespace LupercaliaMGCore {
                 return;
             
             InitiateRoundRestart();
+        }
+
+        [RequiresPermissions(@"css/root")]
+        private void CommandForceRestartRound(CCSPlayerController? client, CommandInfo info)
+        {
+            if (client == null)
+                return;
+
+            SimpleLogging.LogDebug("[Force Round Restart] Initiating round restart...");
+            isRoundRestarting = true;
+
+            Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Notification.ForceRoundRestart", 1]));
+            m_CSSPlugin.AddTimer(1, () => {
+                SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
+                Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         private void InitiateRoundRestart() {

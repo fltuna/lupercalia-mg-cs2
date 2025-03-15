@@ -17,6 +17,7 @@
     "VoteRoundRestart.Command.Notification.AlreadyVoted": "すでに投票済みです!",
     "VoteRoundRestart.Notification.PlayerVote": "{0}がラウンドのリスタートを希望しています! チャットで!vrrと入力して投票してください。 ({1} votes, {2} required)",
     "VoteRoundRestart.Notification.RoundRestart": "投票が可決されました! ラウンドは{0}秒後にリスタートされます。",
+    "VoteRoundRestart.Notification.ForceRoundRestart": "ラウンドは{0}秒後にリスタートされます。",
     "VoteMapRestart.Command.Notification.AlreadyRestarting": "マップはすでにリロード中です!",
     "VoteMapRestart.Command.Notification.AllowedTimeIsEnded": "マップリロード可能な時間は終了しました! 新しいマップがロードされるまでリロードできません。",
     "VoteMapRestart.Command.Notification.AlreadyVoted": "すでに投票済みです!",

@@ -17,6 +17,7 @@
     "VoteRoundRestart.Command.Notification.AlreadyVoted": "You have already voted!",
     "VoteRoundRestart.Notification.PlayerVote": "{0} wants to restart the round! Type !vrr in chat to vote. ({1} votes, {2} required)",
     "VoteRoundRestart.Notification.RoundRestart": "Vote successful! Round will be reload in {0} seconds.",
+    "VoteRoundRestart.Notification.ForceRoundRestart": "Round will be reload in {0} second(s).",
     "VoteMapRestart.Command.Notification.AlreadyRestarting": "Map is already reloading in progress!",
     "VoteMapRestart.Command.Notification.AllowedTimeIsEnded": "Map reload-able time has ended! You cannot reload map until new map loaded.",
     "VoteMapRestart.Command.Notification.AlreadyVoted": "You have already voted!",
