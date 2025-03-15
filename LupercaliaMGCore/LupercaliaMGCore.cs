@@ -83,6 +83,9 @@ namespace LupercaliaMGCore {
 
             new HideLegs(this);
             Logger.LogInformation("Hide legs has been initialized");
+
+            new ExternalView(this);
+            Logger.LogInformation("External view has been initialized");
         }
     }
 }

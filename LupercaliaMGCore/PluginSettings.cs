@@ -158,6 +158,11 @@ namespace LupercaliaMGCore {
         public readonly FakeConVar<bool> m_CVHideLegsEnabled = new("lp_mg_hide_legs_enabled", "Hide legs feature is enabled", false);
 
         /*
+         * External view
+         */
+        public readonly FakeConVar<bool> m_CVExternalViewEnabled = new("lp_mg_external_view_enabled", "External view feature is enabled", false);
+
+        /*
         *   For debugging purpose
         */
         public readonly FakeConVar<bool> m_CVDebuggingEnabled = new("lp_mg_debug_enabled", "Enable debugging feature?", false);
