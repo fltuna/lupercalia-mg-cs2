@@ -69,9 +69,8 @@ namespace LupercaliaMGCore
             var instancesToRemove = new List<ulong>();
             foreach (var p in m_externalViewInfoMap)
             {
-                if (!isEnabled)
+                if (!isEnabled || !p.Value.player.IsValid)
                 {
-                    // External view feature has been disabled. Removing all instances.
                     instancesToRemove.Add(p.Key);
                     continue;
                 }
@@ -94,6 +93,13 @@ namespace LupercaliaMGCore
             foreach (var id in instancesToRemove)
             {
                 var info = m_externalViewInfoMap[id];
+
+                if (!info.player.IsValid)
+                {
+                    // Just remove the instance and done
+                    m_externalViewInfoMap.Remove(id);
+                    continue;
+                }
 
                 DestroyExternalView(info.player);
 
