@@ -41,6 +41,8 @@ public class AntiCamp : IPluginModule
 
         m_CSSPlugin.RegisterEventHandler<EventRoundFreezeEnd>(onRoundFeezeEnd, HookMode.Post);
         m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
+        m_CSSPlugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
+        m_CSSPlugin.RegisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
 
 
         if (hotReload)
@@ -78,6 +80,8 @@ public class AntiCamp : IPluginModule
 
         m_CSSPlugin.DeregisterEventHandler<EventRoundFreezeEnd>(onRoundFeezeEnd, HookMode.Post);
         m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
+        m_CSSPlugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
+        m_CSSPlugin.DeregisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
         timer.Kill();
     }
 
@@ -139,7 +143,7 @@ public class AntiCamp : IPluginModule
         }
     }
 
-    private HookResult onSwitchTeam(EventPlayerTeam @event, GameEventInfo info)
+    private HookResult OnSwitchTeam(EventPlayerTeam @event, GameEventInfo info)
     {
         CCSPlayerController? client = @event.Userid;
 
@@ -154,7 +158,7 @@ public class AntiCamp : IPluginModule
         return HookResult.Continue;
     }
 
-    private HookResult onPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
+    private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         CCSPlayerController? client = @event.Userid;
 
@@ -299,10 +303,10 @@ public class AntiCamp : IPluginModule
         }
 
 
-        string playerModel = getPlayerModel(client);
+        string playerModel = GetPlayerModel(client);
 
         SimpleLogging.LogTrace($"[Anti Camp] [Player {client.PlayerName}] player model: {playerModel}");
-        if (playerModel == "")
+        if (playerModel == string.Empty)
             return;
 
         // Code from Joakim in CounterStrikeSharp Discord
@@ -315,6 +319,8 @@ public class AntiCamp : IPluginModule
 
         modelGlow.SetModel(playerModel);
         modelGlow.Spawnflags = 256u;
+        modelGlow.RenderMode = RenderMode_t.kRenderTransColor;
+        modelGlow.Render = Color.FromArgb(1, 255, 255, 255);
         modelGlow.DispatchSpawn();
 
         SimpleLogging.LogTrace($"[Anti Camp] [Player {client.PlayerName}] Changing overlay entity's render mode.");
@@ -330,8 +336,7 @@ public class AntiCamp : IPluginModule
         modelGlow.Glow.GlowRange = 5000;
         modelGlow.Glow.GlowTeam = -1;
         modelGlow.Glow.GlowType = 3;
-        modelGlow.Glow.GlowRangeMin = 100;
-        modelGlow.Render = Color.FromArgb(0, 255, 255, 255);
+        modelGlow.Glow.GlowRangeMin = 0;
 
         modelRelay.AcceptInput("FollowEntity", playerPawn, modelRelay, "!activator");
         modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
@@ -368,18 +373,18 @@ public class AntiCamp : IPluginModule
         return Math.Sqrt(distanceSquared);
     }
 
-    private static string getPlayerModel(CCSPlayerController client)
+    private static string GetPlayerModel(CCSPlayerController client)
     {
         if (client.PlayerPawn.Value == null)
-            return "";
+            return string.Empty;
 
         CCSPlayerPawn playerPawn = client.PlayerPawn.Value;
 
         if (playerPawn.CBodyComponent == null)
-            return "";
+            return string.Empty;
 
         if (playerPawn.CBodyComponent.SceneNode == null)
-            return "";
+            return string.Empty;
 
         return playerPawn.CBodyComponent!.SceneNode!.GetSkeletonInstance().ModelState.ModelName;
     }
