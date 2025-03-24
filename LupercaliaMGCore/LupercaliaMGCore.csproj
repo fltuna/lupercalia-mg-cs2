@@ -2,11 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <Target Name="CopyPlugin" AfterTargets="Build" Condition="'$(CS2_SERVER_DIR)' != ''">
+    <Message Text="Copying the plugin files to CounterStrikeSharp plugins directory" Importance="High" />
+    <Copy SourceFiles="$(TargetDir)$(ProjectName).deps.json;$(TargetDir)$(ProjectName).dll;$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(CS2_SERVER_DIR)\game\csgo\addons\counterstrikesharp\plugins\$(ProjectName)" />
+    <Message Text="Successfully copied the plugin files" Importance="High" />
+  </Target>
+
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.233" />
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.284" />
   </ItemGroup>
 </Project>

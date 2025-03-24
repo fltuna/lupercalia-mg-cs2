@@ -24,6 +24,7 @@ namespace LupercaliaMGCore {
         /*
         *   Team based body color
         */
+        public readonly FakeConVar<bool> m_CVIsTeamColorEnabled = new("lp_mg_teamcolor_enabled", "Should apply team color after respawn", true);
         public readonly FakeConVar<string> m_CVTeamColorCT  = new("lp_mg_teamcolor_ct", "Counter Terrorist's Body color. R, G, B", "0, 0, 255");
         public readonly FakeConVar<string> m_CVTeamColorT = new("lp_mg_teamcolor_t", "Terrorist's Body color. R, G, B", "255, 0, 0");
 
@@ -152,6 +153,16 @@ namespace LupercaliaMGCore {
         public readonly FakeConVar<double> m_CVOmikujiEventAllPlayerRespawnSelectionWeight = new("lp_mg_omikuji_event_all_player_respawn_selection_weight", "Selection weight of this event", 30.0D);
 
         /*
+         * Hide Legs
+         */
+        public readonly FakeConVar<bool> m_CVHideLegsEnabled = new("lp_mg_hide_legs_enabled", "Hide legs feature is enabled", false);
+
+        /*
+         * External view
+         */
+        public readonly FakeConVar<bool> m_CVExternalViewEnabled = new("lp_mg_external_view_enabled", "External view feature is enabled", false);
+
+        /*
         *   For debugging purpose
         */
         public readonly FakeConVar<bool> m_CVDebuggingEnabled = new("lp_mg_debug_enabled", "Enable debugging feature?", false);
@@ -218,6 +229,7 @@ namespace LupercaliaMGCore {
             /*
             *   Team based body color
             */
+            writeConVarConfig(config, m_CVIsTeamColorEnabled);
             writeConVarConfig(config, m_CVTeamColorCT);
             writeConVarConfig(config, m_CVTeamColorT);
             config.WriteLine("\n");
@@ -369,6 +381,12 @@ namespace LupercaliaMGCore {
             writeConVarConfig(config, m_CVOmikujiEventPlayerLocationSwapSelectionWeight);
             writeConVarConfig(config, m_CVOmikujiEventPlayerRespawnSelectionWeight);
             writeConVarConfig(config, m_CVOmikujiEventAllPlayerRespawnSelectionWeight);
+            config.WriteLine("\n");
+
+            /*
+             * Hide legs
+             */
+            writeConVarConfig(config, m_CVHideLegsEnabled);
             config.WriteLine("\n");
 
             /*

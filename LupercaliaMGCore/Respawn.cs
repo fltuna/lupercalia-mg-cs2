@@ -20,6 +20,7 @@ namespace LupercaliaMGCore {
             m_CSSPlugin = plugin;
             m_CSSPlugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
             m_CSSPlugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+            m_CSSPlugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
             m_CSSPlugin.AddCommand("css_reset_respawn", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
             m_CSSPlugin.AddCommand("css_rrs", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
@@ -95,6 +96,33 @@ namespace LupercaliaMGCore {
             return HookResult.Continue;
         }
 
+        private HookResult OnPlayerTeam(EventPlayerTeam @event, GameEventInfo info) {
+            if (!PluginSettings.getInstance.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+                return HookResult.Continue;
+
+            var player = @event.Userid;
+
+            if (player == null)
+                return HookResult.Continue;
+
+            if (player.IsBot || player.IsHLTV)
+                return HookResult.Continue;
+
+            var team = (CsTeam)@event.Team;
+
+            if (team == CsTeam.None || team == CsTeam.Spectator) {
+                return HookResult.Continue;
+            }
+
+            SimpleLogging.LogDebug($"{CHAT_PREFIX} [Player {player.PlayerName}] has joined the team {team.ToString()}.");
+
+            Server.NextFrame(() => {
+                SimpleLogging.LogDebug($"{CHAT_PREFIX} [Player {player.PlayerName}] Respawned due to team change.");
+                player.Respawn();
+            });
+
+            return HookResult.Continue;
+        }
         
         private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info) {
             if(!PluginSettings.getInstance.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
