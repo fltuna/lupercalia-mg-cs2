@@ -1,16 +1,19 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
 
-namespace LupercaliaMGCore {
+namespace LupercaliaMGCore
+{
     public class PlayerPositionHistory
     {
         public readonly FixedSizeQueue<TimedPosition> positions;
 
-        public PlayerPositionHistory(int maxHistories) {
+        public PlayerPositionHistory(int maxHistories)
+        {
             positions = new FixedSizeQueue<TimedPosition>(maxHistories);
         }
 
-        public void Update(Vector currentPosition) {
+        public void Update(Vector currentPosition)
+        {
             double currentTime = Server.EngineTime;
             positions.Enqueue(new TimedPosition(currentTime, currentPosition));
         }
@@ -25,7 +28,8 @@ namespace LupercaliaMGCore {
             return GetNearestTimedPosition(secondsAgo, positions);
         }
 
-        public TimedPosition GetOldestPosition() {
+        public TimedPosition GetOldestPosition()
+        {
             return positions.Peek();
         }
 
@@ -34,7 +38,8 @@ namespace LupercaliaMGCore {
             return string.Join(", ", positions);
         }
 
-        private static TimedPosition GetNearestTimedPosition(double secondsAgo, FixedSizeQueue<TimedPosition> timedPositionsQueue)
+        private static TimedPosition GetNearestTimedPosition(double secondsAgo,
+            FixedSizeQueue<TimedPosition> timedPositionsQueue)
         {
             List<TimedPosition> timedPositions = timedPositionsQueue.ToArray().ToList();
             double nearestValue = timedPositions[0].time;
@@ -57,7 +62,7 @@ namespace LupercaliaMGCore {
                     foundIndex = i;
                 }
             }
-            
+
             return timedPositions[foundIndex];
         }
     }

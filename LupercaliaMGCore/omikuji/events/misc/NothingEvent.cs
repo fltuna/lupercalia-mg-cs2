@@ -2,29 +2,35 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 
-namespace LupercaliaMGCore {
-    public class NothingEvent: OmikujiEvent {
-        public string eventName => "Nothing Event";
+namespace LupercaliaMGCore;
 
-        public OmikujiType omikujiType => OmikujiType.EVENT_MISC;
+public class NothingEvent : IOmikujiEvent
+{
+    public string EventName => "Nothing Event";
 
-        public OmikujiCanInvokeWhen omikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public OmikujiType OmikujiType => OmikujiType.EVENT_MISC;
 
-        public void execute(CCSPlayerController client)
+    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+
+    public void execute(CCSPlayerController client)
+    {
+        SimpleLogging.LogDebug("Player drew a omikuji and invoked Nothing event");
+        foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
-            SimpleLogging.LogDebug("Player drew a omikuji and invoked Nothing event");
-            foreach(CCSPlayerController cl in Utilities.GetPlayers()) {
-                if(!cl.IsValid || cl.IsBot || cl.IsHLTV)
-                    continue;
+            if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
+                continue;
 
-                cl.PrintToChat($"{Omikuji.CHAT_PREFIX} {Omikuji.GetOmikujiLuckMessage(omikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened"]}");
-            }
+            cl.PrintToChat(
+                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened"]}");
         }
+    }
 
-        public void initialize() {}
+    public void initialize()
+    {
+    }
 
-        public double getOmikujiWeight() {
-            return PluginSettings.getInstance.m_CVOmikujiEventNothingSelectionWeight.Value;
-        }
+    public double getOmikujiWeight()
+    {
+        return PluginSettings.GetInstance.m_CVOmikujiEventNothingSelectionWeight.Value;
     }
 }
