@@ -4,11 +4,15 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore {
-    public class Omikuji {
+    public class Omikuji: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "Omikuji";
+        
         public static readonly string CHAT_PREFIX = $" {ChatColors.Gold}[Omikuji]{ChatColors.Default}";
 
         private static Random random = new Random();
@@ -41,6 +45,16 @@ namespace LupercaliaMGCore {
             });
 
             OmikujiEvents.initializeOmikujiEvents();
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.RemoveCommand("css_omikuji", CommandOmikuji);
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         }
 
         private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info) {

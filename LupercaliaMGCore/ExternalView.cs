@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore
 {
@@ -40,9 +41,11 @@ namespace LupercaliaMGCore
      * 
      * Check https://github.com/grrhn/ThirdPerson-WIP for more detail.
      */
-    public class ExternalView
+    public class ExternalView: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+
+        public string PluginModuleName => "External View";
 
         private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new Dictionary<ulong, ExternalViewInfo>();
 
@@ -57,6 +60,22 @@ namespace LupercaliaMGCore
             m_CSSPlugin.AddCommand("css_tpp", "Toggles third person offset camera mode.", CommandTpp);
             m_CSSPlugin.AddCommand("css_watch", "Starts to watch other player. (CAUTION: You are still moving!)", CommandWatch);
             m_CSSPlugin.AddCommand("css_g", "Starts to watch other player. (CAUTION: You are still moving!)", CommandWatch);
+        }
+        
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+
+            m_CSSPlugin.RemoveListener<Listeners.OnTick>(OnTick);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
+
+            m_CSSPlugin.RemoveCommand("css_tp", CommandTp);
+            m_CSSPlugin.RemoveCommand("css_tpp", CommandTpp);
+            m_CSSPlugin.RemoveCommand("css_watch", CommandWatch);
+            m_CSSPlugin.RemoveCommand("css_g", CommandWatch);
         }
 
         private bool isEnabled

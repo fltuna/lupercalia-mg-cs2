@@ -4,11 +4,14 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Admin;
+using LupercaliaMGCore.model;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace LupercaliaMGCore {
-    public class Debugging {
+    public class Debugging: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "DebuggingCommands";
 
         private Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
 
@@ -17,6 +20,16 @@ namespace LupercaliaMGCore {
             m_CSSPlugin = plugin;
             m_CSSPlugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
             m_CSSPlugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.RemoveCommand("css_dbg_savepos", CommandSavePos);
+            m_CSSPlugin.RemoveCommand("css_dbg_restorepos", CommandRestorePos);
         }
 
         private void CommandSavePos(CCSPlayerController? client, CommandInfo info) {

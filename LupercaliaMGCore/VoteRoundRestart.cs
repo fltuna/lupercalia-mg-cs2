@@ -16,6 +16,8 @@ namespace LupercaliaMGCore {
     {
         private LupercaliaMGCore m_CSSPlugin;
         private bool isRoundRestarting = false;
+
+        public string PluginModuleName => "VoteRoundRestart";
         
         private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteRoundRestart";
 
@@ -37,6 +39,9 @@ namespace LupercaliaMGCore {
         {
             m_CSSPlugin.getNativeVoteApi().OnVotePass -= OnVotePass;
             m_CSSPlugin.getNativeVoteApi().OnVoteFail -= OnVoteFail;
+            m_CSSPlugin.RemoveCommand("css_vrr", CommandVoteRestartRound);
+            m_CSSPlugin.RemoveCommand("css_restart", CommandForceRestartRound);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
         }
 
         private void OnVotePass(YesNoVoteInfo? info)

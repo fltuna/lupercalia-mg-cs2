@@ -7,12 +7,15 @@ using System.Drawing;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore
 {
-    public class HideLegs
+    public class HideLegs: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+
+        public string PluginModuleName => "HideLegs";
 
         private Dictionary<ulong, bool> m_steamIdToIsHideLegsActive = new Dictionary<ulong, bool>();
 
@@ -24,7 +27,20 @@ namespace LupercaliaMGCore
 
             m_CSSPlugin.AddCommand("css_legs", "Toggles the visibility of the firstperson legs view model", CommandLegs);
         }
+        
+        public void AllPluginsLoaded()
+        {
+        }
 
+        public void UnloadModule()
+        {
+
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+
+            m_CSSPlugin.RemoveCommand("css_legs", CommandLegs);
+        }
+
+        
         private bool isEnabled
         {
             get => PluginSettings.getInstance.m_CVHideLegsEnabled.Value;

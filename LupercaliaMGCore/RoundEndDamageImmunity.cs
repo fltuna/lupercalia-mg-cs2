@@ -1,9 +1,12 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class RoundEndDamageImmunity {
+    public class RoundEndDamageImmunity: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "RoundEndDamageImmunity";
 
         private bool damageImmunity = false;
 
@@ -13,6 +16,17 @@ namespace LupercaliaMGCore {
             m_CSSPlugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
             m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
         }
 
         private HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info) {

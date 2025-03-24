@@ -5,16 +5,20 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore {
-    public class Respawn {
+    public class Respawn: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
-        private bool repeatKillDetected = false;
-
+        
+        public string PluginModuleName => "Respawn";
+        
+        
         private static string CHAT_PREFIX = $" {ChatColors.Green}[Respawn]{ChatColors.Default}";
 
         private Dictionary<int ,double> playerLastRespawnTime = new Dictionary<int, double>();
+        private bool repeatKillDetected = false;
 
         public Respawn(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
@@ -24,6 +28,20 @@ namespace LupercaliaMGCore {
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
             m_CSSPlugin.AddCommand("css_reset_respawn", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
             m_CSSPlugin.AddCommand("css_rrs", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+            m_CSSPlugin.RemoveCommand("css_reset_respawn", CommandRemoveRepeatKill);
+            m_CSSPlugin.RemoveCommand("css_rrs", CommandRemoveRepeatKill);
         }
 
         [RequiresPermissions(@"css/slay")]

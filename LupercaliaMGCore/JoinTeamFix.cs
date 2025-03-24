@@ -3,14 +3,17 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore {
     
 
-    public class  JoinTeamFix
+    public class  JoinTeamFix: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+
+        public string PluginModuleName => "JoinTeamFix";
 
         private static Random random = new Random();
 
@@ -20,13 +23,18 @@ namespace LupercaliaMGCore {
         public JoinTeamFix(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
 
-            m_CSSPlugin.AddCommandListener("jointeam", JoinTeamListener);
-            m_CSSPlugin.RegisterListener<Listeners.OnMapStart>((mapName) => {
-                m_CSSPlugin.AddTimer(0.1F, () => {
-                    spawnPointsT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_terrorist").ToList();
-                    spawnPointsCT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_counterterrorist").ToList();
-                });
-            });
+            m_CSSPlugin.AddCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
+            m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        }
+        
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.RemoveCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
+            m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
         }
 
         
@@ -59,6 +67,14 @@ namespace LupercaliaMGCore {
                 client.SwitchTeam(team);
             }
             return HookResult.Continue;
+        }
+
+        private void OnMapStart(string mapName)
+        {
+            m_CSSPlugin.AddTimer(0.1F, () => {
+                spawnPointsT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_terrorist").ToList();
+                spawnPointsCT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_counterterrorist").ToList();
+            });
         }
     }
 }

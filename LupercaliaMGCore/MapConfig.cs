@@ -1,11 +1,14 @@
 using System.Globalization;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore {
-    public class MapConfig {
+    public class MapConfig: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "MapConfig";
 
         // Config name and path
         private List<MapConfigFile> configs = new List<MapConfigFile>();
@@ -24,6 +27,16 @@ namespace LupercaliaMGCore {
 
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
             m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
+            m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
         }
 
         private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info) {            

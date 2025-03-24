@@ -4,11 +4,15 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore {
-    public class AntiCamp {
+    public class AntiCamp: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "AntiCamp";
+        
         private CounterStrikeSharp.API.Modules.Timers.Timer timer;
         private Dictionary<CCSPlayerController, (CBaseModelEntity? glowEntity, CBaseModelEntity? relayEntity)> playerGlowingEntity = new Dictionary<CCSPlayerController, (CBaseModelEntity? glowEntity, CBaseModelEntity? relayEntity)>();
         private Dictionary<CCSPlayerController, float> playerCampingTime = new Dictionary<CCSPlayerController, float>();
@@ -46,6 +50,21 @@ namespace LupercaliaMGCore {
             }
 
             timer = m_CSSPlugin.AddTimer(PluginSettings.getInstance.m_CVAntiCampDetectionInterval.Value, checkPlayerIsCamping, TimerFlags.REPEAT);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerConnect>(onPlayerConnect, HookMode.Pre);
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerConnectFull>(onPlayerConnectFull, HookMode.Pre);
+            m_CSSPlugin.RemoveListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
+
+            m_CSSPlugin.DeregisterEventHandler<EventRoundFreezeEnd>(onRoundFeezeEnd, HookMode.Post);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
+            timer.Kill();
         }
 
         private void checkPlayerIsCamping() {
