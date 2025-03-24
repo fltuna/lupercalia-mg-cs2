@@ -1,31 +1,63 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API;
-using System.Drawing;
-using CounterStrikeSharp.API.Modules.Utils;
-using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
+using LupercaliaMGCore.model;
+using NativeVoteAPI;
+using NativeVoteAPI.API;
 
 namespace LupercaliaMGCore {
-    public class VoteMapRestart
+    public class VoteMapRestart: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
 
-        private List<CCSPlayerController> votedPlayers = new List<CCSPlayerController>();
-        private int playersRequiredToRestart = 0;
         private double mapStartTime = 0.0D;
         private bool isMapRestarting = false;
+        
+        private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteMapRestart";
 
         public VoteMapRestart(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
-
+            
             mapStartTime = Server.EngineTime;
-            m_CSSPlugin.RegisterEventHandler<EventMapTransition>(OnMapTransition);
-            m_CSSPlugin.RegisterEventHandler<EventGameNewmap>(OnMapFullyLoaded);
+            m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
             m_CSSPlugin.AddCommand("css_vmr", "Vote map restart command", CommandVoteRestartMap);
         }
 
+        public void AllPluginsLoaded()
+        {
+            m_CSSPlugin.getNativeVoteApi().OnVotePass += OnVotePass;
+            m_CSSPlugin.getNativeVoteApi().OnVoteFail += OnVoteFail;
+        }
+        
+        public void UnloadModule()
+        {
+            m_CSSPlugin.getNativeVoteApi().OnVotePass -= OnVotePass;
+            m_CSSPlugin.getNativeVoteApi().OnVoteFail -= OnVoteFail;
+        }
+
+        private void OnVotePass(YesNoVoteInfo? info)
+        {
+            if (info == null)
+                return;
+            
+            if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
+                return;
+            
+            InitiateMapRestart();
+        }
+
+        private void OnVoteFail(YesNoVoteInfo? info)
+        {
+            if (info == null)
+                return;
+            
+            if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
+                return;
+            
+            Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteFailed"]));
+        }
+        
         private void CommandVoteRestartMap(CCSPlayerController? client, CommandInfo info) {
             if(client == null)
                 return;
@@ -43,25 +75,36 @@ namespace LupercaliaMGCore {
                 return;
             }
 
-            if(votedPlayers.Contains(client)) {
-                SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] already voted.");
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteMapRestart.Command.Notification.AlreadyVoted"]));
+            if (m_CSSPlugin.getNativeVoteApi().GetCurrentVoteState() != NativeVoteState.NoActiveVote)
+            {
+                SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
+                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]));
                 return;
             }
+            
+            var potentialClients = Utilities.GetPlayers().Where(p => p is { IsBot: false, IsHLTV: false }).ToList();
+            var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
+            
+            string detailsString = NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteMapRestart.Vote.SubjectText"]);
 
+            NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
+                detailsString, potentialClientsIndex, VoteThresholdType.Percentage, PluginSettings.getInstance.m_CVVoteMapRestartThreshold.Value, 15.0f);
 
-            votedPlayers.Add(client);
-            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] voted to restart map.");
-            playersRequiredToRestart = (int)Math.Ceiling(Utilities.GetPlayers().Count(player => !player.IsBot && !player.IsHLTV) * PluginSettings.getInstance.m_CVVoteMapRestartThreshold.Value);
+            NativeVoteState state = m_CSSPlugin.getNativeVoteApi().InitiateVote(nInfo);
 
-            SimpleLogging.LogTrace($"[Vote Map Restart] [Player {client.PlayerName}] players count: {votedPlayers.Count}, Requires to restart: {playersRequiredToRestart}");
-            Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteMapRestart.Notification.PlayerVote", client.PlayerName, votedPlayers.Count(), playersRequiredToRestart]));
-
-            if(votedPlayers.Count < playersRequiredToRestart)
-                return;
-
-            InitiateMapRestart();
+            
+            if (state == NativeVoteState.InitializeAccepted)
+            {
+                SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+                Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteInitiated"]));
+            }
+            else
+            {
+                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["General.Command.Vote.Notification.FailedToInitiate"]));
+            }
         }
+
+        
 
         private void InitiateMapRestart() {
             SimpleLogging.LogDebug("[Vote Map Restart] Initiating map restart...");
@@ -73,14 +116,10 @@ namespace LupercaliaMGCore {
             }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
-        private HookResult OnMapTransition(EventMapTransition @event, GameEventInfo info) {
-            votedPlayers.Clear();
-            return HookResult.Continue;
-        }
-
-        private HookResult OnMapFullyLoaded(EventGameNewmap @event, GameEventInfo info) {
+        private void OnMapStart(string mapName)
+        {
             mapStartTime = Server.EngineTime;
-            return HookResult.Continue;
+            isMapRestarting = false;
         }
     }
 }

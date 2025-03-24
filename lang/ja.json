@@ -3,6 +3,8 @@
     "General.Command.Notification.ShouldBeAlive": "このコマンドを使用するには生きている必要があります。",
     "General.Command.Notification.FeatureDisabled": "この機能は無効になっています。",
     "General.Command.Notification.NotUsableCurrently": "このコマンドは現在使用できません。",
+    "General.Command.Vote.Notification.AnotherVoteInProgress": "すでに別の投票が開始されています！",
+    "General.Command.Vote.Notification.FailedToInitiate": "投票の開始に失敗しました！",
     "Misc.Knife.Command.Notification.AlreadyHave": "すでにナイフを持っています!",
     "Misc.Knife.Command.Notification.Retrieved": "新しいナイフを入手しました!",
     "Misc.Spectate.Command.Notification.MovedToSpectator": "観戦者に移動しました!",
@@ -20,8 +22,9 @@
     "VoteRoundRestart.Notification.ForceRoundRestart": "ラウンドは{0}秒後にリスタートされます。",
     "VoteMapRestart.Command.Notification.AlreadyRestarting": "マップはすでにリロード中です!",
     "VoteMapRestart.Command.Notification.AllowedTimeIsEnded": "マップリロード可能な時間は終了しました! 新しいマップがロードされるまでリロードできません。",
-    "VoteMapRestart.Command.Notification.AlreadyVoted": "すでに投票済みです!",
-    "VoteMapRestart.Notification.PlayerVote": "{0}がマップのリロードを希望しています! チャットで!vrrと入力して投票してください。 ({1} votes, {2} required)",
+    "VoteMapRestart.Vote.SubjectText": "現在のマップをリロードしますか？",
+    "VoteMapRestart.Notification.VoteInitiated": "マップリロードの投票が開始されました。",
+    "VoteMapRestart.Notification.VoteFailed": "投票が否決されました! マップのリロードは行われません。",
     "VoteMapRestart.Notification.MapRestart": "投票が可決されました! マップは{0}秒後に再読み込みされます。",
     "Respawn.Notification.AdminEnabledRespawn": "管理者{0}が自動リスポーンを有効にしました",
     "Respawn.Notification.RepeatKillDetected": "連続キルが検出されました! このラウンドのリスポーンは{darkred}無効化{default}されます。",
@@ -63,4 +66,4 @@
     "Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened": "しかし何も起こらなかった!",
     "Omikuji.MiscEvent.PlayerWishingEvent.Notification.Wishing": "{0}があなたの幸運を祈っています!",
     "Omikuji.MiscEvent.ScreenShakeEvent.Notification.PrepareForImpact": "{0}が火山を噴火させた! 衝撃に備えよ!!!"
-    }
+}
