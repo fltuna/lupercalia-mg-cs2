@@ -1,7 +1,9 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
+using NativeVoteAPI.API;
 
 namespace LupercaliaMGCore {
     public class LupercaliaMGCore: BasePlugin
@@ -18,6 +20,16 @@ namespace LupercaliaMGCore {
             return instance!;
         }
 
+        private static INativeVoteApi? NativeVoteApi = null;
+
+        public INativeVoteApi getNativeVoteApi()
+        {
+            if (NativeVoteApi == null)
+                throw new InvalidOperationException("Native Vote API is not initialized");
+            
+            return NativeVoteApi;
+        }
+        
         public override string ModuleName => "Lupercalia MG Core";
 
         public override string ModuleVersion => "1.3.0";
@@ -25,6 +37,8 @@ namespace LupercaliaMGCore {
         public override string ModuleAuthor => "faketuna, Spitice";
 
         public override string ModuleDescription => "Provides core MG feature in CS2 with CounterStrikeSharp";
+
+        private readonly HashSet<IPluginModule> loadedModules = new();
 
 
         public override void Load(bool hotReload)
@@ -42,7 +56,7 @@ namespace LupercaliaMGCore {
             new TeamScramble(this);
             Logger.LogInformation("TeamScramble initialized");
 
-            new VoteMapRestart(this);
+            loadedModules.Add(new VoteMapRestart(this));
             Logger.LogInformation("VoteMapRestart initialized");
 
             new VoteRoundRestart(this);
@@ -86,6 +100,36 @@ namespace LupercaliaMGCore {
 
             new ExternalView(this);
             Logger.LogInformation("External view has been initialized");
+        }
+
+        public override void OnAllPluginsLoaded(bool hotReload)
+        {
+            try
+            {
+                NativeVoteApi = INativeVoteApi.Capability.Get();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Native Vote API is not found in current server. Please make sure you have NativeVoteAPI installed.", e);
+            }
+            
+            if (NativeVoteApi == null)
+            {
+                throw new Exception("Native Vote API is not found in current server. Please make sure you have NativeVoteAPI installed.");
+            }
+            
+            foreach (IPluginModule loadedModule in loadedModules)
+            {
+                loadedModule.AllPluginsLoaded();
+            }
+        }
+
+        public override void Unload(bool hotReload)
+        {
+            foreach (IPluginModule loadedModule in loadedModules)
+            {
+                loadedModule.UnloadModule();
+            }
         }
     }
 }
