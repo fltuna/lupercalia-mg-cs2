@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/tags/') == false
+    if: startsWith(github.ref, 'refs/tags/') == false && contains(github.event.head_commit.message, '[no ci]') == false
 
     steps:
     - name: Checkout code
