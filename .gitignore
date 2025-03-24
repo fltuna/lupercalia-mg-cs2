@@ -1,3 +1,4 @@
 LupercaliaMGCore/bin/*
 LupercaliaMGCore/obj/*
 .vs
+.idea/
