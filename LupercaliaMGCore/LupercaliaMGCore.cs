@@ -59,7 +59,7 @@ namespace LupercaliaMGCore {
             loadedModules.Add(new VoteMapRestart(this));
             Logger.LogInformation("VoteMapRestart initialized");
 
-            new VoteRoundRestart(this);
+            loadedModules.Add(new VoteRoundRestart(this));
             Logger.LogInformation("VoteRoundRestart initialized");
             
             new RoundEndDamageImmunity(this);
