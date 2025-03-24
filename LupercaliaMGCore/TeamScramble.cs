@@ -2,13 +2,16 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
     
 
-    public class TeamScramble
+    public class TeamScramble: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "TeamScramble";
 
         private static Random random = new Random();
 
@@ -16,6 +19,15 @@ namespace LupercaliaMGCore {
             m_CSSPlugin = plugin;
 
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundEnd);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundEnd);
         }
 
         private HookResult OnRoundEnd(EventRoundPrestart @event, GameEventInfo info) {

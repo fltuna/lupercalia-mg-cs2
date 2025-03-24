@@ -47,13 +47,13 @@ namespace LupercaliaMGCore {
             new PluginSettings(this);
             Logger.LogInformation("Plugin settings initialized");
 
-            new TeamBasedBodyColor(this);
-            Logger.LogInformation("TBBC initialized");
+            loadedModules.Add(new TeamBasedBodyColor(this));
+            Logger.LogInformation("TeamBasedBodyColor initialized");
 
-            new DuckFix(this, hotReload);
-            Logger.LogInformation("DFix initialized");
+            loadedModules.Add(new DuckFix(this, hotReload));
+            Logger.LogInformation("DuckFix initialized");
 
-            new TeamScramble(this);
+            loadedModules.Add(new TeamScramble(this));
             Logger.LogInformation("TeamScramble initialized");
 
             loadedModules.Add(new VoteMapRestart(this));
@@ -62,43 +62,43 @@ namespace LupercaliaMGCore {
             loadedModules.Add(new VoteRoundRestart(this));
             Logger.LogInformation("VoteRoundRestart initialized");
             
-            new RoundEndDamageImmunity(this);
+            loadedModules.Add(new RoundEndDamageImmunity(this));
             Logger.LogInformation("RoundEndDamageImmunity initialized");
 
-            new RoundEndWeaponStrip(this);
+            loadedModules.Add(new RoundEndWeaponStrip(this));
             Logger.LogInformation("RoundEndWeaponStrip initialized");
 
-            new RoundEndDeathMatch(this);
+            loadedModules.Add(new RoundEndDeathMatch(this));
             Logger.LogInformation("RoundEndDeathMatch initialized");
 
-            new ScheduledShutdown(this);
+            loadedModules.Add(new ScheduledShutdown(this));
             Logger.LogInformation("ScheduledShutdown initialized");
 
-            new Respawn(this);
+            loadedModules.Add(new Respawn(this));
             Logger.LogInformation("Respawn initialized");
 
-            new MapConfig(this);
+            loadedModules.Add(new MapConfig(this));
             Logger.LogInformation("MapConfig initialized");
 
-            new AntiCamp(this, hotReload);
+            loadedModules.Add(new AntiCamp(this, hotReload));
             Logger.LogInformation("Anti Camp initialized");
 
-            new Omikuji(this);
+            loadedModules.Add(new Omikuji(this));
             Logger.LogInformation("Omikuji initialized");
 
-            new Debugging(this);
+            loadedModules.Add(new Debugging(this));
             Logger.LogInformation("Debugging feature is initialized");
 
-            new MiscCommands(this);
+            loadedModules.Add(new MiscCommands(this));
             Logger.LogInformation("misc commands initialized");
 
-            new JoinTeamFix(this);
+            loadedModules.Add(new JoinTeamFix(this));
             Logger.LogInformation("Join team fix initialized");
 
-            new HideLegs(this);
+            loadedModules.Add(new HideLegs(this));
             Logger.LogInformation("Hide legs has been initialized");
 
-            new ExternalView(this);
+            loadedModules.Add(new ExternalView(this));
             Logger.LogInformation("External view has been initialized");
         }
 
@@ -129,6 +129,7 @@ namespace LupercaliaMGCore {
             foreach (IPluginModule loadedModule in loadedModules)
             {
                 loadedModule.UnloadModule();
+                Logger.LogInformation($"{loadedModule.PluginModuleName} has been unloaded.");
             }
         }
     }

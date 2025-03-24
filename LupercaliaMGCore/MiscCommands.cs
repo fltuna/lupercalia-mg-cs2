@@ -4,16 +4,29 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class MiscCommands {
+    public class MiscCommands: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "MiscCommands";
 
         public MiscCommands(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
 
             m_CSSPlugin.AddCommand("css_knife", "give knife", CommandGiveKnife);
             m_CSSPlugin.AddCommand("css_spec", "Spectate", CommandSpectate);
+        }
+        
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.RemoveCommand("css_knife", CommandGiveKnife);
+            m_CSSPlugin.RemoveCommand("css_spec", CommandSpectate);
         }
 
 

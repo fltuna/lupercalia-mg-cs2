@@ -1,14 +1,26 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class RoundEndWeaponStrip {
+    public class RoundEndWeaponStrip: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "RoundEndWeaponStrip";
 
         public RoundEndWeaponStrip(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
             
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
         }
 
         private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info) {

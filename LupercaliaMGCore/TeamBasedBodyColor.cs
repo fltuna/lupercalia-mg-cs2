@@ -3,16 +3,28 @@ using CounterStrikeSharp.API;
 using System.Drawing;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Cvars;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class TeamBasedBodyColor
+    public class TeamBasedBodyColor: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "TeamBasedBodyColor";
 
         public TeamBasedBodyColor(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
             
             m_CSSPlugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         }
 
         private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info) {

@@ -4,10 +4,15 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Admin;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class ScheduledShutdown {
+    public class ScheduledShutdown: IPluginModule {
+        
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "ScheduledShutdown";
+        
         private CounterStrikeSharp.API.Modules.Timers.Timer shutdownTimer;
         private CounterStrikeSharp.API.Modules.Timers.Timer? warningTimer;
         private bool shutdownAfterRoundEnd = false;
@@ -26,6 +31,19 @@ namespace LupercaliaMGCore {
             }, TimerFlags.REPEAT);
         }
 
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.RemoveCommand("css_cancelshutdown", CommandCancelShutdown);
+            m_CSSPlugin.RemoveCommand("css_startshutdown", CommandStartShutdown);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
+            
+            shutdownTimer.Kill();
+            warningTimer?.Kill();
+        }
 
         private void initiateShutdown() {
             shutdownTimer.Kill();

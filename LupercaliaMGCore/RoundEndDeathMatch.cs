@@ -1,10 +1,13 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
+using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore {
-    public class RoundEndDeathMatch {
+    public class RoundEndDeathMatch: IPluginModule {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "RoundEndDeathMatch";
 
         private ConVar? mp_teammates_are_enemies = null;
 
@@ -15,6 +18,16 @@ namespace LupercaliaMGCore {
 
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
             m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        }
+
+        public void AllPluginsLoaded()
+        {
+        }
+
+        public void UnloadModule()
+        {
+            m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+            m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
         }
 
         private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info) {

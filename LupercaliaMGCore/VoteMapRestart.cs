@@ -10,6 +10,8 @@ namespace LupercaliaMGCore {
     public class VoteMapRestart: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
+        
+        public string PluginModuleName => "VoteMapRestart";
 
         private double mapStartTime = 0.0D;
         private bool isMapRestarting = false;
@@ -34,6 +36,7 @@ namespace LupercaliaMGCore {
         {
             m_CSSPlugin.getNativeVoteApi().OnVotePass -= OnVotePass;
             m_CSSPlugin.getNativeVoteApi().OnVoteFail -= OnVoteFail;
+            m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
         }
 
         private void OnVotePass(YesNoVoteInfo? info)
