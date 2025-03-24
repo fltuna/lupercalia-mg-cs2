@@ -1,18 +1,18 @@
 using CounterStrikeSharp.API.Core;
 
-namespace LupercaliaMGCore {
-    public interface OmikujiEvent {
+namespace LupercaliaMGCore;
 
-        string eventName {get;}
+public interface IOmikujiEvent
+{
+    string EventName { get; }
 
-        OmikujiType omikujiType {get;}
+    OmikujiType OmikujiType { get; }
 
-        OmikujiCanInvokeWhen omikujiCanInvokeWhen {get;}
+    OmikujiCanInvokeWhen OmikujiCanInvokeWhen { get; }
 
-        void execute(CCSPlayerController client);
+    void execute(CCSPlayerController client);
 
-        void initialize();
+    void initialize();
 
-        double getOmikujiWeight();
-    }
+    double getOmikujiWeight();
 }

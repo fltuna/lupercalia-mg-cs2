@@ -1,22 +1,26 @@
-namespace LupercaliaMGCore {
-    public class FixedSizeQueue<T>: Queue<T> {
+namespace LupercaliaMGCore;
 
-        private int maxSize {get;}
+public class FixedSizeQueue<T> : Queue<T>
+{
+    private int maxSize { get; }
 
-        public FixedSizeQueue(int maxSize) {
-            this.maxSize = maxSize;
-        }
+    public FixedSizeQueue(int maxSize)
+    {
+        this.maxSize = maxSize;
+    }
 
-        public new void Enqueue(T item) {
-            if(Count >= maxSize) {
-                Dequeue();
-            }
-            base.Enqueue(item);
-        }
-
-        public override string ToString()
+    public new void Enqueue(T item)
+    {
+        if (Count >= maxSize)
         {
-            return string.Join(", ", this);
+            Dequeue();
         }
+
+        base.Enqueue(item);
+    }
+
+    public override string ToString()
+    {
+        return string.Join(", ", this);
     }
 }

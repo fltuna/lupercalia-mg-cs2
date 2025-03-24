@@ -2,47 +2,55 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 
-namespace LupercaliaMGCore {
-    public class PlayerSlapEvent: OmikujiEvent {
-        public string eventName => "Player Slap Event";
+namespace LupercaliaMGCore;
 
-        public OmikujiType omikujiType => OmikujiType.EVENT_BAD;
+public class PlayerSlapEvent : IOmikujiEvent
+{
+    public string EventName => "Player Slap Event";
 
-        public OmikujiCanInvokeWhen omikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
+    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
 
-        private static Random random = OmikujiEvents.random;
+    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
 
-        public void execute(CCSPlayerController client)
+    private static Random random = OmikujiEvents.random;
+
+    public void execute(CCSPlayerController client)
+    {
+        SimpleLogging.LogDebug("Player drew a omikuji and invoked Player Slap Event");
+
+        CCSPlayerPawn? pawn = client.PlayerPawn.Value;
+
+        if (pawn == null)
         {
-            SimpleLogging.LogDebug("Player drew a omikuji and invoked Player Slap Event");
-
-            CCSPlayerPawn? pawn = client.PlayerPawn.Value;
-
-            if(pawn == null) {
-                SimpleLogging.LogDebug("Player Slap Event: Pawn is null! cancelling!");
-                return;
-            }
-
-            Vector velo = pawn.AbsVelocity;
-
-            int slapPowerMin = PluginSettings.getInstance.m_CVOmikujiEventPlayerSlapPowerMin.Value;
-            int slapPowerMax = PluginSettings.getInstance.m_CVOmikujiEventPlayerSlapPowerMax.Value;
-
-            SimpleLogging.LogTrace($"Player Slap Event: Random slap power - Min: {slapPowerMin}, Max: {slapPowerMax}");
-
-            // Taken from sourcemod
-            velo.X += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) * (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
-            velo.Y += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) * (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
-            velo.Z += random.NextInt64(slapPowerMin, slapPowerMax) % 200 + 100;
-            SimpleLogging.LogTrace($"Player Slap Event: Player velocity - {velo.X} {velo.Y} {velo.Z}");
-            
-            Server.PrintToChatAll($"{Omikuji.CHAT_PREFIX} {Omikuji.GetOmikujiLuckMessage(omikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerSlapEvent.Notification.Slapped", client.PlayerName]}");
+            SimpleLogging.LogDebug("Player Slap Event: Pawn is null! cancelling!");
+            return;
         }
 
-        public void initialize() {}
+        Vector velo = pawn.AbsVelocity;
 
-        public double getOmikujiWeight() {
-            return PluginSettings.getInstance.m_CVOmikujiEventPlayerSlapSelectionWeight.Value;
-        }
+        int slapPowerMin = PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapPowerMin.Value;
+        int slapPowerMax = PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapPowerMax.Value;
+
+        SimpleLogging.LogTrace($"Player Slap Event: Random slap power - Min: {slapPowerMin}, Max: {slapPowerMax}");
+
+        // Taken from sourcemod
+        velo.X += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) *
+                  (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
+        velo.Y += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) *
+                  (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
+        velo.Z += random.NextInt64(slapPowerMin, slapPowerMax) % 200 + 100;
+        SimpleLogging.LogTrace($"Player Slap Event: Player velocity - {velo.X} {velo.Y} {velo.Z}");
+
+        Server.PrintToChatAll(
+            $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerSlapEvent.Notification.Slapped", client.PlayerName]}");
+    }
+
+    public void initialize()
+    {
+    }
+
+    public double getOmikujiWeight()
+    {
+        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapSelectionWeight.Value;
     }
 }

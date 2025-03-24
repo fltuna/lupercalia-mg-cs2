@@ -7,92 +7,104 @@ using CounterStrikeSharp.API.Modules.Admin;
 using LupercaliaMGCore.model;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
-namespace LupercaliaMGCore {
-    public class Debugging: IPluginModule {
-        private LupercaliaMGCore m_CSSPlugin;
-        
-        public string PluginModuleName => "DebuggingCommands";
+namespace LupercaliaMGCore;
 
-        private Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
+public class Debugging : IPluginModule
+{
+    private LupercaliaMGCore m_CSSPlugin;
+
+    public string PluginModuleName => "DebuggingCommands";
+
+    private readonly Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
 
 
-        public Debugging(LupercaliaMGCore plugin) {
-            m_CSSPlugin = plugin;
-            m_CSSPlugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
-            m_CSSPlugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
-        }
+    public Debugging(LupercaliaMGCore plugin)
+    {
+        m_CSSPlugin = plugin;
+        m_CSSPlugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
+        m_CSSPlugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
+    }
 
-        public void AllPluginsLoaded()
+    public void AllPluginsLoaded()
+    {
+    }
+
+    public void UnloadModule()
+    {
+        m_CSSPlugin.RemoveCommand("css_dbg_savepos", CommandSavePos);
+        m_CSSPlugin.RemoveCommand("css_dbg_restorepos", CommandRestorePos);
+    }
+
+    private void CommandSavePos(CCSPlayerController? client, CommandInfo info)
+    {
+        if (client == null)
+            return;
+
+        if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
         {
+            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
+            return;
         }
 
-        public void UnloadModule()
+        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
         {
-            m_CSSPlugin.RemoveCommand("css_dbg_savepos", CommandSavePos);
-            m_CSSPlugin.RemoveCommand("css_dbg_restorepos", CommandRestorePos);
+            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
+            return;
         }
 
-        private void CommandSavePos(CCSPlayerController? client, CommandInfo info) {
-            if(client == null) 
-                return;
-            
-            if(!PluginSettings.getInstance.m_CVDebuggingEnabled.Value) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
-                return;
-            }
+        var playerPawn = client.PlayerPawn.Value;
 
-            if(client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
-                return;
-            }
+        if (playerPawn == null)
+            return;
 
-            var playerPawn = client.PlayerPawn.Value;
+        var clientAbsPos = playerPawn.AbsOrigin;
 
-            if(playerPawn == null)
-                return;
-
-            var clientAbsPos = playerPawn.AbsOrigin;
-
-            if(clientAbsPos == null) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Failed to retrieve your position!"));
-                return;
-            }
-
-            var vector = new Vector(clientAbsPos.X, clientAbsPos.Y, clientAbsPos.Z);
-
-            savedPlayerPos[client] = vector;
-
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix($"Location saved! {vector.X}, {vector.Y}, {vector.Z}"));
+        if (clientAbsPos == null)
+        {
+            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Failed to retrieve your position!"));
+            return;
         }
 
-        private void CommandRestorePos(CCSPlayerController? client, CommandInfo info) {
-            if(client == null) 
-                return;
-            
-            if(!PluginSettings.getInstance.m_CVDebuggingEnabled.Value) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
-                return;
-            }
+        var vector = new Vector(clientAbsPos.X, clientAbsPos.Y, clientAbsPos.Z);
 
-            if(client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
-                return;
-            }
+        savedPlayerPos[client] = vector;
 
-            var playerPawn = client.PlayerPawn.Value;
+        client.PrintToChat(
+            LupercaliaMGCore.MessageWithPrefix($"Location saved! {vector.X}, {vector.Y}, {vector.Z}"));
+    }
 
-            if(playerPawn == null)
-                return;
+    private void CommandRestorePos(CCSPlayerController? client, CommandInfo info)
+    {
+        if (client == null)
+            return;
 
-            Vector? vector = null;
-
-            if(!savedPlayerPos.TryGetValue(client, out vector) || vector == null) {
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("There is no saved location! save location first!"));
-                return;
-            }
-
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix($"Teleported to {vector.X}, {vector.Y}, {vector.Z}"));
-            playerPawn.Teleport(vector, playerPawn.AbsRotation);
+        if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
+        {
+            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
+            return;
         }
+
+        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+        {
+            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
+            return;
+        }
+
+        var playerPawn = client.PlayerPawn.Value;
+
+        if (playerPawn == null)
+            return;
+
+        Vector? vector = null;
+
+        if (!savedPlayerPos.TryGetValue(client, out vector) || vector == null)
+        {
+            client.PrintToChat(
+                LupercaliaMGCore.MessageWithPrefix("There is no saved location! save location first!"));
+            return;
+        }
+
+        client.PrintToChat(LupercaliaMGCore.MessageWithPrefix($"Teleported to {vector.X}, {vector.Y}, {vector.Z}"));
+        playerPawn.Teleport(vector, playerPawn.AbsRotation);
     }
 }

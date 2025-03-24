@@ -3,71 +3,83 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Microsoft.Extensions.Logging;
 
-namespace LupercaliaMGCore {
-    public class GravityChangeEvent: OmikujiEvent {
+namespace LupercaliaMGCore;
 
-        public string eventName => "Gravity Change Event";
+public class GravityChangeEvent : IOmikujiEvent
+{
+    public string EventName => "Gravity Change Event";
 
-        public OmikujiType omikujiType => OmikujiType.EVENT_BAD;
+    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
 
-        public OmikujiCanInvokeWhen omikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
 
-        private static bool isInGravityChangeEvent = false;
+    private static bool isInGravityChangeEvent = false;
 
-        private static Random random = OmikujiEvents.random;
+    private static Random random = OmikujiEvents.random;
 
-        public void execute(CCSPlayerController client)
+    public void execute(CCSPlayerController client)
+    {
+        SimpleLogging.LogDebug("Player drew a omikuji and invoked Gravity change event");
+
+        int randomGravity = random.Next(
+            PluginSettings.GetInstance.m_CVOmikujiEventGravityMin.Value,
+            PluginSettings.GetInstance.m_CVOmikujiEventGravityMax.Value
+        );
+
+        string msg;
+
+        if (isInGravityChangeEvent)
         {
-            SimpleLogging.LogDebug("Player drew a omikuji and invoked Gravity change event");
+            msg =
+                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.AnotherEventOnGoing"]}";
+        }
+        else
+        {
+            msg =
+                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityChanged", randomGravity]}";
+        }
 
-            int randomGravity = random.Next(
-                PluginSettings.getInstance.m_CVOmikujiEventGravityMin.Value,
-                PluginSettings.getInstance.m_CVOmikujiEventGravityMax.Value
-            );
+        foreach (CCSPlayerController cl in Utilities.GetPlayers())
+        {
+            if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
+                continue;
 
-            string msg;
+            cl.PrintToChat(msg);
+        }
 
-            if(isInGravityChangeEvent) {
-                msg = $"{Omikuji.CHAT_PREFIX} {Omikuji.GetOmikujiLuckMessage(omikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.AnotherEventOnGoing"]}";
-            } else {
-                msg = $"{Omikuji.CHAT_PREFIX} {Omikuji.GetOmikujiLuckMessage(omikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityChanged", randomGravity]}";
-            }
+        if (isInGravityChangeEvent)
+            return;
 
-            foreach(CCSPlayerController cl in Utilities.GetPlayers()) {
-                if(!cl.IsValid || cl.IsBot || cl.IsHLTV)
+        isInGravityChangeEvent = true;
+        ConVar? sv_gravity = ConVar.Find("sv_gravity");
+
+        float oldGravity = sv_gravity!.GetPrimitiveValue<float>();
+
+        sv_gravity.SetValue((float)randomGravity);
+
+        float TIMER_INTERVAL_PLACE_HOLDER = PluginSettings.GetInstance.m_CVOmikujiEventGravityRestoreTime.Value;
+
+        LupercaliaMGCore.getInstance().AddTimer(TIMER_INTERVAL_PLACE_HOLDER, () =>
+        {
+            sv_gravity.SetValue(oldGravity);
+            foreach (CCSPlayerController cl in Utilities.GetPlayers())
+            {
+                if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                cl.PrintToChat(msg);
+                cl.PrintToChat(
+                    $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity]}");
+                isInGravityChangeEvent = false;
             }
+        });
+    }
 
-            if(isInGravityChangeEvent)
-                return;
+    public void initialize()
+    {
+    }
 
-            isInGravityChangeEvent = true;
-            ConVar? sv_gravity = ConVar.Find("sv_gravity");
-
-            float oldGravity = sv_gravity!.GetPrimitiveValue<float>();
-
-            sv_gravity.SetValue((float)randomGravity);
-
-            float TIMER_INTERVAL_PLACE_HOLDER = PluginSettings.getInstance.m_CVOmikujiEventGravityRestoreTime.Value;
-
-            LupercaliaMGCore.getInstance().AddTimer(TIMER_INTERVAL_PLACE_HOLDER, () => {
-                sv_gravity.SetValue(oldGravity);
-                foreach(CCSPlayerController cl in Utilities.GetPlayers()) {
-                    if(!cl.IsValid || cl.IsBot || cl.IsHLTV)
-                        continue;
-
-                    cl.PrintToChat($"{Omikuji.CHAT_PREFIX} {Omikuji.GetOmikujiLuckMessage(omikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity]}");
-                    isInGravityChangeEvent = false;
-                }
-            });
-        }
-
-        public void initialize() {}
-
-        public double getOmikujiWeight() {
-            return PluginSettings.getInstance.m_CVOmikujiEventGravitySelectionWeight.Value;
-        }
+    public double getOmikujiWeight()
+    {
+        return PluginSettings.GetInstance.m_CVOmikujiEventGravitySelectionWeight.Value;
     }
 }
