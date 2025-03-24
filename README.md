@@ -1,6 +1,12 @@
 # Lupercalia MG server core plugin
 
-CounterStrikeSharp plugin for Lupercalia MG Server(Soon™)
+CounterStrikeSharp plugin for Lupercalia MG Server.
+
+#  Requirements
+
+You need to install to this plugin work:
+- [NativeVoteAPI](https://github.com/fltuna/NativeVoteAPI-CS2/releases/latest)
+
 
 # Features
 
@@ -15,6 +21,8 @@ CounterStrikeSharp plugin for Lupercalia MG Server(Soon™)
   - [x] Scheduled shutdown
   - [x] Debugging commands
   - [x] Misc commands
+  - [x] Hide Legs
+  - [x] External View
 - [x] Multigames
   - [x] Team Based Body Color
   - [x] Team Scramble
@@ -110,6 +118,15 @@ Adds some small feature commands
 Currently provides:
 
 - Give knife with !knife command
+
+### Hide Legs
+
+Hide legs from POV.
+
+### External View
+
+Provides external view system. (e.g. ThirdPerson view)
+
 
 ## Multigames
 
