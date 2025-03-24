@@ -7,14 +7,17 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Admin;
+using LupercaliaMGCore.model;
+using NativeVoteAPI;
+using NativeVoteAPI.API;
 
 namespace LupercaliaMGCore {
-    public class VoteRoundRestart
+    public class VoteRoundRestart: IPluginModule
     {
         private LupercaliaMGCore m_CSSPlugin;
-        private List<CCSPlayerController> votedPlayers = new List<CCSPlayerController>();
-        private int playersRequiredToRestart = 0;
         private bool isRoundRestarting = false;
+        
+        private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteRoundRestart";
 
         public VoteRoundRestart(LupercaliaMGCore plugin) {
             m_CSSPlugin = plugin;
@@ -24,11 +27,41 @@ namespace LupercaliaMGCore {
             m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
         }
 
-        private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info) {
-            isRoundRestarting = false;
-            votedPlayers.Clear();
-            return HookResult.Continue;
+        public void AllPluginsLoaded()
+        {
+            m_CSSPlugin.getNativeVoteApi().OnVotePass += OnVotePass;
+            m_CSSPlugin.getNativeVoteApi().OnVoteFail += OnVoteFail;
         }
+        
+        public void UnloadModule()
+        {
+            m_CSSPlugin.getNativeVoteApi().OnVotePass -= OnVotePass;
+            m_CSSPlugin.getNativeVoteApi().OnVoteFail -= OnVoteFail;
+        }
+
+        private void OnVotePass(YesNoVoteInfo? info)
+        {
+            if (info == null)
+                return;
+            
+            if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
+                return;
+            
+            InitiateRoundRestart();
+        }
+
+        private void OnVoteFail(YesNoVoteInfo? info)
+        {
+            if (info == null)
+                return;
+            
+            if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
+                return;
+            
+            Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Notification.VoteFailed"]));
+        }
+        
+        
         private void CommandVoteRestartRound(CCSPlayerController? client, CommandInfo info) {
             if(client == null)
                 return;
@@ -39,24 +72,34 @@ namespace LupercaliaMGCore {
                 client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Command.Notification.AlreadyRestarting"]));
                 return;
             }
-
-            if(votedPlayers.Contains(client)) {
-                SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] trying to vote for restart round.");
-                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Command.Notification.AlreadyVoted"]));
+            
+            if (m_CSSPlugin.getNativeVoteApi().GetCurrentVoteState() != NativeVoteState.NoActiveVote)
+            {
+                SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
+                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]));
                 return;
             }
-
-            votedPlayers.Add(client);
-            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] voted to restart round.");
-            playersRequiredToRestart = (int)Math.Ceiling(Utilities.GetPlayers().Count(player => !player.IsBot && !player.IsHLTV) * PluginSettings.getInstance.m_CVVoteRoundRestartThreshold.Value);
-
-            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] players count: {votedPlayers.Count}, Requires to restart: {playersRequiredToRestart}");
-            Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Notification.PlayerVote", client.PlayerName, votedPlayers.Count(), playersRequiredToRestart]));
-
-            if(votedPlayers.Count < playersRequiredToRestart)
-                return;
             
-            InitiateRoundRestart();
+            var potentialClients = Utilities.GetPlayers().Where(p => p is { IsBot: false, IsHLTV: false }).ToList();
+            var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
+            
+            string detailsString = NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteRoundRestart.Vote.SubjectText"]);
+
+            NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
+                detailsString, potentialClientsIndex, VoteThresholdType.Percentage, PluginSettings.getInstance.m_CVVoteMapRestartThreshold.Value, 15.0f);
+
+            NativeVoteState state = m_CSSPlugin.getNativeVoteApi().InitiateVote(nInfo);
+
+            
+            if (state == NativeVoteState.InitializeAccepted)
+            {
+                SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+                Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Notification.VoteInitiated"]));
+            }
+            else
+            {
+                client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["General.Command.Vote.Notification.FailedToInitiate"]));
+            }
         }
 
         [RequiresPermissions(@"css/root")]
@@ -84,6 +127,12 @@ namespace LupercaliaMGCore {
                 SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
                 Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
             }, TimerFlags.STOP_ON_MAPCHANGE);
+        }
+        
+        
+        private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info) {
+            isRoundRestarting = false;
+            return HookResult.Continue;
         }
     }
 }
