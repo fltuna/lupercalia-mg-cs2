@@ -104,7 +104,7 @@ public class VoteMapRestart : IPluginModule
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
-            PluginSettings.GetInstance.m_CVVoteMapRestartThreshold.Value, 15.0f);
+            PluginSettings.GetInstance.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
 
         NativeVoteState state = m_CSSPlugin.getNativeVoteApi().InitiateVote(nInfo);
 
