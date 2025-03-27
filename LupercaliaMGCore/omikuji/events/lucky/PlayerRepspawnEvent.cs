@@ -19,8 +19,7 @@ public class PlayerRespawnEvent : IOmikujiEvent
 
         string msg;
 
-        bool isPlayerAlive = client.PlayerPawn.Value != null &&
-                             client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE;
+        bool isPlayerAlive = PlayerUtil.IsPlayerAlive(client);
 
         if (isPlayerAlive)
         {
@@ -38,14 +37,12 @@ public class PlayerRespawnEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            if ((client.PlayerPawn.Value == null ||
-                 client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE) &&
-                (cl.PlayerPawn.Value != null && cl.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE))
+            if (!PlayerUtil.IsPlayerAlive(client))
             {
                 Server.NextFrame(() =>
                 {
                     client.Respawn();
-                    client.Teleport(cl.PlayerPawn!.Value!.AbsOrigin);
+                    client.PlayerPawn.Value!.Teleport(cl.PlayerPawn!.Value!.AbsOrigin);
                 });
             }
 

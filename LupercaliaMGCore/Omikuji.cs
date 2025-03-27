@@ -105,8 +105,7 @@ public class Omikuji : IPluginModule
         SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji type.");
         OmikujiType randomOmikujiType = getRandomOmikujiType();
         var events = OmikujiEvents.getEvents()[randomOmikujiType];
-        bool isPlayerAlive = client.PlayerPawn.Value != null &&
-                             client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE;
+        bool isPlayerAlive = PlayerUtil.IsPlayerAlive(client);
 
         IOmikujiEvent omikuji;
 

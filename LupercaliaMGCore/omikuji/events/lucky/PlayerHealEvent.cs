@@ -18,8 +18,7 @@ public class PlayerHealEvent : IOmikujiEvent
 
         string msg;
 
-        bool isPlayerAlive = client.PlayerPawn.Value != null &&
-                             client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE;
+        bool isPlayerAlive = PlayerUtil.IsPlayerAlive(client);
 
         if (isPlayerAlive)
         {

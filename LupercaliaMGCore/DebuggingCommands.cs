@@ -46,7 +46,7 @@ public class Debugging : IPluginModule
             return;
         }
 
-        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+        if (!PlayerUtil.IsPlayerAlive(client))
         {
             client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
             return;
@@ -84,7 +84,7 @@ public class Debugging : IPluginModule
             return;
         }
 
-        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+        if (!PlayerUtil.IsPlayerAlive(client))
         {
             client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
             return;

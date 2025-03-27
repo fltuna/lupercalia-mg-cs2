@@ -29,7 +29,7 @@ public class GiveRandomItemEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            if (cl.PlayerPawn.Value == null || cl.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+            if (!PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
             SimpleLogging.LogDebug("Picking random item");

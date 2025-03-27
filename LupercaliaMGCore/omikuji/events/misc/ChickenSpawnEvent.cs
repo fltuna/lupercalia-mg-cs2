@@ -25,8 +25,7 @@ public class ChickenSpawnEvent : IOmikujiEvent
             cl.PrintToChat(
                 $"{Omikuji.ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"]}");
 
-            if (client.PlayerPawn.Value != null &&
-                client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+            if (PlayerUtil.IsPlayerAlive(client))
                 createGamingChicken(cl);
         }
     }

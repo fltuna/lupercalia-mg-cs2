@@ -38,7 +38,7 @@ public class MiscCommands : IPluginModule
         if (client == null)
             return;
 
-        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+        if (!PlayerUtil.IsPlayerAlive(client))
         {
             client.PrintToChat(
                 LupercaliaMGCore.MessageWithPrefix(
@@ -118,7 +118,7 @@ public class MiscCommands : IPluginModule
             return;
         }
 
-        if (client.PlayerPawn.Value == null || client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+        if (PlayerUtil.IsPlayerAlive(client))
         {
             client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
                 m_CSSPlugin.Localizer["Misc.Spectate.Command.Notification.OnlyDeadOrSpectator"]));

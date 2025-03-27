@@ -98,8 +98,7 @@ public class AntiCamp : IPluginModule
             if (client.Team == CsTeam.None || client.Team == CsTeam.Spectator)
                 continue;
 
-            if (client.PlayerPawn.Value == null ||
-                client.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+            if (!PlayerUtil.IsPlayerAlive(client))
                 continue;
 
             if (!isClientInformationAccessible(client))

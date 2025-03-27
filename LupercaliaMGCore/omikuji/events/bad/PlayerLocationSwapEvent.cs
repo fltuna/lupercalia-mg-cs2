@@ -28,7 +28,7 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            if (cl.PlayerPawn.Value == null || cl.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+            if (!PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
 
@@ -69,7 +69,7 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            if (cl.PlayerPawn.Value == null || cl.PlayerPawn.Value.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+            if (!PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
             Vector? vec = null;

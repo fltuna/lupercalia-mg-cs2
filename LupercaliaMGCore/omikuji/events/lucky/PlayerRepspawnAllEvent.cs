@@ -23,8 +23,7 @@ public class PlayerRespawnAllEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            if (client.PlayerPawn.Value != null &&
-                client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+            if (PlayerUtil.IsPlayerAlive(cl))
             {
                 alivePlayer = cl;
                 break;
@@ -54,12 +53,11 @@ public class PlayerRespawnAllEvent : IOmikujiEvent
             cl.PrintToChat(
                 $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerRespawnAllEvent.Notification.Respawn"]}");
 
-            if (client.PlayerPawn.Value != null &&
-                client.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+            if (PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
             cl.Respawn();
-            cl.Teleport(alivePlayer.PlayerPawn.Value!.AbsOrigin, alivePlayer.PlayerPawn.Value.AbsRotation);
+            cl.PlayerPawn.Value!.Teleport(alivePlayer.PlayerPawn.Value!.AbsOrigin, alivePlayer.PlayerPawn.Value.AbsRotation);
         }
     }
 
