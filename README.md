@@ -32,6 +32,7 @@ You need to install to this plugin work:
   - [x] Round end death match
 - [x] Course
   - [x] Auto Respawn with spawn killing detection
+  - [x] Course Weapon
 - [x] Fun
   - [x] Omikuji
 
@@ -164,6 +165,10 @@ Starts a FFA when round end.
 
 - Auto respawn player when died
 - Repeat kill detection
+
+### Course Weapon
+
+Give pistols and hegrenade to prevent stuck while playing course map.
 
 ## Fun
 
