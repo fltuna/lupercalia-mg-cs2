@@ -3,6 +3,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.model;
+using Microsoft.Extensions.Logging;
 using NativeVoteAPI;
 using NativeVoteAPI.API;
 
@@ -16,6 +17,8 @@ public class VoteMapRestart : IPluginModule
 
     private double mapStartTime = 0.0D;
     private bool isMapRestarting = false;
+    
+    private INativeVoteApi? nativeVoteApi;
 
     private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteMapRestart";
 
@@ -30,14 +33,28 @@ public class VoteMapRestart : IPluginModule
 
     public void AllPluginsLoaded()
     {
-        m_CSSPlugin.getNativeVoteApi().OnVotePass += OnVotePass;
-        m_CSSPlugin.getNativeVoteApi().OnVoteFail += OnVoteFail;
+        nativeVoteApi = m_CSSPlugin.GetNativeVoteApi();
+
+        if (nativeVoteApi == null)
+        {
+            m_CSSPlugin.Logger.LogError("[VoteMapRestart] Failed to get native vote api.");
+            UnloadModule();
+            return;
+        }
+        
+        
+        nativeVoteApi.OnVotePass += OnVotePass;
+        nativeVoteApi.OnVoteFail += OnVoteFail;
     }
 
     public void UnloadModule()
     {
-        m_CSSPlugin.getNativeVoteApi().OnVotePass -= OnVotePass;
-        m_CSSPlugin.getNativeVoteApi().OnVoteFail -= OnVoteFail;
+        if (nativeVoteApi != null)
+        {
+            nativeVoteApi.OnVotePass -= OnVotePass;
+            nativeVoteApi.OnVoteFail -= OnVoteFail;
+        }
+        
         m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
     }
 
@@ -87,7 +104,7 @@ public class VoteMapRestart : IPluginModule
             return;
         }
 
-        if (m_CSSPlugin.getNativeVoteApi().GetCurrentVoteState() != NativeVoteState.NoActiveVote)
+        if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
             client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
@@ -106,7 +123,7 @@ public class VoteMapRestart : IPluginModule
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
             PluginSettings.GetInstance.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
 
-        NativeVoteState state = m_CSSPlugin.getNativeVoteApi().InitiateVote(nInfo);
+        NativeVoteState state = nativeVoteApi!.InitiateVote(nInfo);
 
 
         if (state == NativeVoteState.InitializeAccepted)

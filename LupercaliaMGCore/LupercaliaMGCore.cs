@@ -26,11 +26,8 @@ public class LupercaliaMGCore : BasePlugin
 
     private static INativeVoteApi? NativeVoteApi = null;
 
-    public INativeVoteApi getNativeVoteApi()
+    public INativeVoteApi? GetNativeVoteApi()
     {
-        if (NativeVoteApi == null)
-            throw new InvalidOperationException("Native Vote API is not initialized");
-
         return NativeVoteApi;
     }
 
@@ -108,21 +105,30 @@ public class LupercaliaMGCore : BasePlugin
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
+        void OnNativeVoteApiNotFound(Exception? e = null)
+        {
+            foreach (IPluginModule loadedModule in loadedModules)
+            {
+                loadedModule.UnloadModule();
+                Logger.LogInformation($"{loadedModule.PluginModuleName} has been unloaded.");
+            }
+            throw new Exception(
+                "Native Vote API is not found in current server. Please make sure you have NativeVoteAPI installed.",
+                e);
+        }
+        
         try
         {
             NativeVoteApi = INativeVoteApi.Capability.Get();
         }
         catch (Exception e)
         {
-            throw new Exception(
-                "Native Vote API is not found in current server. Please make sure you have NativeVoteAPI installed.",
-                e);
+            OnNativeVoteApiNotFound(e);
         }
 
         if (NativeVoteApi == null)
         {
-            throw new Exception(
-                "Native Vote API is not found in current server. Please make sure you have NativeVoteAPI installed.");
+            OnNativeVoteApiNotFound();
         }
 
         foreach (IPluginModule loadedModule in loadedModules)
