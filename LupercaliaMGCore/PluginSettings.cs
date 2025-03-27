@@ -289,8 +289,15 @@ public class PluginSettings
     /*
      *   Misc commands
      */
-    public readonly FakeConVar<bool> m_CVMiscCMDGiveKnifeEnabled =
+    public readonly FakeConVar<bool> m_CVMiscCMDGiveKnifeEnabled = 
         new("lp_mg_misc_cmd_give_knife", "Is give knife command enabled?", false);
+    
+    
+    /*
+     *   Course Weapons
+     */
+    public readonly FakeConVar<bool> m_CVCourseWeaponEnabled =
+        new("lp_mg_course_weapon_enabled", "Course weapon feature is enabled", false);
 
     private LupercaliaMGCore m_CSSPlugin;
 
@@ -527,6 +534,12 @@ public class PluginSettings
          *   Misc commands
          */
         writeConVarConfig(config, m_CVMiscCMDGiveKnifeEnabled);
+        config.WriteLine("\n");
+        
+        /*
+         *   Course Weapon
+         */
+        writeConVarConfig(config, m_CVCourseWeaponEnabled);
         config.WriteLine("\n");
 
         config.Close();

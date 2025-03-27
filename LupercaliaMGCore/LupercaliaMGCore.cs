@@ -101,6 +101,9 @@ public class LupercaliaMGCore : BasePlugin
 
         loadedModules.Add(new ExternalView(this));
         Logger.LogInformation("External view has been initialized");
+
+        loadedModules.Add(new CourseWeapons(this));
+        Logger.LogInformation("Course Weapons has been initialized");
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)
