@@ -48,62 +48,25 @@ public class LupercaliaMGCore : BasePlugin
         new PluginSettings(this);
         Logger.LogInformation("Plugin settings initialized");
 
-        loadedModules.Add(new TeamBasedBodyColor(this));
-        Logger.LogInformation("TeamBasedBodyColor initialized");
-
-        loadedModules.Add(new DuckFix(this, hotReload));
-        Logger.LogInformation("DuckFix initialized");
-
-        loadedModules.Add(new TeamScramble(this));
-        Logger.LogInformation("TeamScramble initialized");
-
-        loadedModules.Add(new VoteMapRestart(this));
-        Logger.LogInformation("VoteMapRestart initialized");
-
-        loadedModules.Add(new VoteRoundRestart(this));
-        Logger.LogInformation("VoteRoundRestart initialized");
-
-        loadedModules.Add(new RoundEndDamageImmunity(this));
-        Logger.LogInformation("RoundEndDamageImmunity initialized");
-
-        loadedModules.Add(new RoundEndWeaponStrip(this));
-        Logger.LogInformation("RoundEndWeaponStrip initialized");
-
-        loadedModules.Add(new RoundEndDeathMatch(this));
-        Logger.LogInformation("RoundEndDeathMatch initialized");
-
-        loadedModules.Add(new ScheduledShutdown(this));
-        Logger.LogInformation("ScheduledShutdown initialized");
-
-        loadedModules.Add(new Respawn(this));
-        Logger.LogInformation("Respawn initialized");
-
-        loadedModules.Add(new MapConfig(this));
-        Logger.LogInformation("MapConfig initialized");
-
-        loadedModules.Add(new AntiCamp(this, hotReload));
-        Logger.LogInformation("Anti Camp initialized");
-
-        loadedModules.Add(new Omikuji(this));
-        Logger.LogInformation("Omikuji initialized");
-
-        loadedModules.Add(new Debugging(this));
-        Logger.LogInformation("Debugging feature is initialized");
-
-        loadedModules.Add(new MiscCommands(this));
-        Logger.LogInformation("misc commands initialized");
-
-        loadedModules.Add(new JoinTeamFix(this));
-        Logger.LogInformation("Join team fix initialized");
-
-        loadedModules.Add(new HideLegs(this));
-        Logger.LogInformation("Hide legs has been initialized");
-
-        loadedModules.Add(new ExternalView(this));
-        Logger.LogInformation("External view has been initialized");
-
-        loadedModules.Add(new CourseWeapons(this));
-        Logger.LogInformation("Course Weapons has been initialized");
+        InitializeModule(new TeamBasedBodyColor(this));
+        InitializeModule(new DuckFix(this, hotReload));
+        InitializeModule(new TeamScramble(this));
+        InitializeModule(new VoteMapRestart(this));
+        InitializeModule(new VoteRoundRestart(this));
+        InitializeModule(new RoundEndDamageImmunity(this));
+        InitializeModule(new RoundEndWeaponStrip(this));
+        InitializeModule(new RoundEndDeathMatch(this));
+        InitializeModule(new ScheduledShutdown(this));
+        InitializeModule(new Respawn(this));
+        InitializeModule(new MapConfig(this));
+        InitializeModule(new AntiCamp(this, hotReload));
+        InitializeModule(new Omikuji(this));
+        InitializeModule(new Debugging(this));
+        InitializeModule(new MiscCommands(this));
+        InitializeModule(new JoinTeamFix(this));
+        InitializeModule(new HideLegs(this));
+        InitializeModule(new ExternalView(this));
+        InitializeModule(new CourseWeapons(this));
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)
@@ -141,6 +104,17 @@ public class LupercaliaMGCore : BasePlugin
     }
 
     public override void Unload(bool hotReload)
+    {
+        UnloadAllModules();
+    }
+    
+    private void InitializeModule(IPluginModule module)
+    {
+        loadedModules.Add(module);
+        Logger.LogInformation($"{module.PluginModuleName} has been initialized");
+    }
+
+    private void UnloadAllModules()
     {
         foreach (IPluginModule loadedModule in loadedModules)
         {
