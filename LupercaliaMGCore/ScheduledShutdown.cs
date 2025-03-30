@@ -56,9 +56,7 @@ public class ScheduledShutdown : IPluginModule
         if (PluginSettings.GetInstance.m_CVScheduledShutdownRoundEnd.Value)
         {
             shutdownAfterRoundEnd = true;
-            Server.PrintToChatAll(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["ScheduledShutdown.Notification.AfterRoundEnd"]));
+            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.AfterRoundEnd"));
         }
         else
         {
@@ -67,15 +65,12 @@ public class ScheduledShutdown : IPluginModule
             {
                 if (time < 1)
                 {
-                    m_CSSPlugin.Logger.LogInformation(
-                        LupercaliaMGCore.MessageWithPrefix("Server is shutting down..."));
+                    m_CSSPlugin.Logger.LogInformation("Server is shutting down...");
                     Server.ExecuteCommand("quit");
                     return;
                 }
 
-                Server.PrintToChatAll(
-                    LupercaliaMGCore.MessageWithPrefix(
-                        m_CSSPlugin.Localizer["ScheduledShutdown.Notification.Countdown", time]));
+                Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.Countdown", time));
                 time--;
             }, TimerFlags.REPEAT);
         }
@@ -88,7 +83,7 @@ public class ScheduledShutdown : IPluginModule
         if (!shutdownAfterRoundEnd)
             return HookResult.Continue;
 
-        m_CSSPlugin.Logger.LogInformation(LupercaliaMGCore.MessageWithPrefix("Server is shutting down..."));
+        m_CSSPlugin.Logger.LogInformation("Server is shutting down...");
         Server.ExecuteCommand("quit");
 
 
@@ -103,7 +98,7 @@ public class ScheduledShutdown : IPluginModule
 
         shutdownTimer = m_CSSPlugin.AddTimer(60.0f, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.GetInstance.m_CVScheduledShutdownTime))
+            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.GetInstance.m_CVScheduledShutdownTime.Value))
             {
                 initiateShutdown();
             }
@@ -118,8 +113,7 @@ public class ScheduledShutdown : IPluginModule
             return;
 
         cancelShutdown();
-        Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(
-            m_CSSPlugin.Localizer["ScheduledShutdown.Notification.CancelShutdown", client.PlayerName]));
+        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.CancelShutdown", client.PlayerName));
     }
 
     [RequiresPermissions(@"css/root")]
@@ -129,7 +123,6 @@ public class ScheduledShutdown : IPluginModule
             return;
 
         initiateShutdown();
-        Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(
-            m_CSSPlugin.Localizer["ScheduledShutdown.Notification.InitiateShutdown", client.PlayerName]));
+        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.InitiateShutdown", client.PlayerName));
     }
 }

@@ -9,12 +9,12 @@ namespace LupercaliaMGCore;
 
 public class LupercaliaMGCore : BasePlugin
 {
-    public static readonly string PLUGIN_PREFIX =
+    private static readonly string PluginPrefix =
         $" {ChatColors.DarkRed}[{ChatColors.Blue}LPŘ MG{ChatColors.DarkRed}]{ChatColors.Default}";
 
-    public static string MessageWithPrefix(string message)
+    public string LocalizeStringWithPrefix(string languageKey, params object[] args)
     {
-        return $"{PLUGIN_PREFIX} {message}";
+        return $"{PluginPrefix} {Localizer[languageKey, args]}";
     }
 
     private static LupercaliaMGCore? instance;

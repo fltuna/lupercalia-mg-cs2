@@ -83,8 +83,7 @@ public class VoteRoundRestart : IPluginModule
         if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
             return;
 
-        Server.PrintToChatAll(
-            LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteRoundRestart.Notification.VoteFailed"]));
+        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.VoteFailed"));
     }
 
 
@@ -93,22 +92,20 @@ public class VoteRoundRestart : IPluginModule
         if (client == null)
             return;
 
-        SimpleLogging.LogDebug(
-            $"[Vote Round Restart] [Player {client.PlayerName}] trying to vote for restart round.");
+        SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] trying to vote for restart round.");
+        
         if (isRoundRestarting)
         {
-            SimpleLogging.LogDebug(
-                $"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["VoteRoundRestart.Command.Notification.AlreadyRestarting"]));
+            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
+            
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.AnotherVoteInProgress"));
             return;
         }
 
@@ -116,8 +113,7 @@ public class VoteRoundRestart : IPluginModule
         var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
 
         string detailsString =
-            NativeVoteTextUtil.GenerateReadableNativeVoteText(
-                m_CSSPlugin.Localizer["VoteRoundRestart.Vote.SubjectText"]);
+            NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteRoundRestart.Vote.SubjectText"]);
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
@@ -128,17 +124,13 @@ public class VoteRoundRestart : IPluginModule
 
         if (state == NativeVoteState.InitializeAccepted)
         {
-            SimpleLogging.LogDebug(
-                $"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
-            Server.PrintToChatAll(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["VoteRoundRestart.Notification.VoteInitiated"]));
+            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+            
+            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.VoteInitiated"));
         }
         else
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Vote.Notification.FailedToInitiate"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 
@@ -151,14 +143,12 @@ public class VoteRoundRestart : IPluginModule
         SimpleLogging.LogDebug("[Force Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
-        Server.PrintToChatAll(
-            LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["VoteRoundRestart.Notification.ForceRoundRestart", 1]));
+        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.ForceRoundRestart", 1));
+        
         m_CSSPlugin.AddTimer(1, () =>
         {
             SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
-            Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules
-                ?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
+            EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }
 
@@ -167,14 +157,13 @@ public class VoteRoundRestart : IPluginModule
         SimpleLogging.LogDebug("[Vote Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
-        Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer[
-            "VoteRoundRestart.Notification.RoundRestart",
-            PluginSettings.GetInstance.m_CVVoteRoundRestartRestartTime.Value]));
+        float roundRestartTime = PluginSettings.GetInstance.m_CVVoteRoundRestartRestartTime.Value;
+        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.RoundRestart", roundRestartTime));
+        
         m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVVoteRoundRestartRestartTime.Value, () =>
         {
             SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
-            Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules
-                ?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
+            EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }
 

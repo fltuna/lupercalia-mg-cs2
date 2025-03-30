@@ -17,7 +17,7 @@ public class HideLegs : IPluginModule
 
     public string PluginModuleName => "HideLegs";
 
-    private Dictionary<ulong, bool> m_steamIdToIsHideLegsActive = new Dictionary<ulong, bool>();
+    private Dictionary<ulong, bool> m_steamIdToIsHideLegsActive = new();
 
     public HideLegs(LupercaliaMGCore plugin)
     {
@@ -74,9 +74,7 @@ public class HideLegs : IPluginModule
 
         if (!isEnabled)
         {
-            player.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["HideLegs.Command.Notification.NotAvailable"]));
+            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("HideLegs.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -86,7 +84,8 @@ public class HideLegs : IPluginModule
         var messageName = isHideLegsActive
             ? "HideLegs.Command.Notification.HideLegs"
             : "HideLegs.Command.Notification.ShowLegs";
-        player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer[messageName]));
+        
+        player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix(messageName));
 
         updateHideLegs(player);
     }
