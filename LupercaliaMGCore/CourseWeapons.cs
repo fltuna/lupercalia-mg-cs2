@@ -87,9 +87,7 @@ public class CourseWeapons: IPluginModule
         {
             SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Player is already dead");
             
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.ShouldBeAlive"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.ShouldBeAlive"));
             return false;
         }
 
@@ -98,7 +96,7 @@ public class CourseWeapons: IPluginModule
         if (!isCourseWeaponEnabled)
         {
             SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Course Weapon feature is disabled");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["General.Command.Notification.CourseMapOnly"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.CourseMapOnly"));
             return false;
         }
 
@@ -108,9 +106,7 @@ public class CourseWeapons: IPluginModule
     private void GiveItemToPlayer(CCSPlayerController client, CsItem item)
     {
         client.GiveNamedItem(item);
-        client.PrintToChat(
-            LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["CourseWeapon.Command.Notification.Retrieved", item.ToString()]));
+        client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("CourseWeapon.Command.Notification.Retrieved", item.ToString()));
         
         SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Gave {item}");
     }
@@ -123,9 +119,7 @@ public class CourseWeapons: IPluginModule
         if (weaponServices == null)
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to obtain a WeaponServices instance.");
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.UnknownError"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
 
@@ -141,9 +135,7 @@ public class CourseWeapons: IPluginModule
         if (itemName == null)
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to find weapon.");
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.UnknownError"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
         
@@ -151,9 +143,7 @@ public class CourseWeapons: IPluginModule
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Player already have a {item.ToString()}.");
             
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["CourseWeapon.Command.Notification.AlreadyHave", item.ToString()]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
             return false;
         }
         

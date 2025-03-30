@@ -47,7 +47,7 @@ public class ExternalView : IPluginModule
 
     public string PluginModuleName => "External View";
 
-    private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new Dictionary<ulong, ExternalViewInfo>();
+    private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new();
 
     public ExternalView(LupercaliaMGCore plugin)
     {
@@ -143,9 +143,7 @@ public class ExternalView : IPluginModule
         ExternalViewUtils.DestroyExternalCamera(player, info.entCamera);
         m_externalViewInfoMap.Remove(player.SteamID);
 
-        player.PrintToChat(
-            LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["ExternalView.Command.Notification.RestoreDefaultView"]));
+        player.PrintToChat(m_CSSPlugin.Localizer["ExternalView.Command.Notification.RestoreDefaultView"]);
     }
 
     private void CommandTp(CCSPlayerController? player, CommandInfo command)
@@ -157,9 +155,7 @@ public class ExternalView : IPluginModule
 
         if (!isEnabled)
         {
-            player.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["ExternalView.Command.Notification.NotAvailable"]));
+            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -201,9 +197,7 @@ public class ExternalView : IPluginModule
         );
         ExternalViewUtils.UpdateThirdPersonCamera(player, entCamera, dist);
 
-        player.PrintToChat(
-            LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["ExternalView.Command.Notification.StartThirdPerson"]));
+        player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.StartThirdPerson"));
     }
 
     private void CommandTpp(CCSPlayerController? player, CommandInfo command)
@@ -215,9 +209,7 @@ public class ExternalView : IPluginModule
 
         if (!isEnabled)
         {
-            player.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["ExternalView.Command.Notification.NotAvailable"]));
+            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -261,8 +253,7 @@ public class ExternalView : IPluginModule
         );
         ExternalViewUtils.UpdateThirdPersonCamera(player, entCamera, dist, YAW_OFFSET);
 
-        player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-            m_CSSPlugin.Localizer["ExternalView.Command.Notification.StartThirdPersonOffset"]));
+        player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.StartThirdPersonOffset"));
     }
 
     private void CommandWatch(CCSPlayerController? player, CommandInfo command)
@@ -274,9 +265,7 @@ public class ExternalView : IPluginModule
 
         if (!isEnabled)
         {
-            player.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["ExternalView.Command.Notification.NotAvailable"]));
+            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -285,8 +274,7 @@ public class ExternalView : IPluginModule
 
         if (command.ArgCount < 2)
         {
-            player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["ExternalView.Command.Notification.WatchTargetNameIsMissing"]));
+            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsMissing"));
             shouldDisableWatch = true;
         }
         else
@@ -295,8 +283,7 @@ public class ExternalView : IPluginModule
 
             if (targetStr.Length <= 1)
             {
-                player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["ExternalView.Command.Notification.WatchTargetNameIsTooShort"]));
+                player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsTooShort"));
                 shouldDisableWatch = true;
             }
             else
@@ -320,8 +307,7 @@ public class ExternalView : IPluginModule
 
                 if (targetPlayer == null)
                 {
-                    player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                        m_CSSPlugin.Localizer["ExternalView.Command.Notification.WatchTargetNotFound"]));
+                    player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNotFound"));
                     shouldDisableWatch = true;
                 }
             }
@@ -405,8 +391,7 @@ public class ExternalView : IPluginModule
                 ExternalViewUtils.UpdateTargetCamera(player, targetPlayer, entCamera, dist);
                 if (!targetPlayer.PawnIsAlive || targetPlayer.Team != player.Team)
                 {
-                    player.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                        m_CSSPlugin.Localizer["ExternalView.Command.Notification.WatchTargetIsDead"]));
+                    player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetIsDead"));
                     return false;
                 }
 
@@ -416,10 +401,8 @@ public class ExternalView : IPluginModule
         );
         ExternalViewUtils.UpdateTargetCamera(player, targetPlayer, entCamera, dist);
 
-        Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(
-            m_CSSPlugin.Localizer["ExternalView.Notification.WatchTarget", player.PlayerName,
-                targetPlayer.PlayerName]
-        ));
+        Server.PrintToChatAll(
+            m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTarget", player.PlayerName, targetPlayer.PlayerName));
     }
 }
 

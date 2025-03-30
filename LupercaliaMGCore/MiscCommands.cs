@@ -40,17 +40,13 @@ public class MiscCommands : IPluginModule
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.ShouldBeAlive"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.ShouldBeAlive"));
             return;
         }
 
         if (!PluginSettings.GetInstance.m_CVMiscCMDGiveKnifeEnabled.Value)
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.FeatureDisabled"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.FeatureEnabled"));
             return;
         }
 
@@ -58,10 +54,7 @@ public class MiscCommands : IPluginModule
 
         if (playerPawn == null)
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("This command is not usable currently."));
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.NotUsableCurrently"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.NotUsableCurrently"));
             return;
         }
 
@@ -69,9 +62,7 @@ public class MiscCommands : IPluginModule
 
         if (weaponServices == null)
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Notification.NotUsableCurrently"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.NotUsableCurrently"));
             return;
         }
 
@@ -87,15 +78,11 @@ public class MiscCommands : IPluginModule
 
         if (found)
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["Misc.Knife.Command.Notification.AlreadyHave"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.AlreadyHave"));
         }
         else
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["Misc.Knife.Command.Notification.Retrieved"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.Retrieved"));
             client.GiveNamedItem(CsItem.Knife);
         }
     }
@@ -112,16 +99,13 @@ public class MiscCommands : IPluginModule
 
 
             client.ChangeTeam(CsTeam.Spectator);
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["Misc.Spectate.Command.Notification.MovedToSpectator"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("Misc.Spectate.Command.Notification.MovedToSpectator"));
             return;
         }
 
         if (PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["Misc.Spectate.Command.Notification.OnlyDeadOrSpectator"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("Misc.Spectate.Command.Notification.OnlyDeadOrSpectator"));
             return;
         }
 
@@ -129,13 +113,11 @@ public class MiscCommands : IPluginModule
 
         if (targets.Count() > 1)
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["Misc.Spectate.Command.Notification.MultipleTargetsFound", targets.Count()]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("Misc.Spectate.Command.Notification.MultipleTargetsFound", targets.Count()));
             return;
         }
 
-        client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-            m_CSSPlugin.Localizer["Misc.Spectate.Command.Notification.NowSpectating", targets.First().PlayerName]));
         client.ExecuteClientCommand($"spec_player {targets.First().PlayerName}");
+        client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("Misc.Spectate.Command.Notification.NowSpectating", targets.First().PlayerName));
     }
 }

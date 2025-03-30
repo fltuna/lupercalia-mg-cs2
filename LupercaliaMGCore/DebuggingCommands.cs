@@ -42,13 +42,13 @@ public class Debugging : IPluginModule
 
         if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
+            client.PrintToChat("Debugging feature is disabled.");
             return;
         }
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
+            client.PrintToChat("You must be alive to use this command.");
             return;
         }
 
@@ -61,7 +61,7 @@ public class Debugging : IPluginModule
 
         if (clientAbsPos == null)
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Failed to retrieve your position!"));
+            client.PrintToChat("Failed to retrieve your position!");
             return;
         }
 
@@ -69,8 +69,7 @@ public class Debugging : IPluginModule
 
         savedPlayerPos[client] = vector;
 
-        client.PrintToChat(
-            LupercaliaMGCore.MessageWithPrefix($"Location saved! {vector.X}, {vector.Y}, {vector.Z}"));
+        client.PrintToChat($"Location saved! {vector.X}, {vector.Y}, {vector.Z}");
     }
 
     private void CommandRestorePos(CCSPlayerController? client, CommandInfo info)
@@ -80,13 +79,13 @@ public class Debugging : IPluginModule
 
         if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("Debugging feature is disabled."));
+            client.PrintToChat("Debugging feature is disabled.");
             return;
         }
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix("You must be alive to use this command."));
+            client.PrintToChat("You must be alive to use this command.");
             return;
         }
 
@@ -99,12 +98,11 @@ public class Debugging : IPluginModule
 
         if (!savedPlayerPos.TryGetValue(client, out vector) || vector == null)
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix("There is no saved location! save location first!"));
+            client.PrintToChat("There is no saved location! save location first!");
             return;
         }
 
-        client.PrintToChat(LupercaliaMGCore.MessageWithPrefix($"Teleported to {vector.X}, {vector.Y}, {vector.Z}"));
+        client.PrintToChat($"Teleported to {vector.X}, {vector.Y}, {vector.Z}");
         playerPawn.Teleport(vector, playerPawn.AbsRotation);
     }
 }

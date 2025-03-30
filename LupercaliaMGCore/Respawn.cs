@@ -70,8 +70,7 @@ public class Respawn : IPluginModule
 
         repeatKillDetected = false;
         SimpleLogging.LogTrace($"Repeat kill status: {repeatKillDetected}");
-        Server.PrintToChatAll(
-            $"{ChatPrefix} {m_CSSPlugin.Localizer["Respawn.Notification.AdminEnabledRespawn", client.PlayerName]}");
+        Server.PrintToChatAll($"{ChatPrefix} {m_CSSPlugin.Localizer["Respawn.Notification.AdminEnabledRespawn", client.PlayerName]}");
     }
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
@@ -115,9 +114,10 @@ public class Respawn : IPluginModule
             PluginSettings.GetInstance.m_CVAutoRespawnSpawnKillingDetectionTime.Value)
         {
             repeatKillDetected = true;
+            
             SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Repeat kill is detected.");
-            Server.PrintToChatAll(
-                $"{ChatPrefix} {ChatUtil.ReplaceColorStrings(m_CSSPlugin.Localizer["Respawn.Notification.RepeatKillDetected"])}");
+            Server.PrintToChatAll($"{ChatPrefix} {ChatUtil.ReplaceColorStrings(m_CSSPlugin.Localizer["Respawn.Notification.RepeatKillDetected"])}");
+            
             setIgnoreRoundWinCondition(false);
             return HookResult.Continue;
         }
@@ -153,8 +153,7 @@ public class Respawn : IPluginModule
             return HookResult.Continue;
         }
 
-        SimpleLogging.LogDebug(
-            $"{ChatPrefix} [Player {player.PlayerName}] has joined the team {team.ToString()}.");
+        SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] has joined the team {team.ToString()}.");
 
         Server.NextFrame(() =>
         {

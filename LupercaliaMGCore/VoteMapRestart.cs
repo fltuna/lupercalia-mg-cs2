@@ -77,8 +77,7 @@ public class VoteMapRestart : IPluginModule
         if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
             return;
 
-        Server.PrintToChatAll(
-            LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteFailed"]));
+        Server.PrintToChatAll(m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteFailed"]);
     }
 
     private void CommandVoteRestartMap(CCSPlayerController? client, CommandInfo info)
@@ -89,26 +88,22 @@ public class VoteMapRestart : IPluginModule
         SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] trying to vote for restart map.");
         if (isMapRestarting)
         {
-            SimpleLogging.LogDebug(
-                $"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["VoteMapRestart.Command.Notification.AlreadyRestarting"]));
+            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (Server.EngineTime - mapStartTime > PluginSettings.GetInstance.m_CVVoteMapRestartAllowedTime.Value)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["VoteMapRestart.Command.Notification.AllowedTimeIsEnded"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
-            client.PrintToChat(LupercaliaMGCore.MessageWithPrefix(
-                m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]));
+            client.PrintToChat(m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]);
             return;
         }
 
@@ -116,8 +111,7 @@ public class VoteMapRestart : IPluginModule
         var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
 
         string detailsString =
-            NativeVoteTextUtil.GenerateReadableNativeVoteText(
-                m_CSSPlugin.Localizer["VoteMapRestart.Vote.SubjectText"]);
+            NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteMapRestart.Vote.SubjectText"]);
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
@@ -128,17 +122,12 @@ public class VoteMapRestart : IPluginModule
 
         if (state == NativeVoteState.InitializeAccepted)
         {
-            SimpleLogging.LogDebug(
-                $"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
-            Server.PrintToChatAll(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteInitiated"]));
+            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Notification.VoteInitiated"));
         }
         else
         {
-            client.PrintToChat(
-                LupercaliaMGCore.MessageWithPrefix(
-                    m_CSSPlugin.Localizer["General.Command.Vote.Notification.FailedToInitiate"]));
+            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 
@@ -147,9 +136,10 @@ public class VoteMapRestart : IPluginModule
     {
         SimpleLogging.LogDebug("[Vote Map Restart] Initiating map restart...");
         isMapRestarting = true;
-        Server.PrintToChatAll(LupercaliaMGCore.MessageWithPrefix(m_CSSPlugin.Localizer[
-            "VoteMapRestart.Notification.MapRestart",
-            PluginSettings.GetInstance.m_CVVoteMapRestartRestartTime.Value]));
+
+        float mapRestartTime = PluginSettings.GetInstance.m_CVVoteMapRestartRestartTime.Value;
+        Server.PrintToChatAll(m_CSSPlugin.Localizer["VoteMapRestart.Notification.MapRestart", mapRestartTime]);
+        
         m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVVoteMapRestartRestartTime.Value, () =>
         {
             SimpleLogging.LogDebug("[Vote Map Restart] Changing map.");
