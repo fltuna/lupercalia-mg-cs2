@@ -47,6 +47,8 @@
     "ExternalView.Command.Notification.WatchTargetIsDead": "The target player is history...",
     "ExternalView.Notification.WatchTarget": "{lightpurple}{0}{default} is looking at {orange}{1}{default}.",
     "ExternalView.Command.Notification.NotAvailable": "External view feature is not available now.",
+    "VelocityDisplay.Command.Notification.HudEnabled": "Velocity Display is now {green}Enabled{default}.",
+    "VelocityDisplay.Command.Notification.HudDisabled": "Velocity Display is now {red}Disabled{default}.",
     "Omikuji.Command.Notification.NotReady": "Your omikuji is not ready! Please wait!",
     "Omikuji.Command.Notification.Cooldown": "Your omikuji is in cooldown! Please wait for {0} seconds.",
     "Omikuji.Command.Notification.Drawing": "{0} is drawing the omikuji!",

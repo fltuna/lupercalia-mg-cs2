@@ -67,6 +67,7 @@ public class LupercaliaMGCore : BasePlugin
         InitializeModule(new HideLegs(this));
         InitializeModule(new ExternalView(this));
         InitializeModule(new CourseWeapons(this));
+        InitializeModule(new VelocityDisplay(this));
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)

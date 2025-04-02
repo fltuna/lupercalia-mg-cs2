@@ -47,6 +47,8 @@
     "ExternalView.Command.Notification.WatchTargetIsDead": "指定のプレイヤーはもう生きていません。。。",
     "ExternalView.Notification.WatchTarget": "{lightpurple}{0}{default}は{orange}{1}{default}を見ています",
     "ExternalView.Command.Notification.NotAvailable": "外部視点機能は現在使用できません",
+    "VelocityDisplay.Command.Notification.HudEnabled": "速度表示を{green}有効{default}にしました。",
+    "VelocityDisplay.Command.Notification.HudDisabled": "速度表示を{red}無効{default}にしました。",
     "Omikuji.Command.Notification.NotReady": "おみくじはまだ準備ができていません! しばらくお待ちください!",
     "Omikuji.Command.Notification.Cooldown": "おみくじはクールダウン中です! {0}秒お待ちください。",
     "Omikuji.Command.Notification.Drawing": "{0}が おみくじを引いています!",
