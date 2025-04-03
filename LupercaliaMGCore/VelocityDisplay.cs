@@ -91,7 +91,37 @@ public class VelocityDisplay: IPluginModule
             }
             if (player.Team == CsTeam.Spectator)
             {
-                // TODO(): when the player is spectator, then print the observe target velocity.
+
+                CPlayer_ObserverServices? observerServices = pawn.ObserverServices;
+                
+                if (observerServices == null)
+                    continue;
+
+                CBaseEntity? observeTarget = observerServices.ObserverTarget.Value;
+                
+                if (observeTarget == null || !observeTarget.IsValid)
+                    continue;
+
+                CCSPlayerPawn? observingPlayer = observeTarget as CCSPlayerPawn;
+                
+                if (observingPlayer == null)
+                    continue;
+                
+                if (observingPlayer.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                    continue;
+                
+                if (observingPlayer.OriginalController.Value == null)
+                    continue;
+                
+                StringBuilder hud = new();
+
+
+                hud.Append($"<font class='fontSize-{CenterHtmlSize.M.ToLowerString()}'>Speed</font>: <font color='#3791db' class='fontSize-{CenterHtmlSize.XL.ToLowerString()}'>{CalculateVelocity(observingPlayer.Velocity):F2}</font>/s");
+                hud.Append("<br>");
+                hud.Append($"<font class='fontSize-{CenterHtmlSize.ML.ToLowerString()}'>" + GetPlayerPressedButtonText(observingPlayer.OriginalController.Value) + "</font>");
+                
+                
+                player.PrintToCenterHtml(hud.ToString());
             }
         }
     }
