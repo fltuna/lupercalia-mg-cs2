@@ -77,7 +77,7 @@ public class VelocityDisplay: IPluginModule
             if (pawn == null)
                 continue;
 
-            if (pawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
+            if (PlayerUtil.IsPlayerAlive(player))
             {
                 StringBuilder hud = new();
 
@@ -89,7 +89,8 @@ public class VelocityDisplay: IPluginModule
                 
                 player.PrintToCenterHtml(hud.ToString());
             }
-            if (player.Team == CsTeam.Spectator)
+            
+            if (player.Team == CsTeam.Spectator || !PlayerUtil.IsPlayerAlive(player))
             {
 
                 CPlayer_ObserverServices? observerServices = pawn.ObserverServices;
