@@ -33,7 +33,7 @@ public class LupercaliaMGCore : BasePlugin
 
     public override string ModuleName => "Lupercalia MG Core";
 
-    public override string ModuleVersion => "1.4.0";
+    public override string ModuleVersion => "1.5.0";
 
     public override string ModuleAuthor => "faketuna, Spitice";
 
