@@ -4,25 +4,21 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace LupercaliaMGCore;
 
-public class PlayerLocationSwapEvent : IOmikujiEvent
+public class PlayerLocationSwapEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Location Swap Event";
+    public override string EventName => "Player Location Swap Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
+    public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
 
-    private static Random random = OmikujiEvents.random;
-
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player Location Swap Event");
 
-        List<(Vector vector, CCSPlayerController player, bool alreadyChosen)> alive =
-            new List<(Vector vector, CCSPlayerController player, bool alreadyChosen)>();
+        List<(Vector vector, CCSPlayerController player, bool alreadyChosen)> alive = new();
 
-        SimpleLogging.LogTrace(
-            "Player Location Swap Event: Start iterating the player list for initialize player location dictionary");
+        SimpleLogging.LogTrace("Player Location Swap Event: Start iterating the player list for initialize player location dictionary");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
@@ -44,10 +40,8 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
 
         if (alive.Count <= 1)
         {
-            SimpleLogging.LogTrace(
-                "Player Location Swap Event: Not enough players to swap location! cancelling event!");
-            Server.PrintToChatAll(
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerLocationSwapEvent.Notification.Avoided", client.PlayerName]}");
+            SimpleLogging.LogTrace("Player Location Swap Event: Not enough players to swap location! cancelling event!");
+            Server.PrintToChatAll($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.PlayerLocationSwapEvent.Notification.Avoided", client.PlayerName]}");
             return;
         }
 
@@ -56,12 +50,11 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
         // Shuffle list for swapping location
         for (int i = alive.Count - 1; i >= 0; i--)
         {
-            int j = random.Next(0, alive.Count);
+            int j = Random.Next(0, alive.Count);
             (alive[i], alive[j]) = (alive[j], alive[i]);
         }
 
-        SimpleLogging.LogTrace(
-            "Player Location Swap Event: Start iterating the player list for swap player location");
+        SimpleLogging.LogTrace("Player Location Swap Event: Start iterating the player list for swap player location");
 
         SimpleLogging.LogTrace($"Player Location Swap Event: Many players alive {alive.Count}! Swapping!");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
@@ -87,8 +80,7 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
 
             if (vec == null)
             {
-                SimpleLogging.LogTrace(
-                    $"Player Location Swap Event: there is no teleport location available for player {cl.PlayerName} skipping");
+                SimpleLogging.LogTrace($"Player Location Swap Event: there is no teleport location available for player {cl.PlayerName} skipping");
                 continue;
             }
 
@@ -98,15 +90,11 @@ public class PlayerLocationSwapEvent : IOmikujiEvent
 
 
         Server.PrintToChatAll(
-            $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerLocationSwapEvent.Notification.LocationSwapping"]}");
+            $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.PlayerLocationSwapEvent.Notification.LocationSwapping"]}");
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerLocationSwapSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventPlayerLocationSwapSelectionWeight.Value;
     }
 }

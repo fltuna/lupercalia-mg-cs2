@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class ChickenSpawnEvent : IOmikujiEvent
+public class ChickenSpawnEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Chicken Spawn Event";
+    public override string EventName => "Chicken Spawn Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_MISC;
+    public override OmikujiType OmikujiType => OmikujiType.EventMisc;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Chicken spawn event");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
@@ -21,25 +21,19 @@ public class ChickenSpawnEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-
-            cl.PrintToChat(
-                $"{Omikuji.ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"]}");
-
             if (PlayerUtil.IsPlayerAlive(client))
-                createGamingChicken(cl);
+                CreateGamingChicken(cl);
         }
+        
+        Server.PrintToChatAll($"{Omikuji.ChatPrefix} {Plugin.Localizer["Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"]}");
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
+        return PluginSettings.m_CVOmikujiEventChickenSelectionWeight.Value;
     }
 
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventChickenSelectionWeight.Value;
-    }
-
-    private static void createGamingChicken(CCSPlayerController client)
+    private void CreateGamingChicken(CCSPlayerController client)
     {
         CChicken? ent = Utilities.CreateEntityByName<CChicken>("chicken");
 
@@ -48,11 +42,10 @@ public class ChickenSpawnEvent : IOmikujiEvent
 
         ent.DispatchSpawn();
         ent.Teleport(client.PlayerPawn.Value!.AbsOrigin!);
-        ent.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale =
-            PluginSettings.GetInstance.m_CVOmikujiEventChickenBodyScale.Value;
+        ent.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = PluginSettings.m_CVOmikujiEventChickenBodyScale.Value;
 
         double hue = 0.0;
-        LupercaliaMGCore.getInstance().AddTimer(0.01f, () =>
+        Plugin.AddTimer(0.01f, () =>
         {
             if (!ent.IsValid)
                 return;
@@ -61,19 +54,19 @@ public class ChickenSpawnEvent : IOmikujiEvent
                 hue = 0.0;
 
             ent.RenderMode = RenderMode_t.kRenderTransColor;
-            ent.Render = ColorFromHSV(hue, 1, 1);
+            ent.Render = colorFromHsv(hue, 1, 1);
             Utilities.SetStateChanged(ent, "CBaseModelEntity", "m_clrRender");
             hue += 30.0F;
         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
 
-        LupercaliaMGCore.getInstance().AddTimer(PluginSettings.GetInstance.m_CVOmikujiEventChickenTime.Value, () =>
+        Plugin.AddTimer(PluginSettings.m_CVOmikujiEventChickenTime.Value, () =>
         {
             if (ent.IsValid)
                 ent.AcceptInput("Break");
         });
     }
 
-    public static Color ColorFromHSV(double hue, double saturation, double brightness)
+    private static Color colorFromHsv(double hue, double saturation, double brightness)
     {
         int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
         double f = hue / 60 - Math.Floor(hue / 60);

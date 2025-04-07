@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class PlayerRespawnAllEvent : IOmikujiEvent
+public class PlayerRespawnAllEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Respawn All Event";
+    public override string EventName => "Player Respawn All Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_LUCKY;
+    public override OmikujiType OmikujiType => OmikujiType.EventLucky;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked All player respawn event.");
 
@@ -38,8 +38,7 @@ public class PlayerRespawnAllEvent : IOmikujiEvent
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                cl.PrintToChat(
-                    $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerRespawnAllEvent.Notification.NoOneAlive"]}");
+                cl.PrintToChat($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerRespawnAllEvent.Notification.NoOneAlive"]}");
             }
 
             return;
@@ -50,8 +49,7 @@ public class PlayerRespawnAllEvent : IOmikujiEvent
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                 continue;
 
-            cl.PrintToChat(
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerRespawnAllEvent.Notification.Respawn"]}");
+            cl.PrintToChat($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerRespawnAllEvent.Notification.Respawn"]}");
 
             if (PlayerUtil.IsPlayerAlive(cl))
                 continue;
@@ -61,12 +59,8 @@ public class PlayerRespawnAllEvent : IOmikujiEvent
         }
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventAllPlayerRespawnSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventAllPlayerRespawnSelectionWeight.Value;
     }
 }

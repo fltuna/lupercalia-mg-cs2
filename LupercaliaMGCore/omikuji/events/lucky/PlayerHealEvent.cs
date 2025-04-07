@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class PlayerHealEvent : IOmikujiEvent
+public class PlayerHealEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Heal Event";
+    public override string EventName => "Player Heal Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_LUCKY;
+    public override OmikujiType OmikujiType => OmikujiType.EventLucky;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player heal event.");
 
@@ -22,13 +22,11 @@ public class PlayerHealEvent : IOmikujiEvent
 
         if (isPlayerAlive)
         {
-            msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerHealEvent.Notification.Healed", client.PlayerName, PluginSettings.GetInstance.m_CVOmikujiEventPlayerHeal.Value]}";
+            msg = $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerHealEvent.Notification.Healed", client.PlayerName, PluginSettings.GetInstance.m_CVOmikujiEventPlayerHeal.Value]}";
         }
         else
         {
-            msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerHealEvent.Notification.PlayerIsDead", client.PlayerName]}";
+            msg = $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerHealEvent.Notification.PlayerIsDead", client.PlayerName]}";
         }
 
 
@@ -57,12 +55,8 @@ public class PlayerHealEvent : IOmikujiEvent
         Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerHealSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventPlayerHealSelectionWeight.Value;
     }
 }

@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class PlayerRespawnEvent : IOmikujiEvent
+public class PlayerRespawnEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Respawn Event";
+    public override string EventName => "Player Respawn Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_LUCKY;
+    public override OmikujiType OmikujiType => OmikujiType.EventLucky;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_DIED;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerDied;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player respawn event");
 
@@ -23,13 +23,11 @@ public class PlayerRespawnEvent : IOmikujiEvent
 
         if (isPlayerAlive)
         {
-            msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerRespawnEvent.Notification.Respawn", client.PlayerName]}";
+            msg = $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerRespawnEvent.Notification.Respawn", client.PlayerName]}";
         }
         else
         {
-            msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.PlayerRespawnEvent.Notification.StillAlive", client.PlayerName]}";
+            msg = $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.PlayerRespawnEvent.Notification.StillAlive", client.PlayerName]}";
         }
 
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
@@ -50,12 +48,8 @@ public class PlayerRespawnEvent : IOmikujiEvent
         }
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerRespawnSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventPlayerRespawnSelectionWeight.Value;
     }
 }

@@ -8,30 +8,22 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class CourseWeapons: IPluginModule
+public class CourseWeapons(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "Course Weapons";
 
-    public CourseWeapons(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-        
-        m_CSSPlugin.AddCommand("css_glock", "Gives a glock", CommandGiveGlock);
-        m_CSSPlugin.AddCommand("css_usp", "Gives a usp", CommandGiveUsp);
-        m_CSSPlugin.AddCommand("css_he", "Gives a he grenade", CommandGiveHeGrenade);
+        Plugin.AddCommand("css_glock", "Gives a glock", CommandGiveGlock);
+        Plugin.AddCommand("css_usp", "Gives a usp", CommandGiveUsp);
+        Plugin.AddCommand("css_he", "Gives a he grenade", CommandGiveHeGrenade);
     }
 
-    public string PluginModuleName => "Course Weapons";
-    
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommand("css_glock", CommandGiveGlock);
-        m_CSSPlugin.RemoveCommand("css_usp", CommandGiveUsp);
-        m_CSSPlugin.RemoveCommand("css_he", CommandGiveHeGrenade);
+        Plugin.RemoveCommand("css_glock", CommandGiveGlock);
+        Plugin.RemoveCommand("css_usp", CommandGiveUsp);
+        Plugin.RemoveCommand("css_he", CommandGiveHeGrenade);
     }
 
 
@@ -87,7 +79,7 @@ public class CourseWeapons: IPluginModule
         {
             SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Player is already dead");
             
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.ShouldBeAlive"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Notification.ShouldBeAlive"));
             return false;
         }
 
@@ -96,7 +88,7 @@ public class CourseWeapons: IPluginModule
         if (!isCourseWeaponEnabled)
         {
             SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Course Weapon feature is disabled");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.CourseMapOnly"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Notification.CourseMapOnly"));
             return false;
         }
 
@@ -106,7 +98,7 @@ public class CourseWeapons: IPluginModule
     private void GiveItemToPlayer(CCSPlayerController client, CsItem item)
     {
         client.GiveNamedItem(item);
-        client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("CourseWeapon.Command.Notification.Retrieved", item.ToString()));
+        client.PrintToChat(LocalizeWithPrefix("CourseWeapon.Command.Notification.Retrieved", item.ToString()));
         
         SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Gave {item}");
     }
@@ -119,7 +111,7 @@ public class CourseWeapons: IPluginModule
         if (weaponServices == null)
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to obtain a WeaponServices instance.");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.UnknownError"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
 
@@ -135,7 +127,7 @@ public class CourseWeapons: IPluginModule
         if (itemName == null)
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to find weapon.");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Notification.UnknownError"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
         
@@ -143,7 +135,7 @@ public class CourseWeapons: IPluginModule
         {
             SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Player already have a {item.ToString()}.");
             
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
+            client.PrintToChat(LocalizeWithPrefix("CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
             return false;
         }
         

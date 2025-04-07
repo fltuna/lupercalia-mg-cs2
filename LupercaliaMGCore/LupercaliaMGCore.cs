@@ -39,7 +39,7 @@ public class LupercaliaMGCore : BasePlugin
 
     public override string ModuleDescription => "Provides core MG feature in CS2 with CounterStrikeSharp";
 
-    private readonly HashSet<IPluginModule> loadedModules = new();
+    private readonly HashSet<PluginModuleBase> loadedModules = [];
 
 
     public override void Load(bool hotReload)
@@ -49,7 +49,7 @@ public class LupercaliaMGCore : BasePlugin
         Logger.LogInformation("Plugin settings initialized");
 
         InitializeModule(new TeamBasedBodyColor(this));
-        InitializeModule(new DuckFix(this, hotReload));
+        InitializeModule(new DuckFix(this));
         InitializeModule(new TeamScramble(this));
         InitializeModule(new VoteMapRestart(this));
         InitializeModule(new VoteRoundRestart(this));
@@ -109,15 +109,16 @@ public class LupercaliaMGCore : BasePlugin
         UnloadAllModules();
     }
     
-    private void InitializeModule(IPluginModule module)
+    private void InitializeModule(PluginModuleBase module)
     {
         loadedModules.Add(module);
+        module.Initialize();
         Logger.LogInformation($"{module.PluginModuleName} has been initialized");
     }
 
     private void UnloadAllModules()
     {
-        foreach (IPluginModule loadedModule in loadedModules)
+        foreach (PluginModuleBase loadedModule in loadedModules)
         {
             loadedModule.UnloadModule();
             Logger.LogInformation($"{loadedModule.PluginModuleName} has been unloaded.");

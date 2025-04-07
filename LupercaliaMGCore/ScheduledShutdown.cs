@@ -8,42 +8,34 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class ScheduledShutdown : IPluginModule
+public class ScheduledShutdown(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "ScheduledShutdown";
 
-    public string PluginModuleName => "ScheduledShutdown";
-
-    private CounterStrikeSharp.API.Modules.Timers.Timer shutdownTimer;
+    private CounterStrikeSharp.API.Modules.Timers.Timer shutdownTimer = null!;
     private CounterStrikeSharp.API.Modules.Timers.Timer? warningTimer;
     private bool shutdownAfterRoundEnd = false;
 
-    public ScheduledShutdown(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
+        Plugin.AddCommand("css_cancelshutdown", "Cancel the initiated shutdown.", CommandCancelShutdown);
+        Plugin.AddCommand("css_startshutdown", "Initiate the shutdown.", CommandStartShutdown);
 
-        m_CSSPlugin.AddCommand("css_cancelshutdown", "Cancel the initiated shutdown.", CommandCancelShutdown);
-        m_CSSPlugin.AddCommand("css_startshutdown", "Initiate the shutdown.", CommandStartShutdown);
-
-        m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-        shutdownTimer = m_CSSPlugin.AddTimer(60.0f, () =>
+        Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        shutdownTimer = Plugin.AddTimer(60.0f, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.GetInstance.m_CVScheduledShutdownTime.Value))
+            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.m_CVScheduledShutdownTime.Value))
             {
                 initiateShutdown();
             }
         }, TimerFlags.REPEAT);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommand("css_cancelshutdown", CommandCancelShutdown);
-        m_CSSPlugin.RemoveCommand("css_startshutdown", CommandStartShutdown);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Plugin.RemoveCommand("css_cancelshutdown", CommandCancelShutdown);
+        Plugin.RemoveCommand("css_startshutdown", CommandStartShutdown);
+        Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
 
         shutdownTimer.Kill();
         warningTimer?.Kill();
@@ -52,25 +44,25 @@ public class ScheduledShutdown : IPluginModule
     private void initiateShutdown()
     {
         shutdownTimer.Kill();
-
-        if (PluginSettings.GetInstance.m_CVScheduledShutdownRoundEnd.Value)
+        
+        if (PluginSettings.m_CVScheduledShutdownRoundEnd.Value)
         {
             shutdownAfterRoundEnd = true;
-            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.AfterRoundEnd"));
+            PrintLocalizedChatToAll("ScheduledShutdown.Notification.AfterRoundEnd");
         }
         else
         {
-            int time = PluginSettings.GetInstance.m_CVScheduledShutdownWarningTime.Value;
-            warningTimer = m_CSSPlugin.AddTimer(1.0F, () =>
+            int time = PluginSettings.m_CVScheduledShutdownWarningTime.Value;
+            warningTimer = Plugin.AddTimer(1.0F, () =>
             {
                 if (time < 1)
                 {
-                    m_CSSPlugin.Logger.LogInformation("Server is shutting down...");
+                    Plugin.Logger.LogInformation("Server is shutting down...");
                     Server.ExecuteCommand("quit");
                     return;
                 }
 
-                Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.Countdown", time));
+                PrintLocalizedChatToAll("ScheduledShutdown.Notification.Countdown", time);
                 time--;
             }, TimerFlags.REPEAT);
         }
@@ -83,7 +75,7 @@ public class ScheduledShutdown : IPluginModule
         if (!shutdownAfterRoundEnd)
             return HookResult.Continue;
 
-        m_CSSPlugin.Logger.LogInformation("Server is shutting down...");
+        Logger.LogInformation("Server is shutting down...");
         Server.ExecuteCommand("quit");
 
 
@@ -96,9 +88,9 @@ public class ScheduledShutdown : IPluginModule
         shutdownTimer.Kill();
         warningTimer?.Kill();
 
-        shutdownTimer = m_CSSPlugin.AddTimer(60.0f, () =>
+        shutdownTimer = Plugin.AddTimer(60.0f, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.GetInstance.m_CVScheduledShutdownTime.Value))
+            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.m_CVScheduledShutdownTime.Value))
             {
                 initiateShutdown();
             }
@@ -109,20 +101,18 @@ public class ScheduledShutdown : IPluginModule
     [RequiresPermissions(@"css/root")]
     private void CommandCancelShutdown(CCSPlayerController? client, CommandInfo info)
     {
-        if (client == null)
-            return;
+        string executorName = PlayerUtil.GetPlayerName(client);
 
         cancelShutdown();
-        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.CancelShutdown", client.PlayerName));
+        PrintLocalizedChatToAll("ScheduledShutdown.Notification.CancelShutdown", executorName);
     }
 
     [RequiresPermissions(@"css/root")]
     private void CommandStartShutdown(CCSPlayerController? client, CommandInfo info)
     {
-        if (client == null)
-            return;
+        string executorName = PlayerUtil.GetPlayerName(client);
 
         initiateShutdown();
-        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("ScheduledShutdown.Notification.InitiateShutdown", client.PlayerName));
+        Server.PrintToChatAll(LocalizeWithPrefix("ScheduledShutdown.Notification.InitiateShutdown", executorName));
     }
 }

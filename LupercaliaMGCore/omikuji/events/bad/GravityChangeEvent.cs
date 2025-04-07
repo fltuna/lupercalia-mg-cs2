@@ -5,25 +5,23 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class GravityChangeEvent : IOmikujiEvent
+public class GravityChangeEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Gravity Change Event";
+    public override string EventName => "Gravity Change Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
+    public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
     private static bool isInGravityChangeEvent = false;
 
-    private static Random random = OmikujiEvents.random;
-
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Gravity change event");
 
-        int randomGravity = random.Next(
-            PluginSettings.GetInstance.m_CVOmikujiEventGravityMin.Value,
-            PluginSettings.GetInstance.m_CVOmikujiEventGravityMax.Value
+        int randomGravity = Random.Next(
+            PluginSettings.m_CVOmikujiEventGravityMin.Value,
+            PluginSettings.m_CVOmikujiEventGravityMax.Value
         );
 
         string msg;
@@ -31,12 +29,12 @@ public class GravityChangeEvent : IOmikujiEvent
         if (isInGravityChangeEvent)
         {
             msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.AnotherEventOnGoing"]}";
+                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.AnotherEventOnGoing"]}";
         }
         else
         {
             msg =
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityChanged", randomGravity]}";
+                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityChanged", randomGravity]}";
         }
 
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
@@ -57,9 +55,9 @@ public class GravityChangeEvent : IOmikujiEvent
 
         sv_gravity.SetValue((float)randomGravity);
 
-        float TIMER_INTERVAL_PLACE_HOLDER = PluginSettings.GetInstance.m_CVOmikujiEventGravityRestoreTime.Value;
+        float TIMER_INTERVAL_PLACE_HOLDER = PluginSettings.m_CVOmikujiEventGravityRestoreTime.Value;
 
-        LupercaliaMGCore.getInstance().AddTimer(TIMER_INTERVAL_PLACE_HOLDER, () =>
+        Plugin.AddTimer(TIMER_INTERVAL_PLACE_HOLDER, () =>
         {
             sv_gravity.SetValue(oldGravity);
             foreach (CCSPlayerController cl in Utilities.GetPlayers())
@@ -67,19 +65,14 @@ public class GravityChangeEvent : IOmikujiEvent
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                cl.PrintToChat(
-                    $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity]}");
+                cl.PrintToChat($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity]}");
                 isInGravityChangeEvent = false;
             }
         });
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventGravitySelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventGravitySelectionWeight.Value;
     }
 }

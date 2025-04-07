@@ -4,25 +4,18 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class DuckFix : IPluginModule
+public class DuckFix(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "DuckFix";
 
-    public string PluginModuleName => "DuckFix";
-
-    public DuckFix(LupercaliaMGCore plugin, bool hotReload)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-        m_CSSPlugin.RegisterListener<Listeners.OnTick>(OnTickListener);
+        Plugin.RegisterListener<Listeners.OnTick>(OnTickListener);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveListener<Listeners.OnTick>(OnTickListener);
+        Plugin.RemoveListener<Listeners.OnTick>(OnTickListener);
     }
 
     private void OnTickListener()
@@ -45,12 +38,11 @@ public class DuckFix : IPluginModule
             if (pmService == null)
                 continue;
 
-            CCSPlayer_MovementServices movementServices = new CCSPlayer_MovementServices(pmService.Handle);
-            if (movementServices != null)
+            CCSPlayer_MovementServices unused = new CCSPlayer_MovementServices(pmService.Handle)
             {
-                movementServices.LastDuckTime = 0.0f;
-                movementServices.DuckSpeed = 8.0f;
-            }
+                LastDuckTime = 0.0f,
+                DuckSpeed = 8.0f
+            };
         }
     }
 }

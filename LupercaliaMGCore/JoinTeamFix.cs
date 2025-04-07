@@ -8,33 +8,25 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class JoinTeamFix : IPluginModule
+public class JoinTeamFix(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "JoinTeamFix";
+    public override string PluginModuleName => "JoinTeamFix";
 
     private static Random random = new();
 
     private List<SpawnPoint> spawnPointsT = new();
-    private List<SpawnPoint> spawnPointsCT = new();
+    private List<SpawnPoint> spawnPointsCt = new();
 
-    public JoinTeamFix(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.AddCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
-        m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.AddCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
+        Plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
-        m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.RemoveCommandListener("jointeam", JoinTeamListener, HookMode.Pre);
+        Plugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
     }
 
 
@@ -49,18 +41,18 @@ public class JoinTeamFix : IPluginModule
 
         string teamArg = info.GetArg(1);
 
-        if (!int.TryParse(teamArg, out int teamID))
+        if (!int.TryParse(teamArg, out int teamId))
             return HookResult.Continue;
 
 
-        if (teamID >= (int)CsTeam.Spectator && teamID <= (int)CsTeam.CounterTerrorist)
+        if (teamId >= (int)CsTeam.Spectator && teamId <= (int)CsTeam.CounterTerrorist)
         {
-            CsTeam team = (CsTeam)Enum.ToObject(typeof(CsTeam), teamID);
+            CsTeam team = (CsTeam)Enum.ToObject(typeof(CsTeam), teamId);
 
-            if (teamID == (int)CsTeam.Terrorist && spawnPointsT.Count() <= 0)
+            if (teamId == (int)CsTeam.Terrorist && !spawnPointsT.Any())
                 return HookResult.Continue;
 
-            if (teamID == (int)CsTeam.CounterTerrorist && spawnPointsCT.Count() <= 0)
+            if (teamId == (int)CsTeam.CounterTerrorist && !spawnPointsCt.Any())
                 return HookResult.Continue;
 
 
@@ -73,11 +65,10 @@ public class JoinTeamFix : IPluginModule
 
     private void OnMapStart(string mapName)
     {
-        m_CSSPlugin.AddTimer(0.1F, () =>
+        Plugin.AddTimer(0.1F, () =>
         {
             spawnPointsT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_terrorist").ToList();
-            spawnPointsCT = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_counterterrorist")
-                .ToList();
+            spawnPointsCt = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_counterterrorist").ToList();
         });
     }
 }

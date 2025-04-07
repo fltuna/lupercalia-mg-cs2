@@ -41,55 +41,42 @@ record ExternalViewInfo(
  *
  * Check https://github.com/grrhn/ThirdPerson-WIP for more detail.
  */
-public class ExternalView : IPluginModule
+public class ExternalView(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "External View";
+    public override string PluginModuleName => "External View";
 
     private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new();
 
-    public ExternalView(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
+        Plugin.RegisterListener<Listeners.OnTick>(OnTick);
+        Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Post);
 
-        m_CSSPlugin.RegisterListener<Listeners.OnTick>(OnTick);
-        m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
-
-        m_CSSPlugin.AddCommand("css_tp", "Toggles third person camera mode.", CommandTp);
-        m_CSSPlugin.AddCommand("css_tpp", "Toggles third person offset camera mode.", CommandTpp);
-        m_CSSPlugin.AddCommand("css_watch", "Starts to watch other player. (CAUTION: You are still moving!)",
-            CommandWatch);
-        m_CSSPlugin.AddCommand("css_g", "Starts to watch other player. (CAUTION: You are still moving!)",
-            CommandWatch);
+        Plugin.AddCommand("css_tp", "Toggles third person camera mode.", CommandTp);
+        Plugin.AddCommand("css_tpp", "Toggles third person offset camera mode.", CommandTpp);
+        Plugin.AddCommand("css_watch", "Starts to watch other player. (CAUTION: You are still moving!)", CommandWatch);
+        Plugin.AddCommand("css_g", "Starts to watch other player. (CAUTION: You are still moving!)", CommandWatch);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
+        Plugin.RemoveListener<Listeners.OnTick>(OnTick);
+        Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Post);
+
+        Plugin.RemoveCommand("css_tp", CommandTp);
+        Plugin.RemoveCommand("css_tpp", CommandTpp);
+        Plugin.RemoveCommand("css_watch", CommandWatch);
+        Plugin.RemoveCommand("css_g", CommandWatch);
     }
 
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveListener<Listeners.OnTick>(OnTick);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
-
-        m_CSSPlugin.RemoveCommand("css_tp", CommandTp);
-        m_CSSPlugin.RemoveCommand("css_tpp", CommandTpp);
-        m_CSSPlugin.RemoveCommand("css_watch", CommandWatch);
-        m_CSSPlugin.RemoveCommand("css_g", CommandWatch);
-    }
-
-    private bool isEnabled
-    {
-        get => PluginSettings.GetInstance.m_CVExternalViewEnabled.Value;
-    }
+    private bool IsEnabled => PluginSettings.m_CVExternalViewEnabled.Value;
 
     private void OnTick()
     {
         var instancesToRemove = new List<ulong>();
         foreach (var p in m_externalViewInfoMap)
         {
-            if (!isEnabled || !p.Value.player.IsValid)
+            if (!IsEnabled || !p.Value.player.IsValid)
             {
                 instancesToRemove.Add(p.Key);
                 continue;
@@ -130,7 +117,7 @@ public class ExternalView : IPluginModule
         }
     }
 
-    private HookResult onRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         m_externalViewInfoMap.Clear();
         return HookResult.Continue;
@@ -143,7 +130,7 @@ public class ExternalView : IPluginModule
         ExternalViewUtils.DestroyExternalCamera(player, info.entCamera);
         m_externalViewInfoMap.Remove(player.SteamID);
 
-        player.PrintToChat(m_CSSPlugin.Localizer["ExternalView.Command.Notification.RestoreDefaultView"]);
+        player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.RestoreDefaultView"));
     }
 
     private void CommandTp(CCSPlayerController? player, CommandInfo command)
@@ -153,18 +140,17 @@ public class ExternalView : IPluginModule
             return;
         }
 
-        if (!isEnabled)
+        if (!IsEnabled)
         {
-            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
+            player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
         var (dist, distStr) = ExternalViewUtils.ParseDistance(command, 1);
 
         CDynamicProp? entCamera;
-        if (m_externalViewInfoMap.ContainsKey(player.SteamID))
+        if (m_externalViewInfoMap.TryGetValue(player.SteamID, out var info))
         {
-            var info = m_externalViewInfoMap[player.SteamID];
             if (info.onCleanup != null)
             {
                 info.onCleanup();
@@ -197,7 +183,7 @@ public class ExternalView : IPluginModule
         );
         ExternalViewUtils.UpdateThirdPersonCamera(player, entCamera, dist);
 
-        player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.StartThirdPerson"));
+        player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.StartThirdPerson"));
     }
 
     private void CommandTpp(CCSPlayerController? player, CommandInfo command)
@@ -207,18 +193,17 @@ public class ExternalView : IPluginModule
             return;
         }
 
-        if (!isEnabled)
+        if (!IsEnabled)
         {
-            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
+            player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
         var (dist, distStr) = ExternalViewUtils.ParseDistance(command, 1);
 
         CDynamicProp? entCamera;
-        if (m_externalViewInfoMap.ContainsKey(player.SteamID))
+        if (m_externalViewInfoMap.TryGetValue(player.SteamID, out var info))
         {
-            var info = m_externalViewInfoMap[player.SteamID];
             if (info.onCleanup != null)
             {
                 info.onCleanup();
@@ -239,7 +224,7 @@ public class ExternalView : IPluginModule
             entCamera = ExternalViewUtils.CreateExternalCamera(player);
         }
 
-        float YAW_OFFSET = 15;
+        const float YAW_OFFSET = 15;
         m_externalViewInfoMap[player.SteamID] = new ExternalViewInfo(
             ExternalViewMode.OffsetTP,
             distStr,
@@ -253,7 +238,7 @@ public class ExternalView : IPluginModule
         );
         ExternalViewUtils.UpdateThirdPersonCamera(player, entCamera, dist, YAW_OFFSET);
 
-        player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.StartThirdPersonOffset"));
+        player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.StartThirdPersonOffset"));
     }
 
     private void CommandWatch(CCSPlayerController? player, CommandInfo command)
@@ -263,9 +248,9 @@ public class ExternalView : IPluginModule
             return;
         }
 
-        if (!isEnabled)
+        if (!IsEnabled)
         {
-            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.NotAvailable"));
+            player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -274,7 +259,7 @@ public class ExternalView : IPluginModule
 
         if (command.ArgCount < 2)
         {
-            player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsMissing"));
+            player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsMissing"));
             shouldDisableWatch = true;
         }
         else
@@ -283,7 +268,7 @@ public class ExternalView : IPluginModule
 
             if (targetStr.Length <= 1)
             {
-                player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsTooShort"));
+                player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.WatchTargetNameIsTooShort"));
                 shouldDisableWatch = true;
             }
             else
@@ -307,7 +292,7 @@ public class ExternalView : IPluginModule
 
                 if (targetPlayer == null)
                 {
-                    player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetNotFound"));
+                    player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.WatchTargetNotFound"));
                     shouldDisableWatch = true;
                 }
             }
@@ -317,9 +302,8 @@ public class ExternalView : IPluginModule
         var arg = $"{targetPlayer?.PlayerName}, {distStr}";
 
         CDynamicProp? entCamera;
-        if (m_externalViewInfoMap.ContainsKey(player.SteamID))
+        if (m_externalViewInfoMap.TryGetValue(player.SteamID, out var info))
         {
-            var info = m_externalViewInfoMap[player.SteamID];
             if (info.onCleanup != null)
             {
                 info.onCleanup();
@@ -357,19 +341,15 @@ public class ExternalView : IPluginModule
         foreach (var weapon in weaponServices.MyWeapons)
         {
             var key = weapon.Value!.DesignerName!;
-            if (weapons.ContainsKey(key))
+            if (!weapons.TryAdd(key, 1))
             {
                 weapons[key]++;
-            }
-            else
-            {
-                weapons.Add(key, 1);
             }
         }
 
         player.RemoveWeapons();
 
-        var restoreWeapons = delegate()
+        void RestoreWeapons()
         {
             weaponServices.PreventWeaponPickup = false;
             foreach (var weapon in weapons)
@@ -379,7 +359,7 @@ public class ExternalView : IPluginModule
                     player.GiveNamedItem(weapon.Key);
                 }
             }
-        };
+        }
 
         m_externalViewInfoMap[player.SteamID] = new ExternalViewInfo(
             ExternalViewMode.TargetView,
@@ -391,24 +371,23 @@ public class ExternalView : IPluginModule
                 ExternalViewUtils.UpdateTargetCamera(player, targetPlayer, entCamera, dist);
                 if (!targetPlayer.PawnIsAlive || targetPlayer.Team != player.Team)
                 {
-                    player.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTargetIsDead"));
+                    player.PrintToChat(LocalizeWithPrefix("ExternalView.Command.Notification.WatchTargetIsDead"));
                     return false;
                 }
 
                 return true;
             },
-            delegate() { restoreWeapons(); }
+            RestoreWeapons
         );
         ExternalViewUtils.UpdateTargetCamera(player, targetPlayer, entCamera, dist);
 
-        Server.PrintToChatAll(
-            m_CSSPlugin.LocalizeStringWithPrefix("ExternalView.Command.Notification.WatchTarget", player.PlayerName, targetPlayer.PlayerName));
+        PrintLocalizedChatToAll("ExternalView.Command.Notification.WatchTarget", player.PlayerName, targetPlayer.PlayerName);
     }
 }
 
 public static class ExternalViewUtils
 {
-    static public (float, string) ParseDistance(CommandInfo command, int at)
+    public static (float, string) ParseDistance(CommandInfo command, int at)
     {
         var distance = 80.0f;
         if (command.ArgCount > at)
@@ -424,7 +403,7 @@ public static class ExternalViewUtils
         return (distance, distance.ToString());
     }
 
-    static public CDynamicProp CreateExternalCamera(CCSPlayerController player)
+    public static CDynamicProp CreateExternalCamera(CCSPlayerController player)
     {
         CDynamicProp? entCamera = Utilities.CreateEntityByName<CDynamicProp>("prop_dynamic");
 
@@ -447,7 +426,7 @@ public static class ExternalViewUtils
         return entCamera;
     }
 
-    static public void DestroyExternalCamera(CCSPlayerController player, CDynamicProp entCamera)
+    public static void DestroyExternalCamera(CCSPlayerController player, CDynamicProp entCamera)
     {
         SetCameraEntity(player, null);
 
@@ -457,7 +436,7 @@ public static class ExternalViewUtils
         }
     }
 
-    static private void SetColor(CDynamicProp? ent, Color color)
+    private static void SetColor(CDynamicProp? ent, Color color)
     {
         if (ent == null || !ent.IsValid)
         {
@@ -468,16 +447,16 @@ public static class ExternalViewUtils
         Utilities.SetStateChanged(ent, "CBaseModelEntity", "m_clrRender");
     }
 
-    static private void SetCameraEntity(CCSPlayerController player, CDynamicProp? camera)
+    private static void SetCameraEntity(CCSPlayerController player, CDynamicProp? camera)
     {
         var cameraHandle = camera?.EntityHandle.Raw ?? uint.MaxValue;
         player.PlayerPawn.Value!.CameraServices!.ViewEntity.Raw = cameraHandle;
         Utilities.SetStateChanged(player.PlayerPawn.Value, "CBasePlayerPawn", "m_pCameraServices");
     }
 
-    static private Vector eyeOffset = new Vector(0, 0, 64);
+    private static readonly Vector EyeOffset = new Vector(0, 0, 64);
 
-    static private Vector CalculateThirdPersonOffset(QAngle angle, float distance)
+    private static Vector CalculateThirdPersonOffset(QAngle angle, float distance)
     {
         float yawRad = MathUtil.ToRad(angle.Y);
         float pitchRad = MathUtil.ToRad(angle.X);
@@ -496,8 +475,7 @@ public static class ExternalViewUtils
         return dir * distance;
     }
 
-    static public void UpdateThirdPersonCamera(CCSPlayerController player, CDynamicProp entCamera, float distance,
-        float yawOffset = 0)
+    public static void UpdateThirdPersonCamera(CCSPlayerController player, CDynamicProp entCamera, float distance, float yawOffset = 0)
     {
         var pawn = player.PlayerPawn.Value!;
         var viewAngle = pawn!.V_angle;
@@ -506,21 +484,20 @@ public static class ExternalViewUtils
         var offset = CalculateThirdPersonOffset(cameraAngle, distance);
 
         entCamera.Teleport(
-            pawn.AbsOrigin! + eyeOffset + offset,
+            pawn.AbsOrigin! + EyeOffset + offset,
             viewAngle,
             Vector.Zero
         );
     }
 
-    static public void UpdateTargetCamera(CCSPlayerController player, CCSPlayerController target,
-        CDynamicProp entCamera, float distance)
+    public static void UpdateTargetCamera(CCSPlayerController player, CCSPlayerController target, CDynamicProp entCamera, float distance)
     {
         var pawn = player.PlayerPawn.Value!;
         var angle = pawn!.V_angle;
         var offset = CalculateThirdPersonOffset(angle, distance);
 
         entCamera.Teleport(
-            target.PlayerPawn.Value!.AbsOrigin! + eyeOffset + offset,
+            target.PlayerPawn.Value!.AbsOrigin! + EyeOffset + offset,
             angle,
             Vector.Zero
         );
