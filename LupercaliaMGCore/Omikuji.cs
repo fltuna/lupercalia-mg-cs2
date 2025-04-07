@@ -9,15 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class Omikuji : IPluginModule
+public class Omikuji: PluginModuleBase
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "Omikuji";
 
-    public string PluginModuleName => "Omikuji";
+    public readonly string ChatPrefix = $" {ChatColors.Gold}[Omikuji]{ChatColors.Default}";
 
-    public static readonly string ChatPrefix = $" {ChatColors.Gold}[Omikuji]{ChatColors.Default}";
+    private readonly Random Random = new();
 
-    private static readonly Random random = new Random();
+    private readonly OmikujiEvents omikujiEvents;
 
     private readonly List<(OmikujiType omikujiType, double weight)> omikujiTypes = new();
 
@@ -25,19 +25,24 @@ public class Omikuji : IPluginModule
 
     private readonly Dictionary<CCSPlayerController, bool> isWaitingForEventExecution = new();
 
-    public Omikuji(LupercaliaMGCore plugin)
+
+    public Omikuji(LupercaliaMGCore plugin) : base(plugin)
     {
-        m_CSSPlugin = plugin;
+        omikujiEvents = new OmikujiEvents(this, Plugin);
+    }
+    
 
-        m_CSSPlugin.AddCommand("css_omikuji", "draw a fortune.", CommandOmikuji);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+    public override void Initialize()
+    {
+        Plugin.AddCommand("css_omikuji", "draw a fortune.", CommandOmikuji);
+        Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
 
-        omikujiTypes.Add((OmikujiType.EVENT_BAD, PluginSettings.GetInstance.m_CVOmikujiEventWeightBad.Value));
-        omikujiTypes.Add((OmikujiType.EVENT_LUCKY, PluginSettings.GetInstance.m_CVOmikujiEventWeightLucky.Value));
-        omikujiTypes.Add((OmikujiType.EVENT_MISC, PluginSettings.GetInstance.m_CVOmikujiEventWeightMisc.Value));
+        omikujiTypes.Add((OmikujiType.EventBad, PluginSettings.m_CVOmikujiEventWeightBad.Value));
+        omikujiTypes.Add((OmikujiType.EventLucky, PluginSettings.m_CVOmikujiEventWeightLucky.Value));
+        omikujiTypes.Add((OmikujiType.EventMisc, PluginSettings.m_CVOmikujiEventWeightMisc.Value));
 
-        // For hot reload
-        m_CSSPlugin.AddTimer(0.1F, () =>
+        // For hot reload and server startup
+        Plugin.AddTimer(0.1F, () =>
         {
             SimpleLogging.LogDebug("Late initialization for hot reloading omikuji.");
             foreach (CCSPlayerController client in Utilities.GetPlayers())
@@ -46,21 +51,17 @@ public class Omikuji : IPluginModule
                     continue;
 
                 lastCommandUseTime[client] = 0.0D;
-                resetPlayerInformation(client);
+                ResetPlayerInformation(client);
             }
         });
-
-        OmikujiEvents.initializeOmikujiEvents();
+        
+        omikujiEvents.InitializeOmikujiEvents();
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommand("css_omikuji", CommandOmikuji);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        Plugin.RemoveCommand("css_omikuji", CommandOmikuji);
+        Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
     }
 
     private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
@@ -70,11 +71,11 @@ public class Omikuji : IPluginModule
         if (client == null)
             return HookResult.Continue;
 
-        resetPlayerInformation(client);
+        ResetPlayerInformation(client);
         return HookResult.Continue;
     }
 
-    private void resetPlayerInformation(CCSPlayerController client)
+    private void ResetPlayerInformation(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Omikuji: Resetting player information");
         lastCommandUseTime[client] = 0.0D;
@@ -88,67 +89,65 @@ public class Omikuji : IPluginModule
 
         if (isWaitingForEventExecution[client])
         {
-            client.PrintToChat(
-                $"{ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.Command.Notification.NotReady"]}");
+            client.PrintToChat($"{ChatPrefix} {Plugin.Localizer["Omikuji.Command.Notification.NotReady"]}");
             return;
         }
 
         if (Server.EngineTime - lastCommandUseTime[client] <
-            PluginSettings.GetInstance.m_CVOmikujiCommandCooldown.Value)
+            PluginSettings.m_CVOmikujiCommandCooldown.Value)
         {
             client.PrintToChat(
-                $"{ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.Command.Notification.Cooldown", (PluginSettings.GetInstance.m_CVOmikujiCommandCooldown.Value - (Server.EngineTime - lastCommandUseTime[client])).ToString("#.#")]}");
+                $"{ChatPrefix} {Plugin.Localizer["Omikuji.Command.Notification.Cooldown", (PluginSettings.m_CVOmikujiCommandCooldown.Value - (Server.EngineTime - lastCommandUseTime[client])).ToString("#.#")]}");
             return;
         }
 
         SimpleLogging.LogDebug($"[Omikuji] [Player {client.PlayerName}] trying to draw omikuji.");
         SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji type.");
-        OmikujiType randomOmikujiType = getRandomOmikujiType();
-        var events = OmikujiEvents.getEvents()[randomOmikujiType];
+        OmikujiType randomOmikujiType = GetRandomOmikujiType();
+        var events = omikujiEvents.GetEvents()[randomOmikujiType];
         bool isPlayerAlive = PlayerUtil.IsPlayerAlive(client);
 
-        IOmikujiEvent omikuji;
+        OmikujiEventBase omikuji;
 
         SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji.");
         while (true)
         {
-            omikuji = selectWeightedRandom(events);
+            omikuji = SelectWeightedRandom(events);
 
-            if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.ANYTIME)
+            if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.Anytime)
             {
                 break;
             }
-            else if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.PLAYER_DIED && !isPlayerAlive)
+            if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.PlayerDied && !isPlayerAlive)
             {
                 break;
             }
-            else if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.PLAYER_ALIVE && isPlayerAlive)
+            if (omikuji.OmikujiCanInvokeWhen == OmikujiCanInvokeWhen.PlayerAlive && isPlayerAlive)
             {
                 break;
             }
         }
 
         isWaitingForEventExecution[client] = true;
-        Server.PrintToChatAll(
-            $"{ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.Command.Notification.Drawing", client.PlayerName]}");
-        m_CSSPlugin.AddTimer(
-            random.Next(PluginSettings.GetInstance.m_CVOmikujiCommandExecutionDelayMin.Value,
-                PluginSettings.GetInstance.m_CVOmikujiCommandExecutionDelayMax.Value), () =>
+        Server.PrintToChatAll($"{ChatPrefix} {Plugin.Localizer["Omikuji.Command.Notification.Drawing", client.PlayerName]}");
+        Plugin.AddTimer(
+            Random.Next(PluginSettings.m_CVOmikujiCommandExecutionDelayMin.Value,
+                PluginSettings.m_CVOmikujiCommandExecutionDelayMax.Value), () =>
             {
                 SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Executing omikuji...");
                 lastCommandUseTime[client] = Server.EngineTime;
                 isWaitingForEventExecution[client] = false;
-                omikuji.execute(client);
+                omikuji.Execute(client);
             });
     }
 
-    private OmikujiType getRandomOmikujiType()
+    private OmikujiType GetRandomOmikujiType()
     {
-        return selectWeightedRandom(omikujiTypes);
+        return SelectWeightedRandom(omikujiTypes);
     }
 
 
-    private static T selectWeightedRandom<T>(List<(T item, double weight)> weightedItems)
+    private T SelectWeightedRandom<T>(List<(T item, double weight)> weightedItems)
     {
         double totalWeight = 0.0D;
         foreach (var item in weightedItems)
@@ -156,7 +155,7 @@ public class Omikuji : IPluginModule
             totalWeight += item.weight;
         }
 
-        double randomVal = random.NextDouble() * totalWeight;
+        double randomVal = Random.NextDouble() * totalWeight;
 
         foreach (var item in weightedItems)
         {
@@ -171,51 +170,51 @@ public class Omikuji : IPluginModule
         return weightedItems[0].item;
     }
 
-    private static IOmikujiEvent selectWeightedRandom(List<IOmikujiEvent> weightedItems)
+    private OmikujiEventBase SelectWeightedRandom(List<OmikujiEventBase> weightedItems)
     {
         double totalWeight = 0.0D;
         foreach (var item in weightedItems)
         {
-            totalWeight += item.getOmikujiWeight();
+            totalWeight += item.GetOmikujiWeight();
         }
 
-        double randomVal = random.NextDouble() * totalWeight;
+        double randomVal = Random.NextDouble() * totalWeight;
 
         foreach (var item in weightedItems)
         {
-            if (randomVal < item.getOmikujiWeight())
+            if (randomVal < item.GetOmikujiWeight())
             {
                 return item;
             }
 
-            randomVal -= item.getOmikujiWeight();
+            randomVal -= item.GetOmikujiWeight();
         }
 
         return weightedItems[0];
     }
 
-    public static string GetOmikujiLuckMessage(OmikujiType type, CCSPlayerController client)
+    public string GetOmikujiLuckMessage(OmikujiType type, CCSPlayerController client)
     {
         string text = "";
 
         switch (type)
         {
-            case OmikujiType.EVENT_BAD:
+            case OmikujiType.EventBad:
             {
                 text =
-                    $"{LupercaliaMGCore.getInstance().Localizer["Omikuji.Events.Notification.BadLuck", client.PlayerName]}";
+                    $"{Plugin.Localizer["Omikuji.Events.Notification.BadLuck", client.PlayerName]}";
                 break;
             }
-            case OmikujiType.EVENT_LUCKY:
+            case OmikujiType.EventLucky:
             {
                 text =
-                    $"{LupercaliaMGCore.getInstance().Localizer["Omikuji.Events.Notification.Luck", client.PlayerName]}";
+                    $"{Plugin.Localizer["Omikuji.Events.Notification.Luck", client.PlayerName]}";
                 break;
             }
-            case OmikujiType.EVENT_MISC:
+            case OmikujiType.EventMisc:
             {
                 text =
-                    $"{LupercaliaMGCore.getInstance().Localizer["Omikuji.Events.Notification.Misc", client.PlayerName]}";
+                    $"{Plugin.Localizer["Omikuji.Events.Notification.Misc", client.PlayerName]}";
                 break;
             }
         }

@@ -9,30 +9,22 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace LupercaliaMGCore;
 
-public class Debugging : IPluginModule
+public class Debugging(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "DebuggingCommands";
+    public override string PluginModuleName => "DebuggingCommands";
 
     private readonly Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
 
-
-    public Debugging(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-        m_CSSPlugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
-        m_CSSPlugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
+        Plugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
+        Plugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommand("css_dbg_savepos", CommandSavePos);
-        m_CSSPlugin.RemoveCommand("css_dbg_restorepos", CommandRestorePos);
+        Plugin.RemoveCommand("css_dbg_savepos", CommandSavePos);
+        Plugin.RemoveCommand("css_dbg_restorepos", CommandRestorePos);
     }
 
     private void CommandSavePos(CCSPlayerController? client, CommandInfo info)
@@ -40,7 +32,7 @@ public class Debugging : IPluginModule
         if (client == null)
             return;
 
-        if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
+        if (!PluginSettings.m_CVDebuggingEnabled.Value)
         {
             client.PrintToChat("Debugging feature is disabled.");
             return;
@@ -77,7 +69,7 @@ public class Debugging : IPluginModule
         if (client == null)
             return;
 
-        if (!PluginSettings.GetInstance.m_CVDebuggingEnabled.Value)
+        if (!PluginSettings.m_CVDebuggingEnabled.Value)
         {
             client.PrintToChat("Debugging feature is disabled.");
             return;
@@ -94,9 +86,9 @@ public class Debugging : IPluginModule
         if (playerPawn == null)
             return;
 
-        Vector? vector = null;
+        Vector? vector;
 
-        if (!savedPlayerPos.TryGetValue(client, out vector) || vector == null)
+        if (!savedPlayerPos.TryGetValue(client, out vector))
         {
             client.PrintToChat("There is no saved location! save location first!");
             return;

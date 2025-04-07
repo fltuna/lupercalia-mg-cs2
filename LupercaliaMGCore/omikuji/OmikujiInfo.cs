@@ -1,18 +1,15 @@
-using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Core;
-
 namespace LupercaliaMGCore;
 
 public enum OmikujiType
 {
-    EVENT_BAD,
-    EVENT_LUCKY,
-    EVENT_MISC,
+    EventBad,
+    EventLucky,
+    EventMisc,
 }
 
 public enum OmikujiCanInvokeWhen
 {
-    PLAYER_DIED,
-    PLAYER_ALIVE,
-    ANYTIME,
+    PlayerDied,
+    PlayerAlive,
+    Anytime,
 }

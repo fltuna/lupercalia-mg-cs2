@@ -4,46 +4,37 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class RoundEndDamageImmunity : IPluginModule
+public class RoundEndDamageImmunity(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "RoundEndDamageImmunity";
+    public override string PluginModuleName => "RoundEndDamageImmunity";
 
     private bool damageImmunity = false;
 
-    public RoundEndDamageImmunity(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt, HookMode.Pre);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
     }
 
     private HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
     {
-        if (damageImmunity && PluginSettings.GetInstance.m_CVIsRoundEndDamageImmunityEnabled.Value)
+        if (damageImmunity && PluginSettings.m_CVIsRoundEndDamageImmunityEnabled.Value)
         {
-            var player = @event.Userid?.PlayerPawn?.Value;
+            var player = @event.Userid?.PlayerPawn.Value;
 
             if (player == null)
                 return HookResult.Continue;
 
             player.Health = player.LastHealth;
-            SimpleLogging.LogTrace(
-                $"[Round End Damage Immunity] [Player {player.Controller.Value!.PlayerName}] Nullified damage");
+            SimpleLogging.LogTrace($"[Round End Damage Immunity] [Player {player.Controller.Value?.PlayerName}] Nullified damage");
             return HookResult.Continue;
         }
 

@@ -4,31 +4,23 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class RoundEndWeaponStrip : IPluginModule
+public class RoundEndWeaponStrip(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "RoundEndWeaponStrip";
 
-    public string PluginModuleName => "RoundEndWeaponStrip";
-
-    public RoundEndWeaponStrip(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
     }
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!PluginSettings.GetInstance.m_CVIsRoundEndWeaponStripEnabled.Value)
+        if (!PluginSettings.m_CVIsRoundEndWeaponStripEnabled.Value)
             return HookResult.Continue;
 
         SimpleLogging.LogDebug("[Round End Weapon Strip] Removing all players weapons.");

@@ -6,33 +6,25 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class TeamScramble : IPluginModule
+public class TeamScramble(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "TeamScramble";
 
-    public string PluginModuleName => "TeamScramble";
+    private static readonly Random Random = new();
 
-    private static Random random = new();
-
-    public TeamScramble(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundEnd);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundEnd);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundEnd);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundEnd);
     }
 
     private HookResult OnRoundEnd(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!PluginSettings.GetInstance.m_CVIsScrambleEnabled.Value)
+        if (!PluginSettings.m_CVIsScrambleEnabled.Value)
             return HookResult.Continue;
 
         SimpleLogging.LogDebug("[Team Scramble] Called");
@@ -49,7 +41,7 @@ public class TeamScramble : IPluginModule
 
         foreach (var client in players)
         {
-            int randomTeam = random.Next(0, 5000);
+            int randomTeam = Random.Next(0, 5000);
             if (randomTeam >= 2500)
             {
                 if (teamCountCT >= playerCountHalf)

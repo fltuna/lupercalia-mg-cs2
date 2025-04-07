@@ -10,9 +10,9 @@ public interface IOmikujiEvent
 
     OmikujiCanInvokeWhen OmikujiCanInvokeWhen { get; }
 
-    void execute(CCSPlayerController client);
+    void Execute(CCSPlayerController client);
 
-    void initialize();
+    void Initialize();
 
-    double getOmikujiWeight();
+    double GetOmikujiWeight();
 }

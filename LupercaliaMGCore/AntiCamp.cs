@@ -9,16 +9,13 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class AntiCamp : IPluginModule
+public class AntiCamp(LupercaliaMGCore plugin, bool hotReload) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "AntiCamp";
 
-    public string PluginModuleName => "AntiCamp";
+    private CounterStrikeSharp.API.Modules.Timers.Timer timer = null!;
 
-    private CounterStrikeSharp.API.Modules.Timers.Timer timer;
-
-    private readonly Dictionary<CCSPlayerController, (CBaseModelEntity? glowEntity, CBaseModelEntity? relayEntity)>
-        playerGlowingEntity = new();
+    private readonly Dictionary<CCSPlayerController, (CBaseModelEntity? glowEntity, CBaseModelEntity? relayEntity)> playerGlowingEntity = new();
 
     private readonly Dictionary<CCSPlayerController, float> playerCampingTime = new();
 
@@ -31,18 +28,16 @@ public class AntiCamp : IPluginModule
 
     private bool isRoundStarted = false;
 
-    public AntiCamp(LupercaliaMGCore plugin, bool hotReload)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
+        Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect, HookMode.Pre);
+        Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull, HookMode.Pre);
+        Plugin.RegisterListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
 
-        m_CSSPlugin.RegisterEventHandler<EventPlayerConnect>(onPlayerConnect, HookMode.Pre);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerConnectFull>(onPlayerConnectFull, HookMode.Pre);
-        m_CSSPlugin.RegisterListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
-
-        m_CSSPlugin.RegisterEventHandler<EventRoundFreezeEnd>(onRoundFeezeEnd, HookMode.Post);
-        m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
+        Plugin.RegisterEventHandler<EventRoundFreezeEnd>(OnRoundFreezeEnd, HookMode.Post);
+        Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Post);
+        Plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
+        Plugin.RegisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
 
 
         if (hotReload)
@@ -60,34 +55,29 @@ public class AntiCamp : IPluginModule
                 if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
                     continue;
 
-                initClientInformation(client);
+                InitClientInformation(client);
             }
         }
 
-        timer = m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVAntiCampDetectionInterval.Value,
-            checkPlayerIsCamping, TimerFlags.REPEAT);
+        timer = Plugin.AddTimer(PluginSettings.m_CVAntiCampDetectionInterval.Value, checkPlayerIsCamping, TimerFlags.REPEAT);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
+        Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect, HookMode.Pre);
+        Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull, HookMode.Pre);
+        Plugin.RemoveListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
 
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerConnect>(onPlayerConnect, HookMode.Pre);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerConnectFull>(onPlayerConnectFull, HookMode.Pre);
-        m_CSSPlugin.RemoveListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
-
-        m_CSSPlugin.DeregisterEventHandler<EventRoundFreezeEnd>(onRoundFeezeEnd, HookMode.Post);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(onRoundEnd, HookMode.Post);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
+        Plugin.DeregisterEventHandler<EventRoundFreezeEnd>(OnRoundFreezeEnd, HookMode.Post);
+        Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Post);
+        Plugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath, HookMode.Post);
+        Plugin.DeregisterEventHandler<EventPlayerTeam>(OnSwitchTeam, HookMode.Post);
         timer.Kill();
     }
 
     private void checkPlayerIsCamping()
     {
-        if (!isRoundStarted || !PluginSettings.GetInstance.m_CVAntiCampEnabled.Value)
+        if (!isRoundStarted || !PluginSettings.m_CVAntiCampEnabled.Value)
             return;
 
         foreach (var client in Utilities.GetPlayers())
@@ -101,7 +91,7 @@ public class AntiCamp : IPluginModule
             if (!PlayerUtil.IsPlayerAlive(client))
                 continue;
 
-            if (!isClientInformationAccessible(client))
+            if (!IsClientInformationAccessible(client))
                 continue;
 
             Vector? clientOrigin = client.PlayerPawn.Value!.AbsOrigin;
@@ -116,11 +106,11 @@ public class AntiCamp : IPluginModule
             if (lastLocation == null)
                 continue;
 
-            double distance = calculateDistance(lastLocation.vector, clientOrigin);
+            double distance = CalculateDistance(lastLocation.vector, clientOrigin);
 
-            if (distance <= PluginSettings.GetInstance.m_CVAntiCampDetectionRadius.Value)
+            if (distance <= PluginSettings.m_CVAntiCampDetectionRadius.Value)
             {
-                playerCampingTime[client] += PluginSettings.GetInstance.m_CVAntiCampDetectionInterval.Value;
+                playerCampingTime[client] += PluginSettings.m_CVAntiCampDetectionInterval.Value;
                 // string msg = $"You have been camping for {playerCampingTime[client]:F2} | secondsGlowingTime: {playerGlowingTime[client]:F2} \nCurrent Location: {clientOrigin.X:F2} {clientOrigin.Y:F2} {clientOrigin.Z:F2} | Compared Location: {lastLocation.vector.X:F2} {lastLocation.vector.Y:F2} {lastLocation.vector.Z:F2} \nLocation captured time {lastLocation.time:F2} | Difference: {distance:F2}";
                 // client.PrintToCenterHtml(msg);
             }
@@ -129,15 +119,15 @@ public class AntiCamp : IPluginModule
                 playerCampingTime[client] = 0.0F;
             }
 
-            if (playerCampingTime[client] >= PluginSettings.GetInstance.m_CVAntiCampDetectionTime.Value)
+            if (playerCampingTime[client] >= PluginSettings.m_CVAntiCampDetectionTime.Value)
             {
                 if (playerGlowingTime[client] <= 0.0 && !isPlayerWarned[client])
                 {
-                    startPlayerGlowing(client);
-                    recreateGlowingTimer(client);
+                    StartPlayerGlowing(client);
+                    RecreateGlowingTimer(client);
                 }
 
-                playerGlowingTime[client] = PluginSettings.GetInstance.m_CVAntiCampMarkingTime.Value;
+                playerGlowingTime[client] = PluginSettings.m_CVAntiCampMarkingTime.Value;
             }
         }
     }
@@ -152,7 +142,7 @@ public class AntiCamp : IPluginModule
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return HookResult.Continue;
 
-        stopPlayerGlowing(client);
+        StopPlayerGlowing(client);
 
         return HookResult.Continue;
     }
@@ -167,32 +157,32 @@ public class AntiCamp : IPluginModule
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return HookResult.Continue;
 
-        stopPlayerGlowing(client);
+        StopPlayerGlowing(client);
 
         return HookResult.Continue;
     }
 
-    private HookResult onRoundFeezeEnd(EventRoundFreezeEnd @event, GameEventInfo info)
+    private HookResult OnRoundFreezeEnd(EventRoundFreezeEnd @event, GameEventInfo info)
     {
         isRoundStarted = true;
         foreach (CCSPlayerController client in Utilities.GetPlayers())
         {
-            if (isClientInformationAccessible(client))
+            if (IsClientInformationAccessible(client))
                 continue;
 
-            initClientInformation(client);
+            InitClientInformation(client);
         }
 
         return HookResult.Continue;
     }
 
-    private HookResult onRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         isRoundStarted = false;
         return HookResult.Continue;
     }
 
-    private HookResult onPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
+    private HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
     {
         CCSPlayerController? client = @event.Userid;
 
@@ -202,12 +192,12 @@ public class AntiCamp : IPluginModule
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return HookResult.Continue;
 
-        initClientInformation(client);
+        InitClientInformation(client);
 
         return HookResult.Continue;
     }
 
-    private HookResult onPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+    private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
         CCSPlayerController? client = @event.Userid;
 
@@ -217,10 +207,10 @@ public class AntiCamp : IPluginModule
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return HookResult.Continue;
 
-        if (isClientInformationAccessible(client))
+        if (IsClientInformationAccessible(client))
             return HookResult.Continue;
 
-        initClientInformation(client);
+        InitClientInformation(client);
         return HookResult.Continue;
     }
 
@@ -234,40 +224,40 @@ public class AntiCamp : IPluginModule
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return;
 
-        if (isClientInformationAccessible(client))
+        if (IsClientInformationAccessible(client))
             return;
 
-        initClientInformation(client);
+        InitClientInformation(client);
     }
 
-    private bool isClientInformationAccessible(CCSPlayerController client)
+    private bool IsClientInformationAccessible(CCSPlayerController client)
     {
         return playerPositionHistory.ContainsKey(client) && playerCampingTime.ContainsKey(client) &&
                playerGlowingTime.ContainsKey(client) && isPlayerWarned.ContainsKey(client);
     }
 
-    private void initClientInformation(CCSPlayerController client)
+    private void InitClientInformation(CCSPlayerController client)
     {
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initializing the client information.");
         playerPositionHistory[client] = new PlayerPositionHistory(
-            (int)(PluginSettings.GetInstance.m_CVAntiCampDetectionTime.Value /
-                  PluginSettings.GetInstance.m_CVAntiCampDetectionInterval.Value));
+            (int)(PluginSettings.m_CVAntiCampDetectionTime.Value /
+                  PluginSettings.m_CVAntiCampDetectionInterval.Value));
         playerCampingTime[client] = 0.0F;
         playerGlowingTime[client] = 0.0F;
         isPlayerWarned[client] = false;
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initialized.");
     }
 
-    private void recreateGlowingTimer(CCSPlayerController client)
+    private void RecreateGlowingTimer(CCSPlayerController client)
     {
-        float timerInterval = PluginSettings.GetInstance.m_CVAntiCampDetectionInterval.Value;
+        float timerInterval = PluginSettings.m_CVAntiCampDetectionInterval.Value;
         isPlayerWarned[client] = true;
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
-        client.PrintToCenterAlert(m_CSSPlugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);
+        client.PrintToCenterAlert(Plugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);
 
-        void check()
+        void Check()
         {
-            m_CSSPlugin.AddTimer(timerInterval, () =>
+            Plugin.AddTimer(timerInterval, () =>
             {
                 if (playerGlowingTime[client] <= 0.0)
                 {
@@ -277,15 +267,15 @@ public class AntiCamp : IPluginModule
                 }
 
                 playerGlowingTime[client] -= timerInterval;
-                check();
+                Check();
             }, TimerFlags.STOP_ON_MAPCHANGE);
         }
 
         ;
-        check();
+        Check();
     }
 
-    private void startPlayerGlowing(CCSPlayerController client)
+    private void StartPlayerGlowing(CCSPlayerController client)
     {
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Start player glow");
         playerGlowingTime[client] = 0.0F;
@@ -343,7 +333,7 @@ public class AntiCamp : IPluginModule
         playerGlowingEntity[client] = (modelGlow, modelRelay);
     }
 
-    private void stopPlayerGlowing(CCSPlayerController client)
+    private void StopPlayerGlowing(CCSPlayerController client)
     {
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glow removed");
 
@@ -362,7 +352,7 @@ public class AntiCamp : IPluginModule
     }
 
 
-    private static double calculateDistance(Vector vec1, Vector vec2)
+    private static double CalculateDistance(Vector vec1, Vector vec2)
     {
         double deltaX = vec1.X - vec2.X;
         double deltaY = vec1.Y - vec2.Y;

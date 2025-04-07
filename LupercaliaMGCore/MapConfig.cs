@@ -6,69 +6,60 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class MapConfig : IPluginModule
+public class MapConfig(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "MapConfig";
+    public override string PluginModuleName => "MapConfig";
 
     // Config name and path
     private readonly List<MapConfigFile> configs = new();
 
-    private readonly string configFolder;
+    private readonly string configFolder = Path.GetFullPath(Path.Combine(Server.GameDirectory, PluginSettings.ConfigFolder, "map/"));
 
-    public MapConfig(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        configFolder = Path.GetFullPath(Path.Combine(Server.GameDirectory, PluginSettings.ConfigFolder, "map/"));
 
         if (!checkDirectoryExists())
             throw new InvalidOperationException("Map config directory is not exists and failed to create.");
 
         updateConfigsDictionary();
 
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
-        m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
+        Plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
-        m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Post);
+        Plugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
     }
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.GetInstance.m_CVMapConfigExecutionTiming.Value)
+        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.m_CVMapConfigExecutionTiming.Value)
                 .Contains(2))
             return HookResult.Continue;
 
         SimpleLogging.LogDebug("[Map Config] Executing configs at round PreStart.");
-        executeConfigs();
+        ExecuteConfigs();
         return HookResult.Continue;
     }
 
     private void OnMapStart(string mapName)
     {
-        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.GetInstance.m_CVMapConfigExecutionTiming.Value)
+        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.m_CVMapConfigExecutionTiming.Value)
                 .Contains(1))
             return;
 
         SimpleLogging.LogDebug("[Map Config] Executing configs at map start.");
-        executeConfigs();
+        ExecuteConfigs();
     }
 
-    private void executeConfigs()
+    private void ExecuteConfigs()
     {
         SimpleLogging.LogTrace("[Map Config] Updating the config dictionary");
         updateConfigsDictionary();
 
-        int mapCfgType = PluginSettings.GetInstance.m_CVMapConfigType.Value;
+        int mapCfgType = PluginSettings.m_CVMapConfigType.Value;
 
         SimpleLogging.LogTrace("[Map Config] Checking the Map Config type");
         if (mapCfgType == 0)
@@ -79,6 +70,7 @@ public class MapConfig : IPluginModule
 
         string? mapName = Server.MapName;
 
+        // mapName is nullable when server startup. This is required for plugin loading when server startup.
         if (mapName == null)
         {
             SimpleLogging.LogTrace("[Map Config] mapName is null. cancelling the execution.");
@@ -97,11 +89,11 @@ public class MapConfig : IPluginModule
             if (MathUtil.DecomposePowersOfTwo(mapCfgType).Contains(1) && mapName.Equals(conf.name))
                 shouldExecute = true;
 
-            if (shouldExecute)
-            {
-                SimpleLogging.LogTrace($"[Map Config] Executing config {conf.name} located at {conf.path}");
-                Server.ExecuteCommand($"exec {conf.path}");
-            }
+            if (!shouldExecute) 
+                continue;
+            
+            SimpleLogging.LogTrace($"[Map Config] Executing config {conf.name} located at {conf.path}");
+            Server.ExecuteCommand($"exec {conf.path}");
         }
     }
 
@@ -122,7 +114,7 @@ public class MapConfig : IPluginModule
             string relativePath =
                 Path.GetRelativePath(Path.GetFullPath(Path.Combine(Server.GameDirectory, "csgo/cfg/")), file);
 
-            configs.Add(new MapConfigFile(fileName[..fileName.LastIndexOf(".")], relativePath));
+            configs.Add(new MapConfigFile(fileName[..fileName.LastIndexOf(".", StringComparison.Ordinal)], relativePath));
             SimpleLogging.LogTrace($"[Map Config] Adding config {configs.Last().name}, {configs.Last().path}");
         }
     }
@@ -133,15 +125,15 @@ public class MapConfig : IPluginModule
         {
             try
             {
-                m_CSSPlugin.Logger.LogWarning(
+                Logger.LogWarning(
                     $"Map config folder {configFolder} is not exists. Trying to create...");
 
                 Directory.CreateDirectory(configFolder);
             }
             catch (Exception e)
             {
-                m_CSSPlugin.Logger.LogError($"Failed to create map config folder!");
-                m_CSSPlugin.Logger.LogError(e.StackTrace);
+                Logger.LogError($"Failed to create map config folder!");
+                Logger.LogError(e.StackTrace);
                 return false;
             }
         }

@@ -9,11 +9,9 @@ using NativeVoteAPI.API;
 
 namespace LupercaliaMGCore;
 
-public class VoteMapRestart : IPluginModule
+public class VoteMapRestart(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "VoteMapRestart";
+    public override string PluginModuleName => "VoteMapRestart";
 
     private double mapStartTime = 0.0D;
     private bool isMapRestarting = false;
@@ -22,22 +20,20 @@ public class VoteMapRestart : IPluginModule
 
     private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteMapRestart";
 
-    public VoteMapRestart(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
         mapStartTime = Server.EngineTime;
-        m_CSSPlugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
-        m_CSSPlugin.AddCommand("css_vmr", "Vote map restart command", CommandVoteRestartMap);
+        Plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.AddCommand("css_vmr", "Vote map restart command", CommandVoteRestartMap);
     }
 
-    public void AllPluginsLoaded()
+    public override void AllPluginsLoaded()
     {
-        nativeVoteApi = m_CSSPlugin.GetNativeVoteApi();
+        nativeVoteApi = Plugin.GetNativeVoteApi();
 
         if (nativeVoteApi == null)
         {
-            m_CSSPlugin.Logger.LogError("[VoteMapRestart] Failed to get native vote api.");
+            Plugin.Logger.LogError("[VoteMapRestart] Failed to get native vote api.");
             UnloadModule();
             return;
         }
@@ -47,7 +43,7 @@ public class VoteMapRestart : IPluginModule
         nativeVoteApi.OnVoteFail += OnVoteFail;
     }
 
-    public void UnloadModule()
+    public override void UnloadModule()
     {
         if (nativeVoteApi != null)
         {
@@ -55,7 +51,7 @@ public class VoteMapRestart : IPluginModule
             nativeVoteApi.OnVoteFail -= OnVoteFail;
         }
         
-        m_CSSPlugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
+        Plugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
     }
 
     private void OnVotePass(YesNoVoteInfo? info)
@@ -77,7 +73,7 @@ public class VoteMapRestart : IPluginModule
         if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
             return;
 
-        Server.PrintToChatAll(m_CSSPlugin.Localizer["VoteMapRestart.Notification.VoteFailed"]);
+        PrintLocalizedChatToAll("VoteMapRestart.Notification.VoteFailed");
     }
 
     private void CommandVoteRestartMap(CCSPlayerController? client, CommandInfo info)
@@ -89,21 +85,21 @@ public class VoteMapRestart : IPluginModule
         if (isMapRestarting)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Command.Notification.AlreadyRestarting"));
+            client.PrintToChat(LocalizeWithPrefix("VoteMapRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
-        if (Server.EngineTime - mapStartTime > PluginSettings.GetInstance.m_CVVoteMapRestartAllowedTime.Value)
+        if (Server.EngineTime - mapStartTime > PluginSettings.m_CVVoteMapRestartAllowedTime.Value)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
+            client.PrintToChat(LocalizeWithPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
-            client.PrintToChat(m_CSSPlugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]);
+            client.PrintToChat(Plugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]);
             return;
         }
 
@@ -111,11 +107,11 @@ public class VoteMapRestart : IPluginModule
         var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
 
         string detailsString =
-            NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteMapRestart.Vote.SubjectText"]);
+            NativeVoteTextUtil.GenerateReadableNativeVoteText(Plugin.Localizer["VoteMapRestart.Vote.SubjectText"]);
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
-            PluginSettings.GetInstance.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
+            PluginSettings.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
 
         NativeVoteState state = nativeVoteApi!.InitiateVote(nInfo);
 
@@ -123,11 +119,11 @@ public class VoteMapRestart : IPluginModule
         if (state == NativeVoteState.InitializeAccepted)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
-            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteMapRestart.Notification.VoteInitiated"));
+            PrintLocalizedChatToAll("VoteMapRestart.Notification.VoteInitiated");
         }
         else
         {
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 
@@ -137,10 +133,10 @@ public class VoteMapRestart : IPluginModule
         SimpleLogging.LogDebug("[Vote Map Restart] Initiating map restart...");
         isMapRestarting = true;
 
-        float mapRestartTime = PluginSettings.GetInstance.m_CVVoteMapRestartRestartTime.Value;
-        Server.PrintToChatAll(m_CSSPlugin.Localizer["VoteMapRestart.Notification.MapRestart", mapRestartTime]);
+        float mapRestartTime = PluginSettings.m_CVVoteMapRestartRestartTime.Value;
+        PrintLocalizedChatToAll("VoteMapRestart.Notification.MapRestart", mapRestartTime);
         
-        m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVVoteMapRestartRestartTime.Value, () =>
+        Plugin.AddTimer(PluginSettings.m_CVVoteMapRestartRestartTime.Value, () =>
         {
             SimpleLogging.LogDebug("[Vote Map Restart] Changing map.");
             Server.ExecuteCommand($"changelevel {Server.MapName}");

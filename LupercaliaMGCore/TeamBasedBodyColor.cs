@@ -7,26 +7,18 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class TeamBasedBodyColor : IPluginModule
+public class TeamBasedBodyColor(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
+    public override string PluginModuleName => "TeamBasedBodyColor";
 
-    public string PluginModuleName => "TeamBasedBodyColor";
-
-    public TeamBasedBodyColor(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        Plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        Plugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
     }
 
     private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
@@ -53,18 +45,18 @@ public class TeamBasedBodyColor : IPluginModule
         Color newColor = Color.FromArgb(255, 255, 255, 255);
         RenderMode_t renderMode = RenderMode_t.kRenderNormal;
 
-        if (PluginSettings.GetInstance.m_CVIsTeamColorEnabled.Value)
+        if (PluginSettings.m_CVIsTeamColorEnabled.Value)
         {
             // Use team color
             List<int> rgb = new List<int>();
             if (player.Team == CsTeam.CounterTerrorist)
             {
-                rgb = PluginSettings.GetInstance.m_CVTeamColorCT.Value.Split(',').Select(s => int.Parse(s.Trim()))
+                rgb = PluginSettings.m_CVTeamColorCT.Value.Split(',').Select(s => int.Parse(s.Trim()))
                     .ToList();
             }
             else if (player.Team == CsTeam.Terrorist)
             {
-                rgb = PluginSettings.GetInstance.m_CVTeamColorT.Value.Split(',').Select(s => int.Parse(s.Trim()))
+                rgb = PluginSettings.m_CVTeamColorT.Value.Split(',').Select(s => int.Parse(s.Trim()))
                     .ToList();
             }
 

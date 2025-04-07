@@ -5,32 +5,24 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class RoundEndDeathMatch : IPluginModule
+public class RoundEndDeathMatch(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "RoundEndDeathMatch";
+    public override string PluginModuleName => "RoundEndDeathMatch";
 
     private ConVar? mp_teammates_are_enemies = null;
 
-    public RoundEndDeathMatch(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
+        TrySetConVarValue(false);
 
-        trySetValue(false);
-
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEnd);
     }
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
@@ -42,7 +34,7 @@ public class RoundEndDeathMatch : IPluginModule
             return HookResult.Continue;
         }
 
-        trySetValue(false);
+        TrySetConVarValue(false);
         SimpleLogging.LogDebug("[Round End Death Match] Ended.");
         return HookResult.Continue;
     }
@@ -56,17 +48,14 @@ public class RoundEndDeathMatch : IPluginModule
             return HookResult.Continue;
         }
 
-        trySetValue(true);
+        TrySetConVarValue(true);
         SimpleLogging.LogDebug("[Round End Death Match] Started.");
         return HookResult.Continue;
     }
 
-    private void trySetValue(bool value)
+    private void TrySetConVarValue(bool value)
     {
-        if (mp_teammates_are_enemies == null)
-        {
-            mp_teammates_are_enemies = ConVar.Find("mp_teammates_are_enemies");
-        }
+        mp_teammates_are_enemies ??= ConVar.Find("mp_teammates_are_enemies");
 
         mp_teammates_are_enemies?.SetValue(value);
 

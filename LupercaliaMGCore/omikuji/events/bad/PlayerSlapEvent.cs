@@ -4,17 +4,15 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace LupercaliaMGCore;
 
-public class PlayerSlapEvent : IOmikujiEvent
+public class PlayerSlapEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Slap Event";
+    public override string EventName => "Player Slap Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
+    public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
 
-    private static Random random = OmikujiEvents.random;
-
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player Slap Event");
 
@@ -28,29 +26,22 @@ public class PlayerSlapEvent : IOmikujiEvent
 
         Vector velo = pawn.AbsVelocity;
 
-        int slapPowerMin = PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapPowerMin.Value;
-        int slapPowerMax = PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapPowerMax.Value;
+        int slapPowerMin = PluginSettings.m_CVOmikujiEventPlayerSlapPowerMin.Value;
+        int slapPowerMax = PluginSettings.m_CVOmikujiEventPlayerSlapPowerMax.Value;
 
         SimpleLogging.LogTrace($"Player Slap Event: Random slap power - Min: {slapPowerMin}, Max: {slapPowerMax}");
 
         // Taken from sourcemod
-        velo.X += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) *
-                  (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
-        velo.Y += ((random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) *
-                  (((random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
-        velo.Z += random.NextInt64(slapPowerMin, slapPowerMax) % 200 + 100;
+        velo.X += ((Random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) * (((Random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
+        velo.Y += ((Random.NextInt64(slapPowerMin, slapPowerMax) % 180) + 50) * (((Random.NextInt64(slapPowerMin, slapPowerMax) % 2) == 1) ? -1 : 1);
+        velo.Z += Random.NextInt64(slapPowerMin, slapPowerMax) % 200 + 100;
         SimpleLogging.LogTrace($"Player Slap Event: Player velocity - {velo.X} {velo.Y} {velo.Z}");
 
-        Server.PrintToChatAll(
-            $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerSlapEvent.Notification.Slapped", client.PlayerName]}");
+        Server.PrintToChatAll($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.PlayerSlapEvent.Notification.Slapped", client.PlayerName]}");
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerSlapSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventPlayerSlapSelectionWeight.Value;
     }
 }

@@ -4,33 +4,23 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class NothingEvent : IOmikujiEvent
+public class NothingEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Nothing Event";
+    public override string EventName => "Nothing Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_MISC;
+    public override OmikujiType OmikujiType => OmikujiType.EventMisc;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Nothing event");
-        foreach (CCSPlayerController cl in Utilities.GetPlayers())
-        {
-            if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
-                continue;
-
-            cl.PrintToChat(
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened"]}");
-        }
+    
+        Server.PrintToChatAll($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened"]}");
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventNothingSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventNothingSelectionWeight.Value;
     }
 }

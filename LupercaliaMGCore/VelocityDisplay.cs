@@ -7,32 +7,24 @@ using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore;
 
-public class VelocityDisplay: IPluginModule
+public class VelocityDisplay(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-    
     private readonly List<int> displayTarget = new();
 
-    public VelocityDisplay(LupercaliaMGCore plugin)
-    {
-        m_CSSPlugin = plugin;
+    public override string PluginModuleName => "VelocityDisplay";
 
-        m_CSSPlugin.AddCommand("css_vhud", "Displays current velocity and key input", CommandToggleVelocityDisplay);
-        m_CSSPlugin.RegisterListener<Listeners.OnTick>(OnTickListener);
-        m_CSSPlugin.RegisterListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
+    public override void Initialize()
+    {
+        Plugin.AddCommand("css_vhud", "Displays current velocity and key input", CommandToggleVelocityDisplay);
+        Plugin.RegisterListener<Listeners.OnTick>(OnTickListener);
+        Plugin.RegisterListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
     }
 
-    public string PluginModuleName => "VelocityDisplay";
-    
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.RemoveCommand("css_vhud", CommandToggleVelocityDisplay);
-        m_CSSPlugin.RemoveListener<Listeners.OnTick>(OnTickListener);
-        m_CSSPlugin.RemoveListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
+        Plugin.RemoveCommand("css_vhud", CommandToggleVelocityDisplay);
+        Plugin.RemoveListener<Listeners.OnTick>(OnTickListener);
+        Plugin.RemoveListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
     }
 
     private void OnClientDisconnect(int playerSlot)
@@ -48,12 +40,12 @@ public class VelocityDisplay: IPluginModule
         if (displayTarget.Contains(client.Slot))
         {
             displayTarget.Remove(client.Slot);
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VelocityDisplay.Command.Notification.HudDisabled"));
+            client.PrintToChat(LocalizeWithPrefix("VelocityDisplay.Command.Notification.HudDisabled"));
         }
         else
         {
             displayTarget.Add(client.Slot);
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VelocityDisplay.Command.Notification.HudEnabled"));
+            client.PrintToChat(LocalizeWithPrefix("VelocityDisplay.Command.Notification.HudEnabled"));
         }
     }
 

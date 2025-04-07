@@ -5,24 +5,20 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class GiveRandomItemEvent : IOmikujiEvent
+public class GiveRandomItemEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Give Random Item Event";
+    public override string EventName => "Give Random Item Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_LUCKY;
+    public override OmikujiType OmikujiType => OmikujiType.EventLucky;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.ANYTIME;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
-    private static Random random = OmikujiEvents.random;
+    private static readonly Dictionary<CCSPlayerController, FixedSizeQueue<CsItem>> RecentlyPickedUpItems = new();
 
-    private static Dictionary<CCSPlayerController, FixedSizeQueue<CsItem>> recentlyPickedUpItems =
-        new Dictionary<CCSPlayerController, FixedSizeQueue<CsItem>>();
-
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Give random item event");
 
-        CsItem randomItem;
         SimpleLogging.LogDebug("Iterating the all player");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
@@ -33,39 +29,36 @@ public class GiveRandomItemEvent : IOmikujiEvent
                 continue;
 
             SimpleLogging.LogDebug("Picking random item");
-            randomItem = pickRandomItem(cl);
+            CsItem randomItem = PickRandomItem(cl);
 
             cl.GiveNamedItem(randomItem);
 
             SimpleLogging.LogDebug("Enqueue a picked up item to recently picked up items list");
-            recentlyPickedUpItems[cl].Enqueue(randomItem);
-            cl.PrintToChat(
-                $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.LuckyEvent.GiveRandomItemEvent.Notification.ItemReceived", randomItem]}");
+            RecentlyPickedUpItems[cl].Enqueue(randomItem);
+            cl.PrintToChat($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.LuckyEvent.GiveRandomItemEvent.Notification.ItemReceived", randomItem]}");
         }
 
         SimpleLogging.LogDebug("Give random item event finished");
     }
 
-    public void initialize()
+    public override void Initialize()
     {
-        // Late Initialize the this event to avoid CounterStrikeSharp.API.Core.NativeException: Global Variables not initialized yet.
+        // Late Initialize this event to avoid CounterStrikeSharp.API.Core.NativeException: Global Variables not initialized yet.
         // This is a temporary workaround until get better solutions
-        LupercaliaMGCore.getInstance().AddTimer(0.01F, () =>
+        Plugin.AddTimer(0.01F, () =>
         {
-            SimpleLogging.LogDebug(
-                $"Initializing the Give Random Item Event. This is a late initialization for avoid error.");
+            SimpleLogging.LogDebug("Initializing the Give Random Item Event. This is a late initialization for avoid error.");
 
-            SimpleLogging.LogDebug(
-                "Registering the Player Spawn event for initialize late joiners recently picked up items list");
-            LupercaliaMGCore.getInstance().RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
+            SimpleLogging.LogDebug("Registering the Player Spawn event for initialize late joiners recently picked up items list");
+            Plugin.RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
             {
                 CCSPlayerController? client = @event.Userid;
 
                 if (client == null)
                     return HookResult.Continue;
 
-                recentlyPickedUpItems[client] =
-                    new FixedSizeQueue<CsItem>(PluginSettings.GetInstance.m_CVOmikujiEventGiveRandomItemAvoidCount
+                RecentlyPickedUpItems[client] =
+                    new FixedSizeQueue<CsItem>(PluginSettings.m_CVOmikujiEventGiveRandomItemAvoidCount
                         .Value);
 
                 return HookResult.Continue;
@@ -78,10 +71,9 @@ public class GiveRandomItemEvent : IOmikujiEvent
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                if (!recentlyPickedUpItems.TryGetValue(cl, out _))
+                if (!RecentlyPickedUpItems.TryGetValue(cl, out _))
                 {
-                    recentlyPickedUpItems[cl] = new FixedSizeQueue<CsItem>(PluginSettings.GetInstance
-                        .m_CVOmikujiEventGiveRandomItemAvoidCount.Value);
+                    RecentlyPickedUpItems[cl] = new FixedSizeQueue<CsItem>(PluginSettings.m_CVOmikujiEventGiveRandomItemAvoidCount.Value);
                 }
             }
 
@@ -89,13 +81,13 @@ public class GiveRandomItemEvent : IOmikujiEvent
         });
     }
 
-    public double getOmikujiWeight()
+    public override double GetOmikujiWeight()
     {
-        return PluginSettings.GetInstance.m_CVOmikujiEventGiveRandomItemSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventGiveRandomItemSelectionWeight.Value;
     }
 
-    private static List<CsItem> invalidItems = new List<CsItem>()
-    {
+    private static readonly List<CsItem> InvalidItems =
+    [
         CsItem.XRayGrenade,
         CsItem.IncGrenade,
         CsItem.FragGrenade,
@@ -121,30 +113,28 @@ public class GiveRandomItemEvent : IOmikujiEvent
         CsItem.Shield,
         CsItem.Bomb,
         CsItem.Tablet,
-        CsItem.Snowball,
-    };
+        CsItem.Snowball
+    ];
 
     // HE Grenade giving rate is definitely low. investigate later.
-    private static CsItem pickRandomItem(CCSPlayerController client)
+    private CsItem PickRandomItem(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug($"pickRandomItem() called. caller: {client.PlayerName}");
+        SimpleLogging.LogDebug($"PickRandomItem() called. caller: {client.PlayerName}");
         CsItem item;
 
         string[] items = Enum.GetNames(typeof(CsItem));
-        int itemsCount = items.Count();
+        int itemsCount = items.Length;
 
         SimpleLogging.LogTrace($"CsItems item counts are {itemsCount}");
-
-        int randomNum;
 
         SimpleLogging.LogTrace("Picking random item");
         while (true)
         {
-            randomNum = random.Next(0, itemsCount);
+            int randomNum = Random.Next(0, itemsCount);
 
             item = (CsItem)Enum.Parse(typeof(CsItem), items[randomNum]);
 
-            if (!invalidItems.Contains(item) && !recentlyPickedUpItems[client].Contains(item))
+            if (!InvalidItems.Contains(item) && !RecentlyPickedUpItems[client].Contains(item))
             {
                 break;
             }

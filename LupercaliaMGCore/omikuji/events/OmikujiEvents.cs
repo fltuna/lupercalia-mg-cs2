@@ -1,10 +1,10 @@
 namespace LupercaliaMGCore;
 
-public static partial class OmikujiEvents
+public class OmikujiEvents(Omikuji omikuji, LupercaliaMGCore plugin)
 {
-    public static Random random = new();
+    private readonly LupercaliaMGCore Plugin = plugin;
 
-    public static Dictionary<OmikujiType, List<IOmikujiEvent>> getEvents()
+    public Dictionary<OmikujiType, List<OmikujiEventBase>> GetEvents()
     {
         if (!isEventsInitialized)
             throw new InvalidOperationException("Omikuji Events list are not initialized yet.");
@@ -12,47 +12,48 @@ public static partial class OmikujiEvents
         return events;
     }
 
-    private static bool isEventsInitialized = false;
+    private bool isEventsInitialized = false;
 
-    private static Dictionary<OmikujiType, List<IOmikujiEvent>> events = new();
+    private readonly Dictionary<OmikujiType, List<OmikujiEventBase>> events = new();
 
-    public static void initializeOmikujiEvents()
+    public void InitializeOmikujiEvents()
     {
-        events[OmikujiType.EVENT_BAD] = new List<IOmikujiEvent>();
-        events[OmikujiType.EVENT_LUCKY] = new List<IOmikujiEvent>();
-        events[OmikujiType.EVENT_MISC] = new List<IOmikujiEvent>();
+        InitializeEventsList();
+        
+        // Bad events
+        InitializeEvent(new GravityChangeEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerFreezeEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerLocationSwapEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerSlapEvent(omikuji, Plugin));
 
+        
+        // Lucky events
+        InitializeEvent(new GiveRandomItemEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerHealEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerRespawnAllEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerRespawnEvent(omikuji, Plugin));
 
-        var badEvents = events[OmikujiType.EVENT_BAD];
-
-        badEvents.Add(new GravityChangeEvent());
-        badEvents.Add(new PlayerFreezeEvent());
-        badEvents.Add(new PlayerLocationSwapEvent());
-        badEvents.Add(new PlayerSlapEvent());
-
-
-        var luckyEvents = events[OmikujiType.EVENT_LUCKY];
-
-        luckyEvents.Add(new GiveRandomItemEvent());
-        luckyEvents.Add(new PlayerHealEvent());
-        luckyEvents.Add(new PlayerRespawnAllEvent());
-        luckyEvents.Add(new PlayerRespawnEvent());
-
-        var miscEvents = events[OmikujiType.EVENT_MISC];
-
-        miscEvents.Add(new ChickenSpawnEvent());
-        miscEvents.Add(new NothingEvent());
-        miscEvents.Add(new PlayerWishingEvent());
-        miscEvents.Add(new ScreenShakeEvent());
-
-        foreach (var evt in events)
-        {
-            foreach (var e in evt.Value)
-            {
-                e.initialize();
-            }
-        }
+        // Misc events
+        InitializeEvent(new ChickenSpawnEvent(omikuji, Plugin));
+        InitializeEvent(new NothingEvent(omikuji, Plugin));
+        InitializeEvent(new PlayerWishingEvent(omikuji, Plugin));
+        InitializeEvent(new ScreenShakeEvent(omikuji, Plugin));
 
         isEventsInitialized = true;
+    }
+
+    private void InitializeEvent(OmikujiEventBase omikujiEvent)
+    {
+        events[omikujiEvent.OmikujiType].Add(omikujiEvent);
+        omikujiEvent.Initialize();
+        SimpleLogging.LogDebug($"[Omikuji {omikujiEvent.EventName}] initialized");
+    }
+
+    private void InitializeEventsList()
+    {
+        foreach (OmikujiType type in Enum.GetValues(typeof(OmikujiType)))
+        {
+            events[type] = new List<OmikujiEventBase>();
+        }
     }
 }

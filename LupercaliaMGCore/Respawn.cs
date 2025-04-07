@@ -10,43 +10,33 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class Respawn : IPluginModule
+public class Respawn(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
-
-    public string PluginModuleName => "Respawn";
-
-
+    public override string PluginModuleName => "Respawn";
+    
     private static readonly string ChatPrefix = $" {ChatColors.Green}[Respawn]{ChatColors.Default}";
 
     private readonly Dictionary<int, double> playerLastRespawnTime = new();
     private bool repeatKillDetected = false;
 
-    public Respawn(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-        m_CSSPlugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-        m_CSSPlugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.AddCommand("css_reset_respawn", "Reset the current repeat kill detection status",
-            CommandRemoveRepeatKill);
-        m_CSSPlugin.AddCommand("css_rrs", "Reset the current repeat kill detection status",
-            CommandRemoveRepeatKill);
+        Plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        Plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.AddCommand("css_reset_respawn", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
+        Plugin.AddCommand("css_rrs", "Reset the current repeat kill detection status", CommandRemoveRepeatKill);
     }
 
-    public void AllPluginsLoaded()
+    public override void UnloadModule()
     {
-    }
-
-    public void UnloadModule()
-    {
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-        m_CSSPlugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
-        m_CSSPlugin.RemoveCommand("css_reset_respawn", CommandRemoveRepeatKill);
-        m_CSSPlugin.RemoveCommand("css_rrs", CommandRemoveRepeatKill);
+        Plugin.DeregisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
+        Plugin.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.RemoveCommand("css_reset_respawn", CommandRemoveRepeatKill);
+        Plugin.RemoveCommand("css_rrs", CommandRemoveRepeatKill);
     }
 
     [RequiresPermissions(@"css/slay")]
@@ -65,32 +55,25 @@ public class Respawn : IPluginModule
             if (PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
-            respawnPlayer(cl);
+            RespawnPlayer(cl);
         }
 
         repeatKillDetected = false;
         SimpleLogging.LogTrace($"Repeat kill status: {repeatKillDetected}");
-        Server.PrintToChatAll($"{ChatPrefix} {m_CSSPlugin.Localizer["Respawn.Notification.AdminEnabledRespawn", client.PlayerName]}");
+        Server.PrintToChatAll($"{ChatPrefix} {Plugin.Localizer["Respawn.Notification.AdminEnabledRespawn", client.PlayerName]}");
     }
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
         repeatKillDetected = false;
-        if (PluginSettings.GetInstance.m_CVAutoRespawnEnabled.Value)
-        {
-            setIgnoreRoundWinCondition(true);
-        }
-        else
-        {
-            setIgnoreRoundWinCondition(false);
-        }
+        SetIgnoreRoundWinCondition(PluginSettings.m_CVAutoRespawnEnabled.Value);
 
         return HookResult.Continue;
     }
 
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
-        if (!PluginSettings.GetInstance.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;
@@ -105,28 +88,24 @@ public class Respawn : IPluginModule
 
         int index = (int)player.Index;
 
-        if (!playerLastRespawnTime.ContainsKey(index))
-        {
-            playerLastRespawnTime[index] = 0.0D;
-        }
+        playerLastRespawnTime.TryAdd(index, 0.0D);
 
-        if (Server.EngineTime - playerLastRespawnTime[index] <=
-            PluginSettings.GetInstance.m_CVAutoRespawnSpawnKillingDetectionTime.Value)
+        if (Server.EngineTime - playerLastRespawnTime[index] <= PluginSettings.m_CVAutoRespawnSpawnKillingDetectionTime.Value)
         {
             repeatKillDetected = true;
             
             SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Repeat kill is detected.");
-            Server.PrintToChatAll($"{ChatPrefix} {ChatUtil.ReplaceColorStrings(m_CSSPlugin.Localizer["Respawn.Notification.RepeatKillDetected"])}");
+            Server.PrintToChatAll($"{ChatPrefix} {ChatUtil.ReplaceColorStrings(Plugin.Localizer["Respawn.Notification.RepeatKillDetected"])}");
             
-            setIgnoreRoundWinCondition(false);
+            SetIgnoreRoundWinCondition(false);
             return HookResult.Continue;
         }
 
         SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawning player.");
-        m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVAutoRespawnSpawnTime.Value, () =>
+        Plugin.AddTimer(PluginSettings.m_CVAutoRespawnSpawnTime.Value, () =>
         {
             SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned.");
-            respawnPlayer(player);
+            RespawnPlayer(player);
         }, TimerFlags.STOP_ON_MAPCHANGE);
 
         SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Done.");
@@ -135,7 +114,7 @@ public class Respawn : IPluginModule
 
     private HookResult OnPlayerTeam(EventPlayerTeam @event, GameEventInfo info)
     {
-        if (!PluginSettings.GetInstance.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;
@@ -166,7 +145,7 @@ public class Respawn : IPluginModule
 
     private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
-        if (!PluginSettings.GetInstance.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;
@@ -179,31 +158,28 @@ public class Respawn : IPluginModule
 
         int index = (int)player.Index;
 
-        if (!playerLastRespawnTime.ContainsKey(index))
-        {
-            playerLastRespawnTime[index] = 0.0D;
-        }
+        playerLastRespawnTime.TryAdd(index, 0.0D);
 
         playerLastRespawnTime[index] = Server.EngineTime;
         return HookResult.Continue;
     }
 
-    private void respawnPlayer(CCSPlayerController client)
+    private void RespawnPlayer(CCSPlayerController client)
     {
         if (client.Team == CsTeam.None || client.Team == CsTeam.Spectator)
             return;
 
         client.Respawn();
-        client.PrintToChat($"{ChatPrefix} {m_CSSPlugin.Localizer["Respawn.Notification.Respawned"]}");
+        client.PrintToChat($"{ChatPrefix} {Plugin.Localizer["Respawn.Notification.Respawned"]}");
     }
 
-    private void setIgnoreRoundWinCondition(bool isIgnored)
+    private void SetIgnoreRoundWinCondition(bool isIgnored)
     {
         ConVar? mp_ignore_round_win_conditions = ConVar.Find("mp_ignore_round_win_conditions");
 
         if (mp_ignore_round_win_conditions == null)
         {
-            m_CSSPlugin.Logger.LogError("Failed to find mp_ignore_round_win_conditions!");
+            Plugin.Logger.LogError("Failed to find mp_ignore_round_win_conditions!");
             return;
         }
 

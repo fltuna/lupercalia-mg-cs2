@@ -14,33 +14,30 @@ using NativeVoteAPI.API;
 
 namespace LupercaliaMGCore;
 
-public class VoteRoundRestart : IPluginModule
+public class VoteRoundRestart(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
-    private LupercaliaMGCore m_CSSPlugin;
     private bool isRoundRestarting = false;
     
     private INativeVoteApi? nativeVoteApi;
 
-    public string PluginModuleName => "VoteRoundRestart";
+    public override string PluginModuleName => "VoteRoundRestart";
 
     private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteRoundRestart";
 
-    public VoteRoundRestart(LupercaliaMGCore plugin)
+    public override void Initialize()
     {
-        m_CSSPlugin = plugin;
-
-        m_CSSPlugin.AddCommand("css_vrr", "Vote round restart command.", CommandVoteRestartRound);
-        m_CSSPlugin.AddCommand("css_restart", "Restarts round (admins only)", CommandForceRestartRound);
-        m_CSSPlugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.AddCommand("css_vrr", "Vote round restart command.", CommandVoteRestartRound);
+        Plugin.AddCommand("css_restart", "Restarts round (admins only)", CommandForceRestartRound);
+        Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
     }
 
-    public void AllPluginsLoaded()
+    public override void AllPluginsLoaded()
     {
-        nativeVoteApi = m_CSSPlugin.GetNativeVoteApi();
+        nativeVoteApi = Plugin.GetNativeVoteApi();
 
         if (nativeVoteApi == null)
         {
-            m_CSSPlugin.Logger.LogError("[VoteMapRestart] Failed to get native vote api.");
+            Logger.LogError("[VoteMapRestart] Failed to get native vote api.");
             UnloadModule();
             return;
         }
@@ -50,7 +47,7 @@ public class VoteRoundRestart : IPluginModule
         nativeVoteApi.OnVoteFail += OnVoteFail;
     }
 
-    public void UnloadModule()
+    public override void UnloadModule()
     {
         if (nativeVoteApi != null)
         {
@@ -59,9 +56,9 @@ public class VoteRoundRestart : IPluginModule
         }
         
         
-        m_CSSPlugin.RemoveCommand("css_vrr", CommandVoteRestartRound);
-        m_CSSPlugin.RemoveCommand("css_restart", CommandForceRestartRound);
-        m_CSSPlugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
+        Plugin.RemoveCommand("css_vrr", CommandVoteRestartRound);
+        Plugin.RemoveCommand("css_restart", CommandForceRestartRound);
+        Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
     }
 
     private void OnVotePass(YesNoVoteInfo? info)
@@ -83,7 +80,7 @@ public class VoteRoundRestart : IPluginModule
         if (info.VoteInfo.voteIdentifier != NativeVoteIdentifier)
             return;
 
-        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.VoteFailed"));
+        PrintLocalizedChatToAll("VoteRoundRestart.Notification.VoteFailed");
     }
 
 
@@ -98,14 +95,14 @@ public class VoteRoundRestart : IPluginModule
         {
             SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
             
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Command.Notification.AlreadyRestarting"));
+            client.PrintToChat(LocalizeWithPrefix("VoteRoundRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.AnotherVoteInProgress"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Vote.Notification.AnotherVoteInProgress"));
             return;
         }
 
@@ -113,11 +110,11 @@ public class VoteRoundRestart : IPluginModule
         var potentialClientsIndex = potentialClients.Select(p => p.Index).ToList();
 
         string detailsString =
-            NativeVoteTextUtil.GenerateReadableNativeVoteText(m_CSSPlugin.Localizer["VoteRoundRestart.Vote.SubjectText"]);
+            NativeVoteTextUtil.GenerateReadableNativeVoteText(Plugin.Localizer["VoteRoundRestart.Vote.SubjectText"]);
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
-            PluginSettings.GetInstance.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
+            PluginSettings.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
 
         NativeVoteState state = nativeVoteApi!.InitiateVote(nInfo);
 
@@ -126,11 +123,11 @@ public class VoteRoundRestart : IPluginModule
         {
             SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
             
-            Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.VoteInitiated"));
+            PrintLocalizedChatToAll("VoteRoundRestart.Notification.VoteInitiated");
         }
         else
         {
-            client.PrintToChat(m_CSSPlugin.LocalizeStringWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
+            client.PrintToChat(LocalizeWithPrefix("General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 
@@ -143,9 +140,9 @@ public class VoteRoundRestart : IPluginModule
         SimpleLogging.LogDebug("[Force Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
-        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.ForceRoundRestart", 1));
+        PrintLocalizedChatToAll("VoteRoundRestart.Notification.ForceRoundRestart", 1);
         
-        m_CSSPlugin.AddTimer(1, () =>
+        Plugin.AddTimer(1, () =>
         {
             SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
             EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
@@ -157,10 +154,10 @@ public class VoteRoundRestart : IPluginModule
         SimpleLogging.LogDebug("[Vote Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
-        float roundRestartTime = PluginSettings.GetInstance.m_CVVoteRoundRestartRestartTime.Value;
-        Server.PrintToChatAll(m_CSSPlugin.LocalizeStringWithPrefix("VoteRoundRestart.Notification.RoundRestart", roundRestartTime));
+        float roundRestartTime = PluginSettings.m_CVVoteRoundRestartRestartTime.Value;
+        PrintLocalizedChatToAll("VoteRoundRestart.Notification.RoundRestart", roundRestartTime);
         
-        m_CSSPlugin.AddTimer(PluginSettings.GetInstance.m_CVVoteRoundRestartRestartTime.Value, () =>
+        Plugin.AddTimer(PluginSettings.m_CVVoteRoundRestartRestartTime.Value, () =>
         {
             SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
             EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);

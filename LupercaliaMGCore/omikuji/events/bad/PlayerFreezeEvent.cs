@@ -4,22 +4,21 @@ using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class PlayerFreezeEvent : IOmikujiEvent
+public class PlayerFreezeEvent(Omikuji omikuji, LupercaliaMGCore plugin) : OmikujiEventBase(omikuji, plugin)
 {
-    public string EventName => "Player Freeze Event";
+    public override string EventName => "Player Freeze Event";
 
-    public OmikujiType OmikujiType => OmikujiType.EVENT_BAD;
+    public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
-    public OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PLAYER_ALIVE;
+    public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
 
-    public void execute(CCSPlayerController client)
+    public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player freeze event");
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            SimpleLogging.LogDebug(
-                "Player freeze event failed due to player is died. But this is should not be happened.");
+            SimpleLogging.LogDebug("Player freeze event failed due to player is died. But this is should not be happened.");
             return;
         }
 
@@ -36,26 +35,20 @@ public class PlayerFreezeEvent : IOmikujiEvent
         playerPawn.ActualMoveType = MoveType_t.MOVETYPE_OBSOLETE;
         SimpleLogging.LogDebug("Player freeze event: Move type changed to MOVETYPE_OBSOLETE");
 
-        Server.PrintToChatAll(
-            $"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerFreezeEvent.Notification.Froze", client.PlayerName]}");
+        Server.PrintToChatAll($"{Omikuji.ChatPrefix} {Omikuji.GetOmikujiLuckMessage(OmikujiType, client)} {Plugin.Localizer["Omikuji.BadEvent.PlayerFreezeEvent.Notification.Froze", client.PlayerName]}");
 
 
-        LupercaliaMGCore.getInstance().AddTimer(PluginSettings.GetInstance.m_CVOmikujiEventPlayerFreeze.Value, () =>
+        Plugin.AddTimer(PluginSettings.m_CVOmikujiEventPlayerFreeze.Value, () =>
         {
             playerPawn.MoveType = MoveType_t.MOVETYPE_WALK;
             playerPawn.ActualMoveType = MoveType_t.MOVETYPE_WALK;
             SimpleLogging.LogDebug("Player freeze event: Move type changed to MOVETYPE_WALK");
-            client.PrintToChat(
-                $"{Omikuji.ChatPrefix} {LupercaliaMGCore.getInstance().Localizer["Omikuji.BadEvent.PlayerFreezeEvent.Notification.UnFroze"]}");
+            client.PrintToChat($"{Omikuji.ChatPrefix} {Plugin.Localizer["Omikuji.BadEvent.PlayerFreezeEvent.Notification.UnFroze"]}");
         });
     }
 
-    public void initialize()
+    public override double GetOmikujiWeight()
     {
-    }
-
-    public double getOmikujiWeight()
-    {
-        return PluginSettings.GetInstance.m_CVOmikujiEventPlayerFreezeSelectionWeight.Value;
+        return PluginSettings.m_CVOmikujiEventPlayerFreezeSelectionWeight.Value;
     }
 }
