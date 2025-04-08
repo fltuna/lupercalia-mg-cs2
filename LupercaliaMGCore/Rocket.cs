@@ -8,14 +8,14 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore;
 
-public class Rocket: PluginModuleBase
+public class Rocket(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 {
     public override string PluginModuleName => "Rocket";
     public readonly string ChatPrefix = $" {ChatColors.Gold}[Rocket]{ChatColors.Default}";
 
     private Dictionary<CCSPlayerController, bool> isRocketLaunched = new Dictionary<CCSPlayerController, bool>();
 
-    public Rocket(LupercaliaMGCore plugin) : base(plugin)
+    public override void Initialize()
     {
         Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Plugin.AddCommand("css_rocket", "launch to space.", CommandRocket);
@@ -54,7 +54,7 @@ public class Rocket: PluginModuleBase
 
     private void CommandRocket(CCSPlayerController? client, CommandInfo info)
     {
-        if (client == null || !client.PawnIsAlive || isRocketLaunched[client])
+        if (client == null || !PlayerUtil.IsPlayerAlive(client) || isRocketLaunched[client])
             return;
 
         RocketPerform(client);
@@ -62,7 +62,7 @@ public class Rocket: PluginModuleBase
 
     private void RocketPerform(CCSPlayerController client)
     {
-        if (!client.PawnIsAlive || client.Pawn.Value == null || isRocketLaunched[client]) return;
+        if (!PlayerUtil.IsPlayerAlive(client)|| client.Pawn.Value == null || isRocketLaunched[client]) return;
 
         CBasePlayerPawn pawn = client.Pawn.Value;
 
@@ -77,7 +77,7 @@ public class Rocket: PluginModuleBase
 
         Timer timer = new Timer(2.0f, () =>
         {
-            if (!client.PawnIsAlive) return;
+            if (!PlayerUtil.IsPlayerAlive(client)) return;
 
             pawn.GravityScale = 1.0f;
             pawn.CommitSuicide(false, true);
@@ -89,7 +89,7 @@ public class Rocket: PluginModuleBase
 
     private void MakeExplosive(CCSPlayerController client)
     {
-        if (!client.PawnIsAlive || client.Pawn.Value == null) return;
+        if (!PlayerUtil.IsPlayerAlive(client) || client.Pawn.Value == null) return;
 
         CBasePlayerPawn pawn = client.Pawn.Value;
         var pEffect = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");

@@ -299,6 +299,12 @@ public class PluginSettings
     public readonly FakeConVar<bool> m_CVCourseWeaponEnabled =
         new("lp_mg_course_weapon_enabled", "Course weapon feature is enabled", false);
 
+    /*
+     *   Rocket commands
+     */
+    public readonly FakeConVar<bool> m_CVRocketEnabled =
+        new("lp_mg_rocket", "Is rocket command enabled?", false);
+
     private LupercaliaMGCore m_CSSPlugin;
 
     public PluginSettings(LupercaliaMGCore plugin)
@@ -540,6 +546,12 @@ public class PluginSettings
          *   Course Weapon
          */
         writeConVarConfig(config, m_CVCourseWeaponEnabled);
+        config.WriteLine("\n");
+
+        /*
+         *   Rocket commands
+         */
+        writeConVarConfig(config, m_CVRocketEnabled);
         config.WriteLine("\n");
 
         config.Close();
