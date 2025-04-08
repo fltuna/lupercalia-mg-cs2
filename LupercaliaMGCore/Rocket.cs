@@ -62,9 +62,9 @@ public class Rocket(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 
     private void RocketPerform(CCSPlayerController client)
     {
-        if (!PlayerUtil.IsPlayerAlive(client)|| client.Pawn.Value == null || isRocketLaunched[client]) return;
+        if (!PlayerUtil.IsPlayerAlive(client) || isRocketLaunched[client]) return;
 
-        CBasePlayerPawn pawn = client.Pawn.Value;
+        CBasePlayerPawn pawn = client.Pawn.Value!;
 
         Server.PrintToChatAll($" {ChatColors.Lime} {client.PlayerName} {ChatColors.Default}lancuhed to space!");
 
@@ -89,14 +89,14 @@ public class Rocket(LupercaliaMGCore plugin) : PluginModuleBase(plugin)
 
     private void MakeExplosive(CCSPlayerController client)
     {
-        if (!PlayerUtil.IsPlayerAlive(client) || client.Pawn.Value == null) return;
+        if (!PlayerUtil.IsPlayerAlive(client)) return;
 
-        CBasePlayerPawn pawn = client.Pawn.Value;
-        var pEffect = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system");
-        var vecOrign = pawn.AbsOrigin;
+        CBasePlayerPawn pawn = client.Pawn.Value!;
+        var pEffect = Utilities.CreateEntityByName<CParticleSystem>("info_particle_system")!;
+        var vecOrign = pawn.AbsOrigin!;
 
         pEffect.EffectName = "particles/explosions_fx/explosion_basic.vpcf";
-        pEffect.AbsOrigin.X = vecOrign.X;
+        pEffect.AbsOrigin!.X = vecOrign.X;
         pEffect.AbsOrigin.Y = vecOrign.Y;
         pEffect.AbsOrigin.Z = vecOrign.Z + 10;
         pEffect.StartActive = true;
