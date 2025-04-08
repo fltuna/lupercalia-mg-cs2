@@ -14,7 +14,7 @@ You need install these to plugin work:
 - [ ] General
   - [x] DuckFix
   - [x] Map config
-  - [ ] Rocket
+  - [x] Rocket
   - [ ] Easy spectate (May not be implemented) 
   - [x] Vote map restart
   - [x] Vote round restart
