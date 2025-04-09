@@ -1,10 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LupercaliaMGCore.interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore.model;
 
-public abstract class PluginBasicFeatureBase(LupercaliaMGCore plugin)
+public abstract class PluginBasicFeatureBase(IServiceProvider serviceProvider)
 {
-    protected readonly LupercaliaMGCore Plugin = plugin;
-    protected readonly ILogger Logger = plugin.Logger;
-    protected readonly PluginSettings PluginSettings = PluginSettings.GetInstance;
+    protected readonly AbstractTunaPluginBase Plugin = serviceProvider.GetRequiredService<AbstractTunaPluginBase>();
+    protected readonly ILogger Logger = serviceProvider.GetRequiredService<AbstractTunaPluginBase>().Logger;
+    protected readonly IDebugLogger DebugLogger = serviceProvider.GetRequiredService<IDebugLogger>();
+    protected IServiceProvider ServiceProvider { get; set; } = serviceProvider;
+
+    protected string LocalizeString(string localizationKey, params object[] args)
+    {
+        return Plugin.LocalizeString(localizationKey, args);
+    }
 }
