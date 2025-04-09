@@ -56,14 +56,6 @@ public class PluginSettings
         "How long to take restarting map after vote passed.", 10.0F, ConVarFlags.FCVAR_NONE,
         new RangeValidator<float>(0.0F, float.MaxValue));
 
-    public readonly FakeConVar<float> m_CVVoteRoundRestartThreshold = new("lp_mg_vrr_vote_threshold",
-        "How percent of votes required to initiate the round restart.", 0.7F, ConVarFlags.FCVAR_NONE,
-        new RangeValidator<float>(0.0F, 1.0F));
-
-    public readonly FakeConVar<float> m_CVVoteRoundRestartRestartTime = new("lp_mg_vrr_restart_time",
-        "How long to take restarting round after vote passed.", 10.0F, ConVarFlags.FCVAR_NONE,
-        new RangeValidator<float>(0.0F, float.MaxValue));
-
     /*
      *   Round end enhancement
      */
@@ -390,8 +382,8 @@ public class PluginSettings
         writeConVarConfig(config, m_CVVoteMapRestartAllowedTime);
         writeConVarConfig(config, m_CVVoteMapRestartThreshold);
         writeConVarConfig(config, m_CVVoteMapRestartRestartTime);
-        writeConVarConfig(config, m_CVVoteRoundRestartThreshold);
-        writeConVarConfig(config, m_CVVoteRoundRestartRestartTime);
+        // writeConVarConfig(config, m_CVVoteRoundRestartThreshold);
+        // writeConVarConfig(config, m_CVVoteRoundRestartRestartTime);
         config.WriteLine("\n");
 
 
