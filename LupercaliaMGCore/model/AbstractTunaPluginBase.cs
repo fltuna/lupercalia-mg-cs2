@@ -9,20 +9,26 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
 {
     public ConVarConfigurationService ConVarConfigurationService { get; private set; } = null!;
     
+    public AbstractDebugLogger? DebugLogger { get; protected set; }
+
     public abstract string BaseCfgDirectoryPath { get; }
     
     public abstract string ConVarConfigPath { get; }
 
-    protected ServiceCollection ServiceCollection { get; } = new();
+    private ServiceCollection ServiceCollection { get; } = new();
     
     public ServiceProvider ServiceProvider = null!;
     
     protected abstract string PluginPrefix { get; }
 
 
-    protected virtual void RegisterRequiredPluginServices(){}
+    /// <summary>
+    /// We can register required services that use entire plugin or modules.
+    /// At this time, we can get ConVarConfigurationService and AbstractTunaPluginBase from DI container from this method.
+    /// </summary>
+    protected virtual void RegisterRequiredPluginServices(IServiceCollection collection ,IServiceProvider services){}
     
-    protected virtual void LateRegisterPluginServices(){}
+    protected virtual void LateRegisterPluginServices(IServiceCollection serviceCollection, IServiceProvider provider){}
 
     private void UpdateServices()
     {
@@ -43,7 +49,12 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
         RebuildServiceProvider();
         
         // Then call register required plugin services
-        RegisterRequiredPluginServices();
+        RegisterRequiredPluginServices(ServiceCollection, ServiceProvider);
+
+        DebugLogger ??= new IgnoredLogger();
+
+        RegisterDebugLogger(DebugLogger);
+        
         // And build again
         RebuildServiceProvider();
         
@@ -56,7 +67,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
     
     public sealed override void OnAllPluginsLoaded(bool hotReload)
     {
-        LateRegisterPluginServices();
+        LateRegisterPluginServices(ServiceCollection, ServiceProvider);
         RebuildServiceProvider();
         UpdateServices();
         
@@ -132,5 +143,11 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
             Logger.LogInformation($"{loadedModule.PluginModuleName} has been unloaded.");
         }
         loadedModules.Clear();
+    }
+
+    private void RegisterDebugLogger(AbstractDebugLogger logger)
+    {
+        RegisterFakeConVars(logger.GetType(), logger);
+        ServiceCollection.AddSingleton<IDebugLogger>(logger);
     }
 }

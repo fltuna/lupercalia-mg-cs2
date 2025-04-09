@@ -54,21 +54,14 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
         RegisterModule<VelocityDisplay>();
         RegisterModule<Rocket>();
         RebuildServiceProvider();
-
     }
 
-    protected override void TunaOnPluginUnload(bool hotReload)
+    protected override void RegisterRequiredPluginServices(IServiceCollection collection, IServiceProvider services)
     {
+        DebugLogger = new SimpleDebugLogger(services);
     }
 
-    protected override void RegisterRequiredPluginServices()
-    {
-        var debugLogger = new SimpleDebugLogger(ServiceProvider);
-        RegisterFakeConVars(debugLogger.GetType(), debugLogger);
-        ServiceCollection.AddSingleton<IDebugLogger>(debugLogger);
-    }
-
-    protected override void LateRegisterPluginServices()
+    protected override void LateRegisterPluginServices(IServiceCollection serviceCollection, IServiceProvider provider)
     {
         INativeVoteApi? nativeVoteApi = null;
         try
@@ -82,7 +75,7 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
 
         if (nativeVoteApi != null)
         {
-            ServiceCollection.AddSingleton<INativeVoteApi>(nativeVoteApi);
+            serviceCollection.AddSingleton<INativeVoteApi>(nativeVoteApi);
         }
     }
 }
