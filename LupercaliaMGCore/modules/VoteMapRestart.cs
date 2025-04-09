@@ -53,7 +53,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
     {
         try
         {
-            nativeVoteApi = Plugin.ServiceProvider.GetRequiredService<INativeVoteApi>();
+            nativeVoteApi = ServiceProvider.GetRequiredService<INativeVoteApi>();
         }
         catch (Exception)
         {

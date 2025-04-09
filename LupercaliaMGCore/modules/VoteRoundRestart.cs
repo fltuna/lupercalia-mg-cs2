@@ -54,7 +54,7 @@ public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBa
     {
         try
         {
-            nativeVoteApi = Plugin.ServiceProvider.GetRequiredService<INativeVoteApi>();
+            nativeVoteApi = ServiceProvider.GetRequiredService<INativeVoteApi>();
         }
         catch (Exception)
         {
