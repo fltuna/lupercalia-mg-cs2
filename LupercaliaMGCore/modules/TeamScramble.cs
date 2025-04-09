@@ -34,14 +34,14 @@ public class TeamScramble(IServiceProvider serviceProvider) : PluginModuleBase(s
         if (!IsModuleEnabled.Value)
             return HookResult.Continue;
 
-        SimpleLogging.LogDebug("[Team Scramble] Called");
+        DebugLogger.LogDebug("[Team Scramble] Called");
 
         List<CCSPlayerController> players = Utilities.GetPlayers()
             .Where(p => p.Team != CsTeam.None && p.Team != CsTeam.Spectator).ToList();
 
         int playerCount = players.Count;
         int playerCountHalf = playerCount / 2;
-        SimpleLogging.LogTrace($"[Team Scramble] player count: {playerCount}, half: {playerCountHalf}");
+        DebugLogger.LogTrace($"[Team Scramble] player count: {playerCount}, half: {playerCountHalf}");
 
         int teamCountCT = 0;
         int teamCountT = 0;
@@ -53,12 +53,12 @@ public class TeamScramble(IServiceProvider serviceProvider) : PluginModuleBase(s
             {
                 if (teamCountCT >= playerCountHalf)
                 {
-                    SimpleLogging.LogTrace($"Player {client.PlayerName} moved to Terrorist");
+                    DebugLogger.LogTrace($"Player {client.PlayerName} moved to Terrorist");
                     client.SwitchTeam(CsTeam.Terrorist);
                 }
                 else
                 {
-                    SimpleLogging.LogTrace($"Player {client.PlayerName} moved to CT");
+                    DebugLogger.LogTrace($"Player {client.PlayerName} moved to CT");
                     client.SwitchTeam(CsTeam.CounterTerrorist);
                     teamCountCT++;
                 }
@@ -67,19 +67,19 @@ public class TeamScramble(IServiceProvider serviceProvider) : PluginModuleBase(s
             {
                 if (teamCountT >= playerCountHalf)
                 {
-                    SimpleLogging.LogTrace($"Player {client.PlayerName} moved to CT");
+                    DebugLogger.LogTrace($"Player {client.PlayerName} moved to CT");
                     client.SwitchTeam(CsTeam.CounterTerrorist);
                 }
                 else
                 {
-                    SimpleLogging.LogTrace($"Player {client.PlayerName} moved to Terrorist");
+                    DebugLogger.LogTrace($"Player {client.PlayerName} moved to Terrorist");
                     client.SwitchTeam(CsTeam.Terrorist);
                     teamCountT++;
                 }
             }
         }
 
-        SimpleLogging.LogDebug("[Team Scramble] Done");
+        DebugLogger.LogDebug("[Team Scramble] Done");
         return HookResult.Continue;
     }
 }

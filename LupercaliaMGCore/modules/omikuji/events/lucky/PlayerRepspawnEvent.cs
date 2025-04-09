@@ -27,7 +27,7 @@ public class PlayerRespawnEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Player respawn event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Player respawn event");
 
         string msg;
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LupercaliaMGCore;
 
-public class ClassTemplate(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public class ModuleClassTemplate(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "ClassTemplate";
 
@@ -25,23 +25,33 @@ public class ClassTemplate(IServiceProvider serviceProvider) : PluginModuleBase(
     //
     
     
-    // This method will call while registering module.
-    // Module registration is called in plugins Load method.
+    
+    /// <summary>
+    /// This method will call while registering module, and module registration is called in plugins Load method.
+    /// Also, we can get ConVarConfigurationService and AbstractTunaPluginBase from DI container from this method.
+    /// </summary>
+    /// <param name="services">ServiceCollection</param>
     public override void RegisterServices(IServiceCollection services)
     {
     }
 
     
-    // This method will call while BasePlugin's OnAllPluginsLoaded.
-    // This serviceProvider should contain latest and all module dependency.
+    
+    /// <summary>
+    /// This method will call while BasePlugin's OnAllPluginsLoaded.
+    /// This serviceProvider should contain latest and all module dependency.
+    /// </summary>
+    /// <param name="services">Latest DI container</param>
     public override void UpdateServices(IServiceProvider services)
     {
     }
 
 
-    // This method will call while registering module.
-    // Module registration is called in plugins Load method.
-    // Also, this time you can call TrackConVar() method to add specific ConVar to ConVar config file automatic generation
+    
+    /// <summary>
+    /// This method will call while registering module, and module registration is called from plugin's Load method.
+    /// Also, this time you can call TrackConVar() method to add specific ConVar to ConVar config file automatic generation.
+    /// </summary>
     protected override void OnInitialize()
     {
         // For instance

@@ -55,7 +55,7 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
                 .Contains(2))
             return HookResult.Continue;
 
-        SimpleLogging.LogDebug("[Map Config] Executing configs at round PreStart.");
+        DebugLogger.LogDebug("[Map Config] Executing configs at round PreStart.");
         ExecuteConfigs();
         return HookResult.Continue;
     }
@@ -66,21 +66,21 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
                 .Contains(1))
             return;
 
-        SimpleLogging.LogDebug("[Map Config] Executing configs at map start.");
+        DebugLogger.LogDebug("[Map Config] Executing configs at map start.");
         ExecuteConfigs();
     }
 
     private void ExecuteConfigs()
     {
-        SimpleLogging.LogTrace("[Map Config] Updating the config dictionary");
+        DebugLogger.LogTrace("[Map Config] Updating the config dictionary");
         updateConfigsDictionary();
 
         int mapCfgType = ConfigType.Value;
 
-        SimpleLogging.LogTrace("[Map Config] Checking the Map Config type");
+        DebugLogger.LogTrace("[Map Config] Checking the Map Config type");
         if (mapCfgType == 0)
         {
-            SimpleLogging.LogTrace("[Map Config] mapCfgType is 0. cancelling the execution.");
+            DebugLogger.LogTrace("[Map Config] mapCfgType is 0. cancelling the execution.");
             return;
         }
 
@@ -89,12 +89,12 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
         // mapName is nullable when server startup. This is required for plugin loading when server startup.
         if (mapName == null)
         {
-            SimpleLogging.LogTrace("[Map Config] mapName is null. cancelling the execution.");
+            DebugLogger.LogTrace("[Map Config] mapName is null. cancelling the execution.");
             return;
         }
 
 
-        SimpleLogging.LogTrace("[Map Config] Iterating the config file");
+        DebugLogger.LogTrace("[Map Config] Iterating the config file");
         foreach (MapConfigFile conf in configs)
         {
             bool shouldExecute = false;
@@ -108,19 +108,19 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
             if (!shouldExecute) 
                 continue;
             
-            SimpleLogging.LogTrace($"[Map Config] Executing config {conf.name} located at {conf.path}");
+            DebugLogger.LogTrace($"[Map Config] Executing config {conf.name} located at {conf.path}");
             Server.ExecuteCommand($"exec {conf.path}");
         }
     }
 
     private void updateConfigsDictionary()
     {
-        SimpleLogging.LogTrace("[Map Config] Get files from directory");
+        DebugLogger.LogTrace("[Map Config] Get files from directory");
         string[] files = Directory.GetFiles(configFolder, "", SearchOption.TopDirectoryOnly);
 
-        SimpleLogging.LogTrace("[Map Config] Clearing configs");
+        DebugLogger.LogTrace("[Map Config] Clearing configs");
         configs.Clear();
-        SimpleLogging.LogTrace("[Map Config] Iterating files");
+        DebugLogger.LogTrace("[Map Config] Iterating files");
         foreach (string file in files)
         {
             string fileName = Path.GetFileName(file);
@@ -131,7 +131,7 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
                 Path.GetRelativePath(Path.GetFullPath(Path.Combine(Server.GameDirectory, "csgo/cfg/")), file);
 
             configs.Add(new MapConfigFile(fileName[..fileName.LastIndexOf(".", StringComparison.Ordinal)], relativePath));
-            SimpleLogging.LogTrace($"[Map Config] Adding config {configs.Last().name}, {configs.Last().path}");
+            DebugLogger.LogTrace($"[Map Config] Adding config {configs.Last().name}, {configs.Last().path}");
         }
     }
 

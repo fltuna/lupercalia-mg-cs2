@@ -77,13 +77,13 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
 
     private bool CommandIsExecutable(CCSPlayerController? client)
     {
-        SimpleLogging.LogDebug($"[Course Weapons] Checking command is executable from {client?.PlayerName}");
+        DebugLogger.LogDebug($"[Course Weapons] Checking command is executable from {client?.PlayerName}");
         if (client == null)
             return false;
         
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Player is already dead");
+            DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Player is already dead");
             
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.ShouldBeAlive"));
             return false;
@@ -93,7 +93,7 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
 
         if (!isCourseWeaponEnabled)
         {
-            SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Course Weapon feature is disabled");
+            DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Course Weapon feature is disabled");
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.CourseMapOnly"));
             return false;
         }
@@ -106,17 +106,17 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
         client.GiveNamedItem(item);
         client.PrintToChat(LocalizeWithPluginPrefix("CourseWeapon.Command.Notification.Retrieved", item.ToString()));
         
-        SimpleLogging.LogDebug($"[Course Weapons] [{client.PlayerName}] Gave {item}");
+        DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Gave {item}");
     }
 
     private bool CanGiveItem(CCSPlayerController client, CsItem item)
     {
-        SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Checking player can get {item.ToString()}");
+        DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Checking player can get {item.ToString()}");
         CPlayer_WeaponServices? weaponServices = client.PlayerPawn.Value!.WeaponServices;
 
         if (weaponServices == null)
         {
-            SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to obtain a WeaponServices instance.");
+            DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to obtain a WeaponServices instance.");
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
@@ -132,21 +132,21 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
 
         if (itemName == null)
         {
-            SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to find weapon.");
+            DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to find weapon.");
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.UnknownError"));
             return false;
         }
         
         if (clientWeapons.Contains(itemName))
         {
-            SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] Player already have a {item.ToString()}.");
+            DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Player already have a {item.ToString()}.");
             
             client.PrintToChat(LocalizeWithPluginPrefix("CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
             return false;
         }
         
         
-        SimpleLogging.LogTrace($"[Course Weapons] [{client.PlayerName}] We can give a {item.ToString()}.");
+        DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] We can give a {item.ToString()}.");
         return true;
     }
 }

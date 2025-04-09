@@ -44,7 +44,7 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Screen shake event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Screen shake event");
 
         CEnvShake? shakeEnt = Utilities.CreateEntityByName<CEnvShake>("env_shake");
         if (shakeEnt == null)

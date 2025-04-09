@@ -30,7 +30,7 @@ public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Player heal event.");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Player heal event.");
 
         string msg;
 

@@ -27,7 +27,7 @@ public class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(service
 
         Plugin.AddTimer(0.1F, () =>
         {
-            SimpleLogging.LogDebug("Late initialization for hot reloading rocket.");
+            DebugLogger.LogDebug("Late initialization for hot reloading rocket.");
             foreach (CCSPlayerController client in Utilities.GetPlayers())
             {
                 if (!client.IsValid || client.IsBot || client.IsHLTV)

@@ -32,7 +32,7 @@ public class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModul
         if (!IsModuleEnabled.Value)
             return HookResult.Continue;
 
-        SimpleLogging.LogDebug("[Round End Weapon Strip] Removing all players weapons.");
+        DebugLogger.LogDebug("[Round End Weapon Strip] Removing all players weapons.");
         foreach (var player in Utilities.GetPlayers())
         {
             if (player.IsBot || player.IsHLTV)
@@ -41,7 +41,7 @@ public class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModul
             player.RemoveWeapons();
         }
 
-        SimpleLogging.LogDebug("[Round End Weapon Strip] Done.");
+        DebugLogger.LogDebug("[Round End Weapon Strip] Done.");
         return HookResult.Continue;
     }
 }

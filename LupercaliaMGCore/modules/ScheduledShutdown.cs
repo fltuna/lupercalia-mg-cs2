@@ -83,7 +83,7 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
             }, TimerFlags.REPEAT);
         }
 
-        SimpleLogging.LogDebug($"[Scheduled Shutdown] Shutdown initiated.");
+        DebugLogger.LogDebug($"[Scheduled Shutdown] Shutdown initiated.");
     }
 
     private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
@@ -111,7 +111,7 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
                 initiateShutdown();
             }
         }, TimerFlags.REPEAT);
-        SimpleLogging.LogDebug($"[Scheduled Shutdown] Cancelled shutdown.");
+        DebugLogger.LogDebug($"[Scheduled Shutdown] Cancelled shutdown.");
     }
 
     [RequiresPermissions(@"css/root")]

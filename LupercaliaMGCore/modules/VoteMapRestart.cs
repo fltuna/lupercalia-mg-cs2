@@ -110,24 +110,24 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
         if (client == null)
             return;
 
-        SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] trying to vote for restart map.");
+        DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] trying to vote for restart map.");
         if (isMapRestarting)
         {
-            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
+            DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
             client.PrintToChat(LocalizeWithPluginPrefix("VoteMapRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (Server.EngineTime - mapStartTime > RestartAllowedTime.Value)
         {
-            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
+            DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
             client.PrintToChat(LocalizeWithPluginPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
-            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
+            DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Already an active vote.");
             client.PrintToChat(Plugin.Localizer["General.Command.Vote.Notification.AnotherVoteInProgress"]);
             return;
         }
@@ -147,7 +147,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
 
         if (state == NativeVoteState.InitializeAccepted)
         {
-            SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+            DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] Map reload vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
             PrintLocalizedChatToAll("VoteMapRestart.Notification.VoteInitiated");
         }
         else
@@ -159,7 +159,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
 
     private void InitiateMapRestart()
     {
-        SimpleLogging.LogDebug("[Vote Map Restart] Initiating map restart...");
+        DebugLogger.LogDebug("[Vote Map Restart] Initiating map restart...");
         isMapRestarting = true;
 
         float mapRestartTime = RestartTime.Value;
@@ -167,7 +167,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
         
         Plugin.AddTimer(RestartTime.Value, () =>
         {
-            SimpleLogging.LogDebug("[Vote Map Restart] Changing map.");
+            DebugLogger.LogDebug("[Vote Map Restart] Changing map.");
             Server.ExecuteCommand($"changelevel {Server.MapName}");
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }

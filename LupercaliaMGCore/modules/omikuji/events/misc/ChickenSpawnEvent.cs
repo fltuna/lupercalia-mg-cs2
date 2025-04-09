@@ -36,7 +36,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Chicken spawn event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Chicken spawn event");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)

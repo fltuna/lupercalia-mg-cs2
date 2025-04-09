@@ -35,9 +35,9 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
         // This is a temporary workaround until get better solutions
         Plugin.AddTimer(0.01F, () =>
         {
-            SimpleLogging.LogDebug("Initializing the Give Random Item Event. This is a late initialization for avoid error.");
+            DebugLogger.LogDebug("Initializing the Give Random Item Event. This is a late initialization for avoid error.");
 
-            SimpleLogging.LogDebug("Registering the Player Spawn event for initialize late joiners recently picked up items list");
+            DebugLogger.LogDebug("Registering the Player Spawn event for initialize late joiners recently picked up items list");
             Plugin.RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
             {
                 CCSPlayerController? client = @event.Userid;
@@ -51,9 +51,9 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
 
                 return HookResult.Continue;
             });
-            SimpleLogging.LogDebug("Registered the Player Spawn event");
+            DebugLogger.LogDebug("Registered the Player Spawn event");
 
-            SimpleLogging.LogDebug("Initializing the recently picked up items list for connected players");
+            DebugLogger.LogDebug("Initializing the recently picked up items list for connected players");
             foreach (CCSPlayerController cl in Utilities.GetPlayers())
             {
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
@@ -65,15 +65,15 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
                 }
             }
 
-            SimpleLogging.LogDebug("Finished initializing the recently picked up items list");
+            DebugLogger.LogDebug("Finished initializing the recently picked up items list");
         });
     }
     
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Give random item event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Give random item event");
 
-        SimpleLogging.LogDebug("Iterating the all player");
+        DebugLogger.LogDebug("Iterating the all player");
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
             if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
@@ -82,17 +82,17 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
             if (!PlayerUtil.IsPlayerAlive(cl))
                 continue;
 
-            SimpleLogging.LogDebug("Picking random item");
+            DebugLogger.LogDebug("Picking random item");
             CsItem randomItem = PickRandomItem(cl);
 
             cl.GiveNamedItem(randomItem);
 
-            SimpleLogging.LogDebug("Enqueue a picked up item to recently picked up items list");
+            DebugLogger.LogDebug("Enqueue a picked up item to recently picked up items list");
             RecentlyPickedUpItems[cl].Enqueue(randomItem);
             cl.PrintToChat(LocalizeOmikujiResult(client, OmikujiType, "Omikuji.LuckyEvent.GiveRandomItemEvent.Notification.ItemReceived", randomItem));
         }
 
-        SimpleLogging.LogDebug("Give random item event finished");
+        DebugLogger.LogDebug("Give random item event finished");
     }
 
     public override double GetOmikujiWeight()
@@ -133,15 +133,15 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
     // HE Grenade giving rate is definitely low. investigate later.
     private CsItem PickRandomItem(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug($"PickRandomItem() called. caller: {client.PlayerName}");
+        DebugLogger.LogDebug($"PickRandomItem() called. caller: {client.PlayerName}");
         CsItem item;
 
         string[] items = Enum.GetNames(typeof(CsItem));
         int itemsCount = items.Length;
 
-        SimpleLogging.LogTrace($"CsItems item counts are {itemsCount}");
+        DebugLogger.LogTrace($"CsItems item counts are {itemsCount}");
 
-        SimpleLogging.LogTrace("Picking random item");
+        DebugLogger.LogTrace("Picking random item");
         while (true)
         {
             int randomNum = Random.Next(0, itemsCount);
@@ -153,10 +153,10 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
                 break;
             }
 
-            SimpleLogging.LogTrace("Random item are duplicated with recently picked up items");
+            DebugLogger.LogTrace("Random item are duplicated with recently picked up items");
         }
 
-        SimpleLogging.LogTrace($"Random item are picked: {item}");
+        DebugLogger.LogTrace($"Random item are picked: {item}");
         return item;
     }
 }

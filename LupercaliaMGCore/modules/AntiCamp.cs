@@ -255,21 +255,21 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private void InitClientInformation(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initializing the client information.");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initializing the client information.");
         playerPositionHistory[client] = new PlayerPositionHistory(
             (int)(CampDetectionTime.Value /
                   CampDetectionInterval.Value));
         playerCampingTime[client] = 0.0F;
         playerGlowingTime[client] = 0.0F;
         isPlayerWarned[client] = false;
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initialized.");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initialized.");
     }
 
     private void RecreateGlowingTimer(CCSPlayerController client)
     {
         float timerInterval = CampDetectionInterval.Value;
         isPlayerWarned[client] = true;
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
         client.PrintToCenterAlert(Plugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);
 
         void Check()
@@ -279,7 +279,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
                 if (playerGlowingTime[client] <= 0.0)
                 {
                     isPlayerWarned[client] = false;
-                    SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glowing timer has ended.");
+                    DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glowing timer has ended.");
                     return;
                 }
 
@@ -294,30 +294,30 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private void StartPlayerGlowing(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Start player glow");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Start player glow");
         playerGlowingTime[client] = 0.0F;
         CCSPlayerPawn playerPawn = client.PlayerPawn.Value!;
 
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Creating overlay entity.");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Creating overlay entity.");
         CBaseModelEntity? modelGlow = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
         CBaseModelEntity? modelRelay = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
 
         if (modelGlow == null || modelRelay == null)
         {
-            SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Failed to create glowing entity!");
+            DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Failed to create glowing entity!");
             return;
         }
 
 
         string playerModel = GetPlayerModel(client);
 
-        SimpleLogging.LogTrace($"[Anti Camp] [Player {client.PlayerName}] player model: {playerModel}");
+        DebugLogger.LogTrace($"[Anti Camp] [Player {client.PlayerName}] player model: {playerModel}");
         if (playerModel == string.Empty)
             return;
 
         // Code from Joakim in CounterStrikeSharp Discord
         // https://discord.com/channels/1160907911501991946/1235212931394834432/1245928951449387009
-        SimpleLogging.LogTrace($"[Anti Camp] [Player {client.PlayerName}] Setting player model to overlay entity.");
+        DebugLogger.LogTrace($"[Anti Camp] [Player {client.PlayerName}] Setting player model to overlay entity.");
         modelRelay.SetModel(playerModel);
         modelRelay.Spawnflags = 256u;
         modelRelay.RenderMode = RenderMode_t.kRenderNone;
@@ -329,7 +329,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
         modelGlow.Render = Color.FromArgb(1, 255, 255, 255);
         modelGlow.DispatchSpawn();
 
-        SimpleLogging.LogTrace($"[Anti Camp] [Player {client.PlayerName}] Changing overlay entity's render mode.");
+        DebugLogger.LogTrace($"[Anti Camp] [Player {client.PlayerName}] Changing overlay entity's render mode.");
         if (client.Team == CsTeam.Terrorist)
         {
             modelGlow.Glow.GlowColorOverride = Color.Red;
@@ -352,7 +352,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private void StopPlayerGlowing(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glow removed");
+        DebugLogger.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Glow removed");
 
         if (!playerGlowingEntity.TryGetValue(client, out var entities))
             return;

@@ -25,7 +25,7 @@ public class PlayerRespawnAllEvent(IServiceProvider serviceProvider) : OmikujiEv
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked All player respawn event.");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked All player respawn event.");
 
         CCSPlayerController? alivePlayer = null;
 
@@ -43,7 +43,7 @@ public class PlayerRespawnAllEvent(IServiceProvider serviceProvider) : OmikujiEv
 
         if (alivePlayer == null)
         {
-            SimpleLogging.LogDebug("All player respawn event failed due to no one player is alive.");
+            DebugLogger.LogDebug("All player respawn event failed due to no one player is alive.");
             foreach (CCSPlayerController cl in Utilities.GetPlayers())
             {
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)

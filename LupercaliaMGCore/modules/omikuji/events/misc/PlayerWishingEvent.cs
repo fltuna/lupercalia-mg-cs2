@@ -26,7 +26,7 @@ public class PlayerWishingEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Player wishing event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Player wishing event");
         
         Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.PlayerWishingEvent.Notification.Wishing", client.PlayerName));
     }

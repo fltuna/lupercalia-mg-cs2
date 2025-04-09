@@ -30,11 +30,11 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Player freeze event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Player freeze event");
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            SimpleLogging.LogDebug("Player freeze event failed due to player is died. But this is should not be happened.");
+            DebugLogger.LogDebug("Player freeze event failed due to player is died. But this is should not be happened.");
             return;
         }
 
@@ -42,14 +42,14 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
         if (playerPawn == null)
         {
-            SimpleLogging.LogDebug("Player freeze event failed due to playerPawn is null.");
+            DebugLogger.LogDebug("Player freeze event failed due to playerPawn is null.");
             return;
         }
 
 
         playerPawn.MoveType = MoveType_t.MOVETYPE_OBSOLETE;
         playerPawn.ActualMoveType = MoveType_t.MOVETYPE_OBSOLETE;
-        SimpleLogging.LogDebug("Player freeze event: Move type changed to MOVETYPE_OBSOLETE");
+        DebugLogger.LogDebug("Player freeze event: Move type changed to MOVETYPE_OBSOLETE");
 
         Server.PrintToChatAll(LocalizeOmikujiResult(client, OmikujiType, "Omikuji.BadEvent.PlayerFreezeEvent.Notification.Froze", client.PlayerName));
 
@@ -58,7 +58,7 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
         {
             playerPawn.MoveType = MoveType_t.MOVETYPE_WALK;
             playerPawn.ActualMoveType = MoveType_t.MOVETYPE_WALK;
-            SimpleLogging.LogDebug("Player freeze event: Move type changed to MOVETYPE_WALK");
+            DebugLogger.LogDebug("Player freeze event: Move type changed to MOVETYPE_WALK");
             client.PrintToChat(LocalizeWithPrefix("Omikuji.BadEvent.PlayerFreezeEvent.Notification.UnFroze"));
         });
     }

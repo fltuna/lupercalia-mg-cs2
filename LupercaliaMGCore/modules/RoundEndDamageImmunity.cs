@@ -42,7 +42,7 @@ public class RoundEndDamageImmunity(IServiceProvider serviceProvider) : PluginMo
                 return HookResult.Continue;
 
             player.Health = player.LastHealth;
-            SimpleLogging.LogTrace($"[Round End Damage Immunity] [Player {player.Controller.Value?.PlayerName}] Nullified damage");
+            DebugLogger.LogTrace($"[Round End Damage Immunity] [Player {player.Controller.Value?.PlayerName}] Nullified damage");
             return HookResult.Continue;
         }
 
@@ -52,14 +52,14 @@ public class RoundEndDamageImmunity(IServiceProvider serviceProvider) : PluginMo
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
         damageImmunity = false;
-        SimpleLogging.LogDebug("[Round End Damage Immunity] Disabled.");
+        DebugLogger.LogDebug("[Round End Damage Immunity] Disabled.");
         return HookResult.Continue;
     }
 
     private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         damageImmunity = true;
-        SimpleLogging.LogDebug("[Round End Damage Immunity] Enabled.");
+        DebugLogger.LogDebug("[Round End Damage Immunity] Enabled.");
         return HookResult.Continue;
     }
 }

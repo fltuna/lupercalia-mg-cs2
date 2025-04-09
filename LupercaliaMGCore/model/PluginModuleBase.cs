@@ -24,8 +24,6 @@ public abstract class PluginModuleBase(IServiceProvider serviceProvider) : Plugi
     /// </summary>
     private ConVarConfigurationService ConVarConfigurationService => Plugin.ConVarConfigurationService;
     
-    protected IServiceProvider ServiceProvider = serviceProvider;
-    
     public virtual void RegisterServices(IServiceCollection services) {}
 
     public virtual void UpdateServices(IServiceProvider services)

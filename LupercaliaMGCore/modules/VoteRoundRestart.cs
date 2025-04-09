@@ -116,11 +116,11 @@ public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBa
         if (client == null)
             return;
 
-        SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] trying to vote for restart round.");
+        DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] trying to vote for restart round.");
         
         if (isRoundRestarting)
         {
-            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
+            DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
             
             client.PrintToChat(LocalizeWithPluginPrefix("VoteRoundRestart.Command.Notification.AlreadyRestarting"));
             return;
@@ -128,7 +128,7 @@ public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBa
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
-            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
+            DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Vote.Notification.AnotherVoteInProgress"));
             return;
         }
@@ -148,7 +148,7 @@ public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBa
 
         if (state == NativeVoteState.InitializeAccepted)
         {
-            SimpleLogging.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
+            DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round restart vote initiated. Vote Identifier: {nInfo.voteIdentifier}");
             
             PrintLocalizedChatToAll("VoteRoundRestart.Notification.VoteInitiated");
         }
@@ -164,28 +164,28 @@ public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBa
         if (client == null)
             return;
 
-        SimpleLogging.LogDebug("[Force Round Restart] Initiating round restart...");
+        DebugLogger.LogDebug("[Force Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
         PrintLocalizedChatToAll("VoteRoundRestart.Notification.ForceRoundRestart", 1);
         
         Plugin.AddTimer(1, () =>
         {
-            SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
+            DebugLogger.LogDebug("[Vote Round Restart] Restarting round.");
             EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }
 
     private void InitiateRoundRestart()
     {
-        SimpleLogging.LogDebug("[Vote Round Restart] Initiating round restart...");
+        DebugLogger.LogDebug("[Vote Round Restart] Initiating round restart...");
         isRoundRestarting = true;
 
         PrintLocalizedChatToAll("VoteRoundRestart.Notification.RoundRestart", RoundRestartTime.Value);
         
         Plugin.AddTimer(RoundRestartTime.Value, () =>
         {
-            SimpleLogging.LogDebug("[Vote Round Restart] Restarting round.");
+            DebugLogger.LogDebug("[Vote Round Restart] Restarting round.");
             EntityUtil.GetGameRules()?.TerminateRound(0.0F, RoundEndReason.RoundDraw);
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }

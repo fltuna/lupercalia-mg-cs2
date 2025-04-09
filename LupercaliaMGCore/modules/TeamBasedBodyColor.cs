@@ -46,7 +46,7 @@ public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModule
         if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator)
             return HookResult.Continue;
 
-        SimpleLogging.LogDebug($"[Team Based Body Color] [Player {player.PlayerName}] spawned");
+        DebugLogger.LogDebug($"[Team Based Body Color] [Player {player.PlayerName}] spawned");
 
         //
         // Default player color = A255 R255 G255 B255.
@@ -76,7 +76,7 @@ public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModule
             }
 
             newColor = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
-            SimpleLogging.LogTrace(
+            DebugLogger.LogTrace(
                 $"[Team Based Body Color] Player {player.PlayerName}'s team: {player.Team}, color: {newColor.R} {newColor.G} {newColor.B}");
 
             renderMode = RenderMode_t.kRenderTransColor;
@@ -86,20 +86,20 @@ public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModule
 
         if (playerPawn.Render != newColor || playerPawn.RenderMode != renderMode)
         {
-            SimpleLogging.LogTrace(
+            DebugLogger.LogTrace(
                 $"[Team Based Body Color] [Player {player.PlayerName}] render mode changed from {playerPawn.RenderMode} to {renderMode}");
-            SimpleLogging.LogTrace(
+            DebugLogger.LogTrace(
                 $"[Team Based Body Color] [Player {player.PlayerName}] color changed from {playerPawn.Render} to {newColor}");
             playerPawn.RenderMode = renderMode;
             playerPawn.Render = newColor;
 
-            SimpleLogging.LogTrace($"[Team Based Body Color] [Player {player.PlayerName}] Sending state change.");
+            DebugLogger.LogTrace($"[Team Based Body Color] [Player {player.PlayerName}] Sending state change.");
             Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
-            SimpleLogging.LogDebug($"[Team Based Body Color] [Player {player.PlayerName}] Done.");
+            DebugLogger.LogDebug($"[Team Based Body Color] [Player {player.PlayerName}] Done.");
         }
         else
         {
-            SimpleLogging.LogTrace(
+            DebugLogger.LogTrace(
                 $"[Team Based Body Color] [Player {player.PlayerName}] Nothing has been changed.");
         }
 

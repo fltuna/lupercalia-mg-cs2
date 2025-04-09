@@ -61,7 +61,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
         if (client == null)
             return;
 
-        SimpleLogging.LogDebug($"Admin {client.PlayerName} is enabled auto respawn.");
+        DebugLogger.LogDebug($"Admin {client.PlayerName} is enabled auto respawn.");
 
         foreach (CCSPlayerController cl in Utilities.GetPlayers())
         {
@@ -75,7 +75,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
         }
 
         repeatKillDetected = false;
-        SimpleLogging.LogTrace($"Repeat kill status: {repeatKillDetected}");
+        DebugLogger.LogTrace($"Repeat kill status: {repeatKillDetected}");
         Server.PrintToChatAll($"{ChatPrefix} {Plugin.Localizer["Respawn.Notification.AdminEnabledRespawn", client.PlayerName]}");
     }
 
@@ -100,7 +100,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
         if (player.IsBot || player.IsHLTV)
             return HookResult.Continue;
 
-        SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Trying to respawn.");
+        DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Trying to respawn.");
 
         int index = (int)player.Index;
 
@@ -110,21 +110,21 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
         {
             repeatKillDetected = true;
             
-            SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Repeat kill is detected.");
+            DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Repeat kill is detected.");
             Server.PrintToChatAll($"{ChatPrefix} {ChatUtil.ReplaceColorStrings(Plugin.Localizer["Respawn.Notification.RepeatKillDetected"])}");
             
             SetIgnoreRoundWinCondition(false);
             return HookResult.Continue;
         }
 
-        SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawning player.");
+        DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawning player.");
         Plugin.AddTimer(AutoRespawnTime.Value, () =>
         {
-            SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned.");
+            DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned.");
             RespawnPlayer(player);
         }, TimerFlags.STOP_ON_MAPCHANGE);
 
-        SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Done.");
+        DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Done.");
         return HookResult.Continue;
     }
 
@@ -148,11 +148,11 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
             return HookResult.Continue;
         }
 
-        SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] has joined the team {team.ToString()}.");
+        DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] has joined the team {team.ToString()}.");
 
         Server.NextFrame(() =>
         {
-            SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned due to team change.");
+            DebugLogger.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned due to team change.");
             player.Respawn();
         });
 

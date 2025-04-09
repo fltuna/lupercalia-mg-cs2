@@ -35,29 +35,29 @@ public class RoundEndDeathMatch(IServiceProvider serviceProvider) : PluginModule
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
-        SimpleLogging.LogDebug("[Round End Death Match] Called RoundPreStart.");
+        DebugLogger.LogDebug("[Round End Death Match] Called RoundPreStart.");
         if (!IsModuleEnabled.Value)
         {
-            SimpleLogging.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
+            DebugLogger.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
             return HookResult.Continue;
         }
 
         TrySetConVarValue(false);
-        SimpleLogging.LogDebug("[Round End Death Match] Ended.");
+        DebugLogger.LogDebug("[Round End Death Match] Ended.");
         return HookResult.Continue;
     }
 
     private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        SimpleLogging.LogDebug("[Round End Death Match] Called RoundEnd");
+        DebugLogger.LogDebug("[Round End Death Match] Called RoundEnd");
         if (!IsModuleEnabled.Value)
         {
-            SimpleLogging.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
+            DebugLogger.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
             return HookResult.Continue;
         }
 
         TrySetConVarValue(true);
-        SimpleLogging.LogDebug("[Round End Death Match] Started.");
+        DebugLogger.LogDebug("[Round End Death Match] Started.");
         return HookResult.Continue;
     }
 
@@ -71,13 +71,13 @@ public class RoundEndDeathMatch(IServiceProvider serviceProvider) : PluginModule
         {
             if (mp_teammates_are_enemies == null || mp_teammates_are_enemies.GetPrimitiveValue<bool>() != value)
             {
-                SimpleLogging.LogDebug(
+                DebugLogger.LogDebug(
                     $"ConVar mp_teammates_are_enemies is failed to set! Current map: {Server.MapName}");
             }
         }
         catch (Exception e)
         {
-            SimpleLogging.LogDebug(
+            DebugLogger.LogDebug(
                 $"ConVar mp_teammates_are_enemies is failed to set due to exception. Trace: {e.StackTrace}");
         }
     }

@@ -26,7 +26,7 @@ public class NothingEvent(IServiceProvider serviceProvider) : OmikujiEventBase(s
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Nothing event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Nothing event");
     
         Server.PrintToChatAll(LocalizeOmikujiResult(client, OmikujiType, "Omikuji.MiscEvent.NothingEvent.Notification.ButNothingHappened"));
     }

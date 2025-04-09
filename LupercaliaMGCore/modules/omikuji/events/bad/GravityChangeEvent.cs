@@ -40,7 +40,7 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
     public override void Execute(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Player drew a omikuji and invoked Gravity change event");
+        DebugLogger.LogDebug("Player drew a omikuji and invoked Gravity change event");
 
         int randomGravity = Random.Next(
             GravityMin.Value,

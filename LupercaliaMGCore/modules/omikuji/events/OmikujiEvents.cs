@@ -1,12 +1,12 @@
+using LupercaliaMGCore.interfaces;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LupercaliaMGCore;
 
-public class OmikujiEvents(IServiceProvider serviceProvider)
+public class OmikujiEvents(IServiceProvider serviceProvider): PluginBasicFeatureBase(serviceProvider)
 {
-    private readonly AbstractTunaPluginBase plugin = serviceProvider.GetRequiredService<AbstractTunaPluginBase>();
 
     public Dictionary<OmikujiType, List<OmikujiEventBase>> GetEvents()
     {
@@ -25,23 +25,23 @@ public class OmikujiEvents(IServiceProvider serviceProvider)
         InitializeEventsList();
         
         // Bad events
-        InitializeEvent(new GravityChangeEvent(serviceProvider));
-        InitializeEvent(new PlayerFreezeEvent(serviceProvider));
-        InitializeEvent(new PlayerLocationSwapEvent(serviceProvider));
-        InitializeEvent(new PlayerSlapEvent(serviceProvider));
+        InitializeEvent(new GravityChangeEvent(ServiceProvider));
+        InitializeEvent(new PlayerFreezeEvent(ServiceProvider));
+        InitializeEvent(new PlayerLocationSwapEvent(ServiceProvider));
+        InitializeEvent(new PlayerSlapEvent(ServiceProvider));
 
         
         // Lucky events
-        InitializeEvent(new GiveRandomItemEvent(serviceProvider));
-        InitializeEvent(new PlayerHealEvent(serviceProvider));
-        InitializeEvent(new PlayerRespawnAllEvent(serviceProvider));
-        InitializeEvent(new PlayerRespawnEvent(serviceProvider));
+        InitializeEvent(new GiveRandomItemEvent(ServiceProvider));
+        InitializeEvent(new PlayerHealEvent(ServiceProvider));
+        InitializeEvent(new PlayerRespawnAllEvent(ServiceProvider));
+        InitializeEvent(new PlayerRespawnEvent(ServiceProvider));
 
         // Misc events
-        InitializeEvent(new ChickenSpawnEvent(serviceProvider));
-        InitializeEvent(new NothingEvent(serviceProvider));
-        InitializeEvent(new PlayerWishingEvent(serviceProvider));
-        InitializeEvent(new ScreenShakeEvent(serviceProvider));
+        InitializeEvent(new ChickenSpawnEvent(ServiceProvider));
+        InitializeEvent(new NothingEvent(ServiceProvider));
+        InitializeEvent(new PlayerWishingEvent(ServiceProvider));
+        InitializeEvent(new ScreenShakeEvent(ServiceProvider));
 
         isEventsInitialized = true;
     }
@@ -50,8 +50,8 @@ public class OmikujiEvents(IServiceProvider serviceProvider)
     {
         events[omikujiEvent.OmikujiType].Add(omikujiEvent);
         omikujiEvent.Initialize();
-        plugin.RegisterFakeConVars(omikujiEvent.GetType(), omikujiEvent);
-        SimpleLogging.LogDebug($"[Omikuji {omikujiEvent.EventName}] initialized");
+        Plugin.RegisterFakeConVars(omikujiEvent.GetType(), omikujiEvent);
+        DebugLogger.LogDebug($"[Omikuji {omikujiEvent.EventName}] initialized");
     }
 
     private void InitializeEventsList()

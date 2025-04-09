@@ -77,7 +77,7 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
         // For hot reload and server startup
         Plugin.AddTimer(0.1F, () =>
         {
-            SimpleLogging.LogDebug("Late initialization for hot reloading omikuji.");
+            DebugLogger.LogDebug("Late initialization for hot reloading omikuji.");
             foreach (CCSPlayerController client in Utilities.GetPlayers())
             {
                 if (!client.IsValid || client.IsBot || client.IsHLTV)
@@ -114,7 +114,7 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
     private void ResetPlayerInformation(CCSPlayerController client)
     {
-        SimpleLogging.LogDebug("Omikuji: Resetting player information");
+        DebugLogger.LogDebug("Omikuji: Resetting player information");
         lastCommandUseTime[client] = 0.0D;
         isWaitingForEventExecution[client] = false;
     }
@@ -140,15 +140,15 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
             return;
         }
 
-        SimpleLogging.LogDebug($"[Omikuji] [Player {client.PlayerName}] trying to draw omikuji.");
-        SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji type.");
+        DebugLogger.LogDebug($"[Omikuji] [Player {client.PlayerName}] trying to draw omikuji.");
+        DebugLogger.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji type.");
         OmikujiType randomOmikujiType = GetRandomOmikujiType();
         var events = omikujiEvents.GetEvents()[randomOmikujiType];
         bool isPlayerAlive = PlayerUtil.IsPlayerAlive(client);
 
         OmikujiEventBase omikuji;
 
-        SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji.");
+        DebugLogger.LogTrace($"[Omikuji] [Player {client.PlayerName}] Picking random omikuji.");
         while (true)
         {
             omikuji = SelectWeightedRandom(events);
@@ -173,7 +173,7 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
             Random.Next(CommandExecutionDelayMin.Value,
                 CommandExecutionDelayMax.Value), () =>
             {
-                SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Executing omikuji...");
+                DebugLogger.LogTrace($"[Omikuji] [Player {client.PlayerName}] Executing omikuji...");
                 lastCommandUseTime[client] = Server.EngineTime;
                 isWaitingForEventExecution[client] = false;
                 omikuji.Execute(client);

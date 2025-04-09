@@ -56,7 +56,7 @@ public class JoinTeamFix(IServiceProvider serviceProvider) : PluginModuleBase(se
                 return HookResult.Continue;
 
 
-            SimpleLogging.LogDebug($"Player {client.PlayerName}'s team forcefully changed to team {team}");
+            DebugLogger.LogDebug($"Player {client.PlayerName}'s team forcefully changed to team {team}");
             client.SwitchTeam(team);
         }
 

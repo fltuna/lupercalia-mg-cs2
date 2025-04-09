@@ -16,7 +16,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
     protected ServiceCollection ServiceCollection { get; } = new();
     
     public ServiceProvider ServiceProvider = null!;
-
+    
     protected abstract string PluginPrefix { get; }
 
 
@@ -37,9 +37,14 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
         ConVarConfigurationService = new(this);
         // Add self and core service to DI Container
         ServiceCollection.AddSingleton(this);
-        RegisterRequiredPluginServices();
+        ServiceCollection.AddSingleton(ConVarConfigurationService);
         
         // Build first ServiceProvider, because we need a plugin instance to initialize modules
+        RebuildServiceProvider();
+        
+        // Then call register required plugin services
+        RegisterRequiredPluginServices();
+        // And build again
         RebuildServiceProvider();
         
         // Call customizable OnLoad method
@@ -110,16 +115,16 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
         Logger.LogInformation($"{module.PluginModuleName} has been initialized");
     }
 
-    protected void CallModulesAllPluginsLoaded()
+    private void CallModulesAllPluginsLoaded()
     {
         foreach (IPluginModule loadedModule in loadedModules)
         {
             loadedModule.AllPluginsLoaded();
         }
     }
-    
 
-    protected void UnloadAllModules()
+
+    private void UnloadAllModules()
     {
         foreach (PluginModuleBase loadedModule in loadedModules)
         {

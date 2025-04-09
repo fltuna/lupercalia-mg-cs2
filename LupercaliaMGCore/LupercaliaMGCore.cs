@@ -32,9 +32,6 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
 
     protected override void TunaOnPluginLoad(bool hotReload)
     {
-        new PluginSettings(this);
-        Logger.LogInformation("Plugin settings initialized");
-
         RegisterModule<TeamBasedBodyColor>();
         RegisterModule<DuckFix>();
         RegisterModule<TeamScramble>();
@@ -62,7 +59,13 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
 
     protected override void TunaOnPluginUnload(bool hotReload)
     {
-        UnloadAllModules();
+    }
+
+    protected override void RegisterRequiredPluginServices()
+    {
+        var debugLogger = new SimpleDebugLogger(ServiceProvider);
+        RegisterFakeConVars(debugLogger.GetType(), debugLogger);
+        ServiceCollection.AddSingleton<IDebugLogger>(debugLogger);
     }
 
     protected override void LateRegisterPluginServices()
