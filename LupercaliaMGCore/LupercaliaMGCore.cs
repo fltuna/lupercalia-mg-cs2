@@ -70,7 +70,7 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
         {
             nativeVoteApi = INativeVoteApi.Capability.Get();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Logger.LogError("Native vote API not found! some modules may not work properly!!!!");
         }
