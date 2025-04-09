@@ -22,7 +22,7 @@ public abstract class PluginModuleBase(IServiceProvider serviceProvider) : Plugi
     /// <summary>
     /// ConVarManager
     /// </summary>
-    private ConVarManager ConVarManager => Plugin.ConVarManager;
+    private ConVarConfigurationService ConVarConfigurationService => Plugin.ConVarConfigurationService;
     
     protected IServiceProvider ServiceProvider = serviceProvider;
     
@@ -69,7 +69,7 @@ public abstract class PluginModuleBase(IServiceProvider serviceProvider) : Plugi
     public void UnloadModule()
     {
         OnUnloadModule();
-        ConVarManager.UntrackModule(PluginModuleName);
+        ConVarConfigurationService.UntrackModule(PluginModuleName);
     }
 
     
@@ -119,7 +119,7 @@ public abstract class PluginModuleBase(IServiceProvider serviceProvider) : Plugi
     /// <typeparam name="T">FakeConVarType</typeparam>
     protected void TrackConVar<T>(FakeConVar<T> conVar) where T : IComparable<T>
     {
-        ConVarManager.TrackConVar(PluginModuleName ,conVar);
+        ConVarConfigurationService.TrackConVar(PluginModuleName ,conVar);
     }
 
 
@@ -128,6 +128,6 @@ public abstract class PluginModuleBase(IServiceProvider serviceProvider) : Plugi
     /// </summary>
     protected void UnTrackConVar()
     {
-        ConVarManager.UntrackModule(PluginModuleName);
+        ConVarConfigurationService.UntrackModule(PluginModuleName);
     }
 }

@@ -4,7 +4,7 @@ namespace LupercaliaMGCore.interfaces;
 
 public interface ITunaPluginBase
 {
-    public ConVarManager ConVarManager { get; }
+    public ConVarConfigurationService ConVarConfigurationService { get; }
     
     public string ConVarConfigPath { get; }
     

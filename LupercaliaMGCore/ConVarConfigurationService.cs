@@ -2,7 +2,7 @@
 
 namespace LupercaliaMGCore;
 
-public class ConVarManager(string conVarConfigPath)
+public class ConVarConfigurationService(string conVarConfigPath)
 {
     // 設定出力のためだけにConVarを追跡
     private readonly Dictionary<string, List<object>> _moduleConVars = new();

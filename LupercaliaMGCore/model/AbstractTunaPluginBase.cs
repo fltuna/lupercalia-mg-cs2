@@ -7,7 +7,7 @@ namespace LupercaliaMGCore.model;
 
 public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
 {
-    public ConVarManager ConVarManager { get; private set; } = null!;
+    public ConVarConfigurationService ConVarConfigurationService { get; private set; } = null!;
 
     public abstract string ConVarConfigPath { get; }
 
@@ -32,7 +32,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
 
     public sealed override void Load(bool hotReload)
     {
-        ConVarManager = new(ConVarConfigPath);
+        ConVarConfigurationService = new(ConVarConfigPath);
         // Add self and core service to DI Container
         ServiceCollection.AddSingleton(this);
         RegisterRequiredPluginServices();
