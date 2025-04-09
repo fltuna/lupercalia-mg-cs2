@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.interfaces;
 
 namespace LupercaliaMGCore.model;

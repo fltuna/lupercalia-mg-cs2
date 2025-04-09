@@ -1,5 +1,4 @@
 ﻿using LupercaliaMGCore.model;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LupercaliaMGCore.interfaces;
 

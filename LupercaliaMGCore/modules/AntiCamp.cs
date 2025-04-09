@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;
 
@@ -14,7 +15,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     public override string ModuleChatPrefix => "[AntiCamp]";
 
-    private CounterStrikeSharp.API.Modules.Timers.Timer timer = null!;
+    private Timer timer = null!;
 
     private readonly Dictionary<CCSPlayerController, (CBaseModelEntity? glowEntity, CBaseModelEntity? relayEntity)> playerGlowingEntity = new();
 
@@ -25,7 +26,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
     private readonly Dictionary<CCSPlayerController, float> playerGlowingTime = new();
     private readonly Dictionary<CCSPlayerController, bool> isPlayerWarned = new();
 
-    private Dictionary<CCSPlayerController, CounterStrikeSharp.API.Modules.Timers.Timer> glowingTimer = new();
+    private Dictionary<CCSPlayerController, Timer> glowingTimer = new();
 
     private bool isRoundStarted = false;
 

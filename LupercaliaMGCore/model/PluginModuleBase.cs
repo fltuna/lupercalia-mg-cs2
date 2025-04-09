@@ -1,6 +1,5 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using LupercaliaMGCore.interfaces;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -6,6 +6,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
+using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;
 
@@ -15,8 +16,8 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
     
     public override string ModuleChatPrefix => "[ScheduledShutdown]";
 
-    private CounterStrikeSharp.API.Modules.Timers.Timer shutdownTimer = null!;
-    private CounterStrikeSharp.API.Modules.Timers.Timer? warningTimer;
+    private Timer shutdownTimer = null!;
+    private Timer? warningTimer;
     private bool shutdownAfterRoundEnd = false;
     
     public readonly FakeConVar<string> ShutdownTime = new("lp_mg_scheduled_shutdown_time",

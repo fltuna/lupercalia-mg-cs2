@@ -2,10 +2,7 @@ using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using LupercaliaMGCore.model;
-using LupercaliaMGCore.modules;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Modules.Timers;
 
 namespace LupercaliaMGCore;
 
@@ -78,7 +75,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
             ent.Render = colorFromHsv(hue, 1, 1);
             Utilities.SetStateChanged(ent, "CBaseModelEntity", "m_clrRender");
             hue += 30.0F;
-        }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
+        }, TimerFlags.REPEAT);
 
         Plugin.AddTimer(ChickenAliveTime.Value, () =>
         {

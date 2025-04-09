@@ -1,10 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Memory;
-using LupercaliaMGCore.model;
-using LupercaliaMGCore.modules;
-using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
