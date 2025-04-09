@@ -8,7 +8,9 @@ namespace LupercaliaMGCore.model;
 public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
 {
     public ConVarConfigurationService ConVarConfigurationService { get; private set; } = null!;
-
+    
+    public abstract string BaseCfgDirectoryPath { get; }
+    
     public abstract string ConVarConfigPath { get; }
 
     protected ServiceCollection ServiceCollection { get; } = new();
@@ -32,7 +34,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
 
     public sealed override void Load(bool hotReload)
     {
-        ConVarConfigurationService = new(ConVarConfigPath);
+        ConVarConfigurationService = new(this);
         // Add self and core service to DI Container
         ServiceCollection.AddSingleton(this);
         RegisterRequiredPluginServices();
@@ -55,6 +57,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
         
         TunaAllPluginsLoaded(hotReload);
         CallModulesAllPluginsLoaded();
+        ConVarConfigurationService.SaveAllConfigToFile();
     }
     
     protected virtual void TunaAllPluginsLoaded(bool hotReload){}
@@ -103,6 +106,7 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
         loadedModules.Add(module);
         module.RegisterServices(ServiceCollection);
         module.Initialize();
+        RegisterFakeConVars(module.GetType(), module);
         Logger.LogInformation($"{module.PluginModuleName} has been initialized");
     }
 
@@ -122,5 +126,6 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
             loadedModule.UnloadModule();
             Logger.LogInformation($"{loadedModule.PluginModuleName} has been unloaded.");
         }
+        loadedModules.Clear();
     }
 }

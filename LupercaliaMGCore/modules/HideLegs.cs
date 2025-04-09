@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.model;
 
@@ -15,8 +16,14 @@ public class HideLegs(IServiceProvider serviceProvider) : PluginModuleBase(servi
 
     private Dictionary<ulong, bool> m_steamIdToIsHideLegsActive = new();
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_hide_legs_enabled", "Hide legs feature is enabled", false);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        
         Plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
 
         Plugin.AddCommand("css_legs", "Toggles the visibility of the firstperson legs view model", CommandLegs);
@@ -30,7 +37,7 @@ public class HideLegs(IServiceProvider serviceProvider) : PluginModuleBase(servi
     }
 
 
-    private bool IsEnabled => PluginSettings.m_CVHideLegsEnabled.Value;
+    private bool IsEnabled => IsModuleEnabled.Value;
 
     private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {

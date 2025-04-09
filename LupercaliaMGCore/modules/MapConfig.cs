@@ -1,5 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
 
@@ -14,11 +16,24 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
     // Config name and path
     private readonly List<MapConfigFile> configs = new();
 
-    private readonly string configFolder = Path.GetFullPath(Path.Combine(Server.GameDirectory, PluginSettings.ConfigFolder, "map/"));
+    private string configFolder = null!;
 
+    
+    public readonly FakeConVar<int> ConfigExecutionTiming = new("lp_mg_mapcfg_execution_timing",
+        "When configs are executed? 0: Does nothing, 1: Execute on map start, 2: Execute on every round start, 3: Execute on map transition and every round start",
+        1, ConVarFlags.FCVAR_NONE, new RangeValidator<int>(0, 3));
+
+    public readonly FakeConVar<int> ConfigType = new("lp_mg_mapcfg_type",
+        "Map configuration type. 0: disabled, 1: Exact match, 2: Partial Match", 1, ConVarFlags.FCVAR_NONE,
+        new RangeValidator<int>(0, 2));
+    
     protected override void OnInitialize()
     {
-
+        TrackConVar(ConfigExecutionTiming);
+        TrackConVar(ConfigType);
+        
+        configFolder = Path.GetFullPath(Path.Combine(Server.GameDirectory, Plugin.BaseCfgDirectoryPath, "map/"));
+        
         if (!checkDirectoryExists())
             throw new InvalidOperationException("Map config directory is not exists and failed to create.");
 
@@ -36,7 +51,7 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.m_CVMapConfigExecutionTiming.Value)
+        if (!MathUtil.DecomposePowersOfTwo(ConfigExecutionTiming.Value)
                 .Contains(2))
             return HookResult.Continue;
 
@@ -47,7 +62,7 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
 
     private void OnMapStart(string mapName)
     {
-        if (!MathUtil.DecomposePowersOfTwo(PluginSettings.m_CVMapConfigExecutionTiming.Value)
+        if (!MathUtil.DecomposePowersOfTwo(ConfigExecutionTiming.Value)
                 .Contains(1))
             return;
 
@@ -60,7 +75,7 @@ public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serv
         SimpleLogging.LogTrace("[Map Config] Updating the config dictionary");
         updateConfigsDictionary();
 
-        int mapCfgType = PluginSettings.m_CVMapConfigType.Value;
+        int mapCfgType = ConfigType.Value;
 
         SimpleLogging.LogTrace("[Map Config] Checking the Map Config type");
         if (mapCfgType == 0)

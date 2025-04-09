@@ -1,6 +1,7 @@
 using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 
@@ -12,8 +13,21 @@ public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModule
     
     public override string ModuleChatPrefix => "[TeamBasedBodyColor]";
 
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_teamcolor_enabled", "Should apply team color after respawn", true);
+
+    public readonly FakeConVar<string> ColorCt =
+        new("lp_mg_teamcolor_ct", "Counter Terrorist's Body color. R, G, B", "0, 0, 255");
+
+    public readonly FakeConVar<string> ColorT =
+        new("lp_mg_teamcolor_t", "Terrorist's Body color. R, G, B", "255, 0, 0");
+    
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        TrackConVar(ColorCt);
+        TrackConVar(ColorT);
         Plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
     }
 
@@ -46,18 +60,18 @@ public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModule
         Color newColor = Color.FromArgb(255, 255, 255, 255);
         RenderMode_t renderMode = RenderMode_t.kRenderNormal;
 
-        if (PluginSettings.m_CVIsTeamColorEnabled.Value)
+        if (IsModuleEnabled.Value)
         {
             // Use team color
             List<int> rgb = new List<int>();
             if (player.Team == CsTeam.CounterTerrorist)
             {
-                rgb = PluginSettings.m_CVTeamColorCT.Value.Split(',').Select(s => int.Parse(s.Trim()))
+                rgb = ColorCt.Value.Split(',').Select(s => int.Parse(s.Trim()))
                     .ToList();
             }
             else if (player.Team == CsTeam.Terrorist)
             {
-                rgb = PluginSettings.m_CVTeamColorT.Value.Split(',').Select(s => int.Parse(s.Trim()))
+                rgb = ColorT.Value.Split(',').Select(s => int.Parse(s.Trim()))
                     .ToList();
             }
 

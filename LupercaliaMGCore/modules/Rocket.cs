@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
@@ -15,6 +16,10 @@ public class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(service
 
     private Dictionary<CCSPlayerController, bool> isRocketLaunched = new Dictionary<CCSPlayerController, bool>();
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_rocket", "Is rocket command enabled?", false);
+    
     protected override void OnInitialize()
     {
         Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
@@ -55,6 +60,9 @@ public class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(service
     private void CommandRocket(CCSPlayerController? client, CommandInfo info)
     {
         if (client == null || !PlayerUtil.IsPlayerAlive(client) || isRocketLaunched[client])
+            return;
+        
+        if (!IsModuleEnabled.Value)
             return;
 
         RocketPerform(client);

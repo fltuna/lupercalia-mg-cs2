@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
@@ -13,8 +14,14 @@ public class Debugging(IServiceProvider serviceProvider) : PluginModuleBase(serv
 
     private readonly Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_debug_enabled", "Enable debugging feature?", false);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        
         Plugin.AddCommand("css_dbg_savepos", "Save current location for teleport", CommandSavePos);
         Plugin.AddCommand("css_dbg_restorepos", "Use saved location to teleport", CommandRestorePos);
     }
@@ -30,7 +37,7 @@ public class Debugging(IServiceProvider serviceProvider) : PluginModuleBase(serv
         if (client == null)
             return;
 
-        if (!PluginSettings.m_CVDebuggingEnabled.Value)
+        if (!IsModuleEnabled.Value)
         {
             client.PrintToChat("Debugging feature is disabled.");
             return;
@@ -67,7 +74,7 @@ public class Debugging(IServiceProvider serviceProvider) : PluginModuleBase(serv
         if (client == null)
             return;
 
-        if (!PluginSettings.m_CVDebuggingEnabled.Value)
+        if (!IsModuleEnabled.Value)
         {
             client.PrintToChat("Debugging feature is disabled.");
             return;

@@ -1,13 +1,13 @@
 ﻿using CounterStrikeSharp.API.Modules.Cvars;
+using LupercaliaMGCore.model;
+using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
 
-public class ConVarConfigurationService(string conVarConfigPath)
+public class ConVarConfigurationService(AbstractTunaPluginBase plugin)
 {
-    // 設定出力のためだけにConVarを追跡
     private readonly Dictionary<string, List<object>> _moduleConVars = new();
     
-    // ConVarを追跡リストに追加（管理はしない）
     public void TrackConVar<T>(string moduleName, FakeConVar<T> conVar) where T : IComparable<T>
     {
         if (!_moduleConVars.TryGetValue(moduleName, out var list))
@@ -19,20 +19,25 @@ public class ConVarConfigurationService(string conVarConfigPath)
         list.Add(conVar);
     }
     
-    // モジュールの設定をファイルに保存
     public void SaveModuleConfigToFile(string moduleName)
     {
+        string moduleConfigPath = Path.Combine(plugin.BaseCfgDirectoryPath, moduleName + ".cfg");
+        
+        if(IsFileExists(moduleConfigPath))
+            return;
+        
+        
         if (!_moduleConVars.TryGetValue(moduleName, out var list))
             return;
 
-        using (StreamWriter writer = new StreamWriter(conVarConfigPath))
+        using (StreamWriter writer = new StreamWriter(moduleConfigPath))
         {
             foreach (var conVarObj in list)
             {
                 dynamic conVar = conVarObj;
                 writer.WriteLine($"// {conVar.Description}");
                 
-                // boolの場合は0/1に変換
+                // If value is boolean, then convert it to 0|1
                 if (conVarObj.GetType().GenericTypeArguments[0] == typeof(bool))
                 {
                     bool value = conVar.Value;
@@ -48,10 +53,12 @@ public class ConVarConfigurationService(string conVarConfigPath)
         }
     }
     
-    // 全モジュールの設定をファイルに保存
     public void SaveAllConfigToFile()
     {
-        using (StreamWriter writer = new StreamWriter(conVarConfigPath))
+        if(IsFileExists(plugin.ConVarConfigPath))
+            return;
+
+        using (StreamWriter writer = new StreamWriter(plugin.ConVarConfigPath))
         {
             foreach (var moduleName in _moduleConVars.Keys)
             {
@@ -80,8 +87,27 @@ public class ConVarConfigurationService(string conVarConfigPath)
             }
         }
     }
+
+    private bool IsFileExists(string path)
+    {
+        string directory = Path.GetDirectoryName(path)!;
+        if (!Directory.Exists(directory))
+        {
+            plugin.Logger.LogInformation($"Failed to find the config folder. Trying to generate...");
+                
+            Directory.CreateDirectory(directory);
+
+            if (!Directory.Exists(directory))
+            {
+                plugin.Logger.LogError($"Failed to generate the Config folder! cancelling the config generation!");
+                return false;
+            }
+        }
+
+        return File.Exists(path);
+    }
     
-    // モジュールの追跡を解除
+    
     public void UntrackModule(string moduleName)
     {
         _moduleConVars.Remove(moduleName);

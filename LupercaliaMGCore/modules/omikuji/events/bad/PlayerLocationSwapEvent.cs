@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
@@ -13,6 +14,15 @@ public class PlayerLocationSwapEvent(IServiceProvider serviceProvider) : Omikuji
     public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
+
+    
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_player_location_swap_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(EventSelectionWeight);
+    }
 
     public override void Execute(CCSPlayerController client)
     {
@@ -96,6 +106,6 @@ public class PlayerLocationSwapEvent(IServiceProvider serviceProvider) : Omikuji
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventPlayerLocationSwapSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

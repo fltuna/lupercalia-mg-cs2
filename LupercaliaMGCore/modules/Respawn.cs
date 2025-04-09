@@ -21,8 +21,22 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
     private readonly Dictionary<int, double> playerLastRespawnTime = new();
     private bool repeatKillDetected = false;
 
+    
+    public readonly FakeConVar<bool> IsAutoRespawnEnabled =
+        new("lp_mg_auto_respawn_enabled", "Auto respawn feature is enabled", false);
+
+    public readonly FakeConVar<float> SpawnKillingDetectionTime =
+        new("lp_mg_auto_respawn_repeat_kill_time", "Seconds to detect as spawn killing.", 1.0F);
+
+    public readonly FakeConVar<float> AutoRespawnTime =
+        new("lp_mg_auto_respawn_time", "How long to respawn after death.", 1.0F);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsAutoRespawnEnabled);
+        TrackConVar(SpawnKillingDetectionTime);
+        TrackConVar(AutoRespawnTime);
+        
         Plugin.RegisterEventHandler<EventPlayerDeath>(OnPlayerDeath);
         Plugin.RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
@@ -68,14 +82,14 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
         repeatKillDetected = false;
-        SetIgnoreRoundWinCondition(PluginSettings.m_CVAutoRespawnEnabled.Value);
+        SetIgnoreRoundWinCondition(IsAutoRespawnEnabled.Value);
 
         return HookResult.Continue;
     }
 
     private HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
-        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!IsAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;
@@ -92,7 +106,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
         playerLastRespawnTime.TryAdd(index, 0.0D);
 
-        if (Server.EngineTime - playerLastRespawnTime[index] <= PluginSettings.m_CVAutoRespawnSpawnKillingDetectionTime.Value)
+        if (Server.EngineTime - playerLastRespawnTime[index] <= SpawnKillingDetectionTime.Value)
         {
             repeatKillDetected = true;
             
@@ -104,7 +118,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
         }
 
         SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawning player.");
-        Plugin.AddTimer(PluginSettings.m_CVAutoRespawnSpawnTime.Value, () =>
+        Plugin.AddTimer(AutoRespawnTime.Value, () =>
         {
             SimpleLogging.LogDebug($"{ChatPrefix} [Player {player.PlayerName}] Respawned.");
             RespawnPlayer(player);
@@ -116,7 +130,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
     private HookResult OnPlayerTeam(EventPlayerTeam @event, GameEventInfo info)
     {
-        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!IsAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;
@@ -147,7 +161,7 @@ public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
     private HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
-        if (!PluginSettings.m_CVAutoRespawnEnabled.Value || repeatKillDetected)
+        if (!IsAutoRespawnEnabled.Value || repeatKillDetected)
             return HookResult.Continue;
 
         var player = @event.Userid;

@@ -7,7 +7,6 @@ public abstract class PluginBasicFeatureBase(IServiceProvider serviceProvider)
 {
     protected readonly AbstractTunaPluginBase Plugin = serviceProvider.GetRequiredService<AbstractTunaPluginBase>();
     protected readonly ILogger Logger = serviceProvider.GetRequiredService<AbstractTunaPluginBase>().Logger;
-    protected readonly PluginSettings PluginSettings = PluginSettings.GetInstance;
     
     
     protected string LocalizeString(string localizationKey, params object[] args)

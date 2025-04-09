@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,15 @@ public class NothingEvent(IServiceProvider serviceProvider) : OmikujiEventBase(s
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
+    
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_nothing_swap_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(EventSelectionWeight);
+    }
+
     public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Nothing event");
@@ -23,6 +33,6 @@ public class NothingEvent(IServiceProvider serviceProvider) : OmikujiEventBase(s
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventNothingSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

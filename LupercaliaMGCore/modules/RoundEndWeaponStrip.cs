@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 
 namespace LupercaliaMGCore.modules;
@@ -10,8 +11,14 @@ public class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModul
 
     public override string ModuleChatPrefix => "[RoundEndWeaponStrip]";
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled = new("lp_mg_rews_enabled",
+        "Should player's weapons are removed before new round starts.", true);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        
         Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart, HookMode.Pre);
     }
 
@@ -22,7 +29,7 @@ public class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModul
 
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!PluginSettings.m_CVIsRoundEndWeaponStripEnabled.Value)
+        if (!IsModuleEnabled.Value)
             return HookResult.Continue;
 
         SimpleLogging.LogDebug("[Round End Weapon Strip] Removing all players weapons.");

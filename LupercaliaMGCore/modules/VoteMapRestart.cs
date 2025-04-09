@@ -1,6 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.model;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,8 +25,25 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
 
     private const string NativeVoteIdentifier = "LupercaliaMGCore:VoteMapRestart";
 
+    
+    public readonly FakeConVar<double> RestartAllowedTime = new("lp_mg_vmr_allowed_time",
+        "How long allowed to use vote command after map loaded in seconds.", 60.0D);
+
+    public readonly FakeConVar<float> RestartVoteThreshold = new("lp_mg_vmr_vote_threshold",
+        "How percent of votes required to initiate the map restart.", 0.7F, ConVarFlags.FCVAR_NONE,
+        new RangeValidator<float>(0.0F, 1.0F));
+
+    public readonly FakeConVar<float> RestartTime = new("lp_mg_vmr_restart_time",
+        "How long to take restarting map after vote passed.", 10.0F, ConVarFlags.FCVAR_NONE,
+        new RangeValidator<float>(0.0F, float.MaxValue));
+    
+    
     protected override void OnInitialize()
     {
+        TrackConVar(RestartAllowedTime);
+        TrackConVar(RestartVoteThreshold);
+        TrackConVar(RestartTime);
+        
         mapStartTime = Server.EngineTime;
         Plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
         Plugin.AddCommand("css_vmr", "Vote map restart command", CommandVoteRestartMap);
@@ -99,7 +118,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
             return;
         }
 
-        if (Server.EngineTime - mapStartTime > PluginSettings.m_CVVoteMapRestartAllowedTime.Value)
+        if (Server.EngineTime - mapStartTime > RestartAllowedTime.Value)
         {
             SimpleLogging.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
             client.PrintToChat(LocalizeWithPluginPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
@@ -121,7 +140,7 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
 
         NativeVoteInfo nInfo = new NativeVoteInfo(NativeVoteIdentifier, NativeVoteTextUtil.VoteDisplayString,
             detailsString, potentialClientsIndex, VoteThresholdType.Percentage,
-            PluginSettings.m_CVVoteMapRestartThreshold.Value, 15.0f, initiator: client.Slot);
+            RestartVoteThreshold.Value, 15.0f, initiator: client.Slot);
 
         NativeVoteState state = nativeVoteApi!.InitiateVote(nInfo);
 
@@ -143,10 +162,10 @@ public class VoteMapRestart(IServiceProvider serviceProvider) : PluginModuleBase
         SimpleLogging.LogDebug("[Vote Map Restart] Initiating map restart...");
         isMapRestarting = true;
 
-        float mapRestartTime = PluginSettings.m_CVVoteMapRestartRestartTime.Value;
+        float mapRestartTime = RestartTime.Value;
         PrintLocalizedChatToAll("VoteMapRestart.Notification.MapRestart", mapRestartTime);
         
-        Plugin.AddTimer(PluginSettings.m_CVVoteMapRestartRestartTime.Value, () =>
+        Plugin.AddTimer(RestartTime.Value, () =>
         {
             SimpleLogging.LogDebug("[Vote Map Restart] Changing map.");
             Server.ExecuteCommand($"changelevel {Server.MapName}");

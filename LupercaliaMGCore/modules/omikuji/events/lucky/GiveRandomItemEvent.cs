@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
@@ -17,6 +18,57 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
 
     private static readonly Dictionary<CCSPlayerController, FixedSizeQueue<CsItem>> RecentlyPickedUpItems = new();
 
+    
+    public readonly FakeConVar<int> DuplicationAvoidCount = new(
+        "lp_mg_omikuji_event_give_random_item_avoid_duplication_history",
+        "How many histories save to avoid give duplicated item.", 10);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_give_random_item_selection_weight", "Selection weight of this event", 30.0D);
+    
+    public override void Initialize()
+    {
+        TrackConVar(DuplicationAvoidCount);
+        TrackConVar(EventSelectionWeight);
+        
+        // Late Initialize this event to avoid CounterStrikeSharp.API.Core.NativeException: Global Variables not initialized yet.
+        // This is a temporary workaround until get better solutions
+        Plugin.AddTimer(0.01F, () =>
+        {
+            SimpleLogging.LogDebug("Initializing the Give Random Item Event. This is a late initialization for avoid error.");
+
+            SimpleLogging.LogDebug("Registering the Player Spawn event for initialize late joiners recently picked up items list");
+            Plugin.RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
+            {
+                CCSPlayerController? client = @event.Userid;
+
+                if (client == null)
+                    return HookResult.Continue;
+
+                RecentlyPickedUpItems[client] =
+                    new FixedSizeQueue<CsItem>(DuplicationAvoidCount
+                        .Value);
+
+                return HookResult.Continue;
+            });
+            SimpleLogging.LogDebug("Registered the Player Spawn event");
+
+            SimpleLogging.LogDebug("Initializing the recently picked up items list for connected players");
+            foreach (CCSPlayerController cl in Utilities.GetPlayers())
+            {
+                if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
+                    continue;
+
+                if (!RecentlyPickedUpItems.TryGetValue(cl, out _))
+                {
+                    RecentlyPickedUpItems[cl] = new FixedSizeQueue<CsItem>(DuplicationAvoidCount.Value);
+                }
+            }
+
+            SimpleLogging.LogDebug("Finished initializing the recently picked up items list");
+        });
+    }
+    
     public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Give random item event");
@@ -43,49 +95,9 @@ public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEven
         SimpleLogging.LogDebug("Give random item event finished");
     }
 
-    public override void Initialize()
-    {
-        // Late Initialize this event to avoid CounterStrikeSharp.API.Core.NativeException: Global Variables not initialized yet.
-        // This is a temporary workaround until get better solutions
-        Plugin.AddTimer(0.01F, () =>
-        {
-            SimpleLogging.LogDebug("Initializing the Give Random Item Event. This is a late initialization for avoid error.");
-
-            SimpleLogging.LogDebug("Registering the Player Spawn event for initialize late joiners recently picked up items list");
-            Plugin.RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
-            {
-                CCSPlayerController? client = @event.Userid;
-
-                if (client == null)
-                    return HookResult.Continue;
-
-                RecentlyPickedUpItems[client] =
-                    new FixedSizeQueue<CsItem>(PluginSettings.m_CVOmikujiEventGiveRandomItemAvoidCount
-                        .Value);
-
-                return HookResult.Continue;
-            });
-            SimpleLogging.LogDebug("Registered the Player Spawn event");
-
-            SimpleLogging.LogDebug("Initializing the recently picked up items list for connected players");
-            foreach (CCSPlayerController cl in Utilities.GetPlayers())
-            {
-                if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
-                    continue;
-
-                if (!RecentlyPickedUpItems.TryGetValue(cl, out _))
-                {
-                    RecentlyPickedUpItems[cl] = new FixedSizeQueue<CsItem>(PluginSettings.m_CVOmikujiEventGiveRandomItemAvoidCount.Value);
-                }
-            }
-
-            SimpleLogging.LogDebug("Finished initializing the recently picked up items list");
-        });
-    }
-
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventGiveRandomItemSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 
     private static readonly List<CsItem> InvalidItems =

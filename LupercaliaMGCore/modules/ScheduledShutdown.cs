@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
@@ -17,16 +18,29 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
     private CounterStrikeSharp.API.Modules.Timers.Timer shutdownTimer = null!;
     private CounterStrikeSharp.API.Modules.Timers.Timer? warningTimer;
     private bool shutdownAfterRoundEnd = false;
+    
+    public readonly FakeConVar<string> ShutdownTime = new("lp_mg_scheduled_shutdown_time",
+        "Server will be shutdown in specified time. Format is HHmm", "0500");
 
+    public readonly FakeConVar<int> ShutdownWarningTime = new("lp_mg_scheduled_shutdown_warn_time",
+        "Show shutdown warning countdown if lp_mg_scheduled_shutdown_round_end is false.", 10);
+
+    public readonly FakeConVar<bool> ShouldShutdownAfterRoundEnd = new("lp_mg_scheduled_shutdown_round_end",
+        "When set to true server will be shutdown after round end.", true);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(ShutdownTime);
+        TrackConVar(ShutdownWarningTime);
+        TrackConVar(ShouldShutdownAfterRoundEnd);
+        
         Plugin.AddCommand("css_cancelshutdown", "Cancel the initiated shutdown.", CommandCancelShutdown);
         Plugin.AddCommand("css_startshutdown", "Initiate the shutdown.", CommandStartShutdown);
 
         Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
         shutdownTimer = Plugin.AddTimer(60.0f, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.m_CVScheduledShutdownTime.Value))
+            if (DateTime.Now.ToString("HHmm").Equals(ShutdownTime.Value))
             {
                 initiateShutdown();
             }
@@ -47,14 +61,14 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
     {
         shutdownTimer.Kill();
         
-        if (PluginSettings.m_CVScheduledShutdownRoundEnd.Value)
+        if (ShouldShutdownAfterRoundEnd.Value)
         {
             shutdownAfterRoundEnd = true;
             PrintLocalizedChatToAll("ScheduledShutdown.Notification.AfterRoundEnd");
         }
         else
         {
-            int time = PluginSettings.m_CVScheduledShutdownWarningTime.Value;
+            int time = ShutdownWarningTime.Value;
             warningTimer = Plugin.AddTimer(1.0F, () =>
             {
                 if (time < 1)
@@ -92,7 +106,7 @@ public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleB
 
         shutdownTimer = Plugin.AddTimer(60.0f, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(PluginSettings.m_CVScheduledShutdownTime.Value))
+            if (DateTime.Now.ToString("HHmm").Equals(ShutdownTime.Value))
             {
                 initiateShutdown();
             }

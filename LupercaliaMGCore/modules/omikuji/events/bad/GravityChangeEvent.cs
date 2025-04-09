@@ -17,13 +17,34 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
     private static bool isInGravityChangeEvent = false;
 
+    
+    public readonly FakeConVar<int> GravityMax =
+        new("lp_mg_omikuji_event_gravity_max", "Maximum value of sv_gravity", 800);
+
+    public readonly FakeConVar<int> GravityMin =
+        new("lp_mg_omikuji_event_gravity_min", "Minimal value of sv_gravity", 100);
+
+    public readonly FakeConVar<float> GravityRestoreTime = new(
+        "lp_mg_omikuji_event_gravity_restore_time", "How long to take gravity restored in seconds.", 10.0F);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_gravity_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(GravityMax);
+        TrackConVar(GravityMin);
+        TrackConVar(GravityRestoreTime);
+        TrackConVar(EventSelectionWeight);
+    }
+
     public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Gravity change event");
 
         int randomGravity = Random.Next(
-            PluginSettings.m_CVOmikujiEventGravityMin.Value,
-            PluginSettings.m_CVOmikujiEventGravityMax.Value
+            GravityMin.Value,
+            GravityMax.Value
         );
 
         string msg;
@@ -55,7 +76,7 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
         sv_gravity.SetValue((float)randomGravity);
 
-        float TIMER_INTERVAL_PLACE_HOLDER = PluginSettings.m_CVOmikujiEventGravityRestoreTime.Value;
+        float TIMER_INTERVAL_PLACE_HOLDER = GravityRestoreTime.Value;
 
         Plugin.AddTimer(TIMER_INTERVAL_PLACE_HOLDER, () =>
         {
@@ -73,6 +94,6 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventGravitySelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

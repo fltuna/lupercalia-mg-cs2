@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
@@ -12,6 +13,11 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
 
     public override string ModuleChatPrefix => "[Course Weapons]";
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_course_weapon_enabled", "Course weapon feature is enabled", false);
+    
+    
     protected override void OnInitialize()
     {
         Plugin.AddCommand("css_glock", "Gives a glock", CommandGiveGlock);
@@ -83,7 +89,7 @@ public class CourseWeapons(IServiceProvider serviceProvider) : PluginModuleBase(
             return false;
         }
 
-        bool isCourseWeaponEnabled = PluginSettings.GetInstance.m_CVCourseWeaponEnabled.Value;
+        bool isCourseWeaponEnabled = IsModuleEnabled.Value;
 
         if (!isCourseWeaponEnabled)
         {

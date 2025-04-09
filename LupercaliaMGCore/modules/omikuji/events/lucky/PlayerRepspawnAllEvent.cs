@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,14 @@ public class PlayerRespawnAllEvent(IServiceProvider serviceProvider) : OmikujiEv
     public override OmikujiType OmikujiType => OmikujiType.EventLucky;
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_all_player_respawn_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(EventSelectionWeight);
+    }
 
     public override void Execute(CCSPlayerController client)
     {
@@ -63,6 +72,6 @@ public class PlayerRespawnAllEvent(IServiceProvider serviceProvider) : OmikujiEv
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventAllPlayerRespawnSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

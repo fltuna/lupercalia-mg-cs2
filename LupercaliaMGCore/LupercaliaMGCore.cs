@@ -25,8 +25,10 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
     public override string ModuleAuthor => "faketuna, Spitice";
 
     public override string ModuleDescription => "Provides core MG feature in CS2 with CounterStrikeSharp";
+
+    public override string BaseCfgDirectoryPath => Path.Combine(Server.GameDirectory, "csgo/cfg/mgcore/");
     
-    public override string ConVarConfigPath => Path.Combine(Server.GameDirectory, "csgo/cfg/mgcore/mgcore.cfg");
+    public override string ConVarConfigPath => Path.Combine(BaseCfgDirectoryPath, "mgcore.cfg");
 
     protected override void TunaOnPluginLoad(bool hotReload)
     {

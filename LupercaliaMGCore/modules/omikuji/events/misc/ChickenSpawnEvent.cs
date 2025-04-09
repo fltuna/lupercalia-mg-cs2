@@ -1,8 +1,10 @@
 using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace LupercaliaMGCore;
@@ -14,6 +16,23 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
     public override OmikujiType OmikujiType => OmikujiType.EventMisc;
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
+
+    
+    public readonly FakeConVar<float> ChickenAliveTime =
+        new("lp_mg_omikuji_event_chicken_time", "How long that chicken alive?", 5.0F);
+
+    public readonly FakeConVar<float> ChickenBodyScale =
+        new("lp_mg_omikuji_event_chicken_body_scale", "Body size of the chicken. Default size is 1.0", 1.0F);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_chicken_selection_weight", "Selection weight of this event", 160.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(ChickenAliveTime);
+        TrackConVar(ChickenBodyScale);
+        TrackConVar(EventSelectionWeight);
+    }
 
     public override void Execute(CCSPlayerController client)
     {
@@ -32,7 +51,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventChickenSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 
     private void CreateGamingChicken(CCSPlayerController client)
@@ -44,7 +63,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
         ent.DispatchSpawn();
         ent.Teleport(client.PlayerPawn.Value!.AbsOrigin!);
-        ent.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = PluginSettings.m_CVOmikujiEventChickenBodyScale.Value;
+        ent.CBodyComponent!.SceneNode!.GetSkeletonInstance().Scale = ChickenBodyScale.Value;
 
         double hue = 0.0;
         Plugin.AddTimer(0.01f, () =>
@@ -61,7 +80,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
             hue += 30.0F;
         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.REPEAT);
 
-        Plugin.AddTimer(PluginSettings.m_CVOmikujiEventChickenTime.Value, () =>
+        Plugin.AddTimer(ChickenAliveTime.Value, () =>
         {
             if (ent.IsValid)
                 ent.AcceptInput("Break");

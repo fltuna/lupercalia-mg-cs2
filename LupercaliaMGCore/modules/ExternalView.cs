@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 
@@ -43,8 +44,14 @@ public class ExternalView(IServiceProvider serviceProvider) : PluginModuleBase(s
 
     private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new();
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_external_view_enabled", "External view feature is enabled", false);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        
         Plugin.RegisterListener<Listeners.OnTick>(OnTick);
         Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Post);
 
@@ -65,7 +72,7 @@ public class ExternalView(IServiceProvider serviceProvider) : PluginModuleBase(s
         Plugin.RemoveCommand("css_g", CommandWatch);
     }
 
-    private bool IsEnabled => PluginSettings.m_CVExternalViewEnabled.Value;
+    private bool IsEnabled => IsModuleEnabled.Value;
 
     private void OnTick()
     {

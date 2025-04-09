@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 
@@ -12,9 +13,14 @@ public class TeamScramble(IServiceProvider serviceProvider) : PluginModuleBase(s
     public override string ModuleChatPrefix => "[TeamScramble]";
 
     private static readonly Random Random = new();
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_teamscramble_enabled", "Should team is scrambled after round end", true);
+    
 
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
         Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundEnd);
     }
 
@@ -25,7 +31,7 @@ public class TeamScramble(IServiceProvider serviceProvider) : PluginModuleBase(s
 
     private HookResult OnRoundEnd(EventRoundPrestart @event, GameEventInfo info)
     {
-        if (!PluginSettings.m_CVIsScrambleEnabled.Value)
+        if (!IsModuleEnabled.Value)
             return HookResult.Continue;
 
         SimpleLogging.LogDebug("[Team Scramble] Called");

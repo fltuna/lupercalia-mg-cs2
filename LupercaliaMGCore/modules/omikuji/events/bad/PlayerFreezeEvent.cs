@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,19 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
     public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
+
+    
+    public readonly FakeConVar<float> FreezeTime = new("lp_mg_omikuji_event_player_freeze_time",
+        "How long to player freeze in seconds.", 3.0F);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_player_freeze_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(EventSelectionWeight);
+        TrackConVar(FreezeTime);
+    }
 
     public override void Execute(CCSPlayerController client)
     {
@@ -40,7 +54,7 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
         Server.PrintToChatAll(LocalizeOmikujiResult(client, OmikujiType, "Omikuji.BadEvent.PlayerFreezeEvent.Notification.Froze", client.PlayerName));
 
 
-        Plugin.AddTimer(PluginSettings.m_CVOmikujiEventPlayerFreeze.Value, () =>
+        Plugin.AddTimer(FreezeTime.Value, () =>
         {
             playerPawn.MoveType = MoveType_t.MOVETYPE_WALK;
             playerPawn.ActualMoveType = MoveType_t.MOVETYPE_WALK;
@@ -51,6 +65,6 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventPlayerFreezeSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
@@ -13,6 +14,23 @@ public class PlayerSlapEvent(IServiceProvider serviceProvider) : OmikujiEventBas
     public override OmikujiType OmikujiType => OmikujiType.EventBad;
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
+
+    
+    public readonly FakeConVar<int> SlapPowerMin =
+        new("lp_mg_omikuji_event_player_slap_power_min", "Minimal power of slap.", 0);
+
+    public readonly FakeConVar<int> SlapPowerMax =
+        new("lp_mg_omikuji_event_player_slap_power_max", "Maximum power of slap.", 30000);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_player_slap_item_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(SlapPowerMin);
+        TrackConVar(SlapPowerMax);
+        TrackConVar(EventSelectionWeight);
+    }
 
     public override void Execute(CCSPlayerController client)
     {
@@ -28,8 +46,8 @@ public class PlayerSlapEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
         Vector velo = pawn.AbsVelocity;
 
-        int slapPowerMin = PluginSettings.m_CVOmikujiEventPlayerSlapPowerMin.Value;
-        int slapPowerMax = PluginSettings.m_CVOmikujiEventPlayerSlapPowerMax.Value;
+        int slapPowerMin = SlapPowerMin.Value;
+        int slapPowerMax = SlapPowerMax.Value;
 
         SimpleLogging.LogTrace($"Player Slap Event: Random slap power - Min: {slapPowerMin}, Max: {slapPowerMax}");
 
@@ -44,6 +62,6 @@ public class PlayerSlapEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventPlayerSlapSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

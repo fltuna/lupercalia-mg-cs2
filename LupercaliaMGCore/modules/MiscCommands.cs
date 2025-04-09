@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
@@ -13,8 +14,14 @@ public class MiscCommands(IServiceProvider serviceProvider) : PluginModuleBase(s
 
     public override string ModuleChatPrefix => "[Misc Commands]";
 
+    
+    public readonly FakeConVar<bool> GiveKnifeEnabled = 
+        new("lp_mg_misc_cmd_give_knife", "Is give knife command enabled?", false);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(GiveKnifeEnabled);
+        
         Plugin.AddCommand("css_knife", "give knife", CommandGiveKnife);
         Plugin.AddCommand("css_spec", "Spectate", CommandSpectate);
     }
@@ -37,7 +44,7 @@ public class MiscCommands(IServiceProvider serviceProvider) : PluginModuleBase(s
             return;
         }
 
-        if (!PluginSettings.m_CVMiscCMDGiveKnifeEnabled.Value)
+        if (!GiveKnifeEnabled.Value)
         {
             client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.FeatureEnabled"));
             return;

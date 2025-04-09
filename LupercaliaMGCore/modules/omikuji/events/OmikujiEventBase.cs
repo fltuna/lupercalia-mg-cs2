@@ -1,4 +1,5 @@
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,4 +33,15 @@ public abstract class OmikujiEventBase(IServiceProvider serviceProvider) : Plugi
     {
         return $"{Omikuji.ModuleChatPrefix} {LocalizeString(languageKey, args)}";
     }
+    
+    /// <summary>
+    /// Add ConVar to tracking list. if you want to generate config automatically, then call this method with ConVar that you wanted to track.
+    /// </summary>
+    /// <param name="conVar">Any FakeConVar</param>
+    /// <typeparam name="T">FakeConVarType</typeparam>
+    protected void TrackConVar<T>(FakeConVar<T> conVar) where T : IComparable<T>
+    {
+        Plugin.ConVarConfigurationService.TrackConVar(EventName ,conVar);
+    }
+    
 }

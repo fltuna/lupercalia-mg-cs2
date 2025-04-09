@@ -13,8 +13,14 @@ public class RoundEndDeathMatch(IServiceProvider serviceProvider) : PluginModule
 
     private ConVar? mp_teammates_are_enemies = null;
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled =
+        new("lp_mg_redm_enabled", "Should enable round end death match?", true);
+    
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        
         TrySetConVarValue(false);
 
         Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPreStart);
@@ -30,7 +36,7 @@ public class RoundEndDeathMatch(IServiceProvider serviceProvider) : PluginModule
     private HookResult OnRoundPreStart(EventRoundPrestart @event, GameEventInfo info)
     {
         SimpleLogging.LogDebug("[Round End Death Match] Called RoundPreStart.");
-        if (!PluginSettings.GetInstance.m_CVIsRoundEndDeathMatchEnabled.Value)
+        if (!IsModuleEnabled.Value)
         {
             SimpleLogging.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
             return HookResult.Continue;
@@ -44,7 +50,7 @@ public class RoundEndDeathMatch(IServiceProvider serviceProvider) : PluginModule
     private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         SimpleLogging.LogDebug("[Round End Death Match] Called RoundEnd");
-        if (!PluginSettings.GetInstance.m_CVIsRoundEndDeathMatchEnabled.Value)
+        if (!IsModuleEnabled.Value)
         {
             SimpleLogging.LogDebug("[Round End Death Match] REDM is disabled and does nothing.");
             return HookResult.Continue;

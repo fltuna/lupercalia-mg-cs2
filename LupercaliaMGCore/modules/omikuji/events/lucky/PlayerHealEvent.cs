@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,19 @@ public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.PlayerAlive;
 
+    
+    public readonly FakeConVar<int> HealAmount = new("lp_mg_omikuji_event_player_heal_amount",
+        "How many health healed when event occur", 100);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_player_heal_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(HealAmount);
+        TrackConVar(EventSelectionWeight);
+    }
+
     public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Player heal event.");
@@ -24,7 +38,7 @@ public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
         if (isPlayerAlive)
         {
-            msg = LocalizeOmikujiResult(client, OmikujiType, "Omikuji.LuckyEvent.PlayerHealEvent.Notification.Healed", client.PlayerName, PluginSettings.GetInstance.m_CVOmikujiEventPlayerHeal.Value);
+            msg = LocalizeOmikujiResult(client, OmikujiType, "Omikuji.LuckyEvent.PlayerHealEvent.Notification.Healed", client.PlayerName, HealAmount.Value);
         }
         else
         {
@@ -45,13 +59,13 @@ public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
         CCSPlayerPawn playerPawn = client.PlayerPawn.Value!;
 
-        if (playerPawn.MaxHealth < playerPawn.Health + PluginSettings.GetInstance.m_CVOmikujiEventPlayerHeal.Value)
+        if (playerPawn.MaxHealth < playerPawn.Health + HealAmount.Value)
         {
             playerPawn.Health = playerPawn.MaxHealth;
         }
         else
         {
-            playerPawn.Health += PluginSettings.GetInstance.m_CVOmikujiEventPlayerHeal.Value;
+            playerPawn.Health += HealAmount.Value;
         }
 
         Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
@@ -59,6 +73,6 @@ public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBas
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventPlayerHealSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }

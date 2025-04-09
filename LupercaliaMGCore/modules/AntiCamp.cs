@@ -1,6 +1,7 @@
 using System.Drawing;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
@@ -28,6 +29,22 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private bool isRoundStarted = false;
 
+    
+    public readonly FakeConVar<bool> IsModuleEnabled = new("lp_mg_anti_camp_enabled",
+        "Anti camp enabled", true);
+
+    public readonly FakeConVar<float> CampDetectionTime = new("lp_mg_anti_camp_detection_time",
+        "How long to take detected as camping in seconds.", 10.0F);
+
+    public readonly FakeConVar<double> CampDetectionRadius = new("lp_mg_anti_camp_detection_radius",
+        "Range of area for player should move for avoiding the detected as camping.", 200.0F);
+
+    public readonly FakeConVar<float> CampDetectionInterval = new("lp_mg_anti_camp_detection_interval",
+        "Interval to run camping check in seconds.", 0.1F);
+
+    public readonly FakeConVar<float> CampMarkingTime = new("lp_mg_anti_camp_glowing_time",
+        "How long to detected player keep glowing.", 10.0F);
+    
     protected override void OnInitialize()
     {
         Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect, HookMode.Pre);
@@ -59,7 +76,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
             }
         }
 
-        timer = Plugin.AddTimer(PluginSettings.m_CVAntiCampDetectionInterval.Value, checkPlayerIsCamping, TimerFlags.REPEAT);
+        timer = Plugin.AddTimer(CampDetectionInterval.Value, checkPlayerIsCamping, TimerFlags.REPEAT);
     }
 
     protected override void OnUnloadModule()
@@ -77,7 +94,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private void checkPlayerIsCamping()
     {
-        if (!isRoundStarted || !PluginSettings.m_CVAntiCampEnabled.Value)
+        if (!isRoundStarted || !IsModuleEnabled.Value)
             return;
 
         foreach (var client in Utilities.GetPlayers())
@@ -108,9 +125,9 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
             double distance = CalculateDistance(lastLocation.vector, clientOrigin);
 
-            if (distance <= PluginSettings.m_CVAntiCampDetectionRadius.Value)
+            if (distance <= CampDetectionRadius.Value)
             {
-                playerCampingTime[client] += PluginSettings.m_CVAntiCampDetectionInterval.Value;
+                playerCampingTime[client] += CampDetectionInterval.Value;
                 // string msg = $"You have been camping for {playerCampingTime[client]:F2} | secondsGlowingTime: {playerGlowingTime[client]:F2} \nCurrent Location: {clientOrigin.X:F2} {clientOrigin.Y:F2} {clientOrigin.Z:F2} | Compared Location: {lastLocation.vector.X:F2} {lastLocation.vector.Y:F2} {lastLocation.vector.Z:F2} \nLocation captured time {lastLocation.time:F2} | Difference: {distance:F2}";
                 // client.PrintToCenterHtml(msg);
             }
@@ -119,7 +136,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
                 playerCampingTime[client] = 0.0F;
             }
 
-            if (playerCampingTime[client] >= PluginSettings.m_CVAntiCampDetectionTime.Value)
+            if (playerCampingTime[client] >= CampDetectionTime.Value)
             {
                 if (playerGlowingTime[client] <= 0.0 && !isPlayerWarned[client])
                 {
@@ -127,7 +144,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
                     RecreateGlowingTimer(client);
                 }
 
-                playerGlowingTime[client] = PluginSettings.m_CVAntiCampMarkingTime.Value;
+                playerGlowingTime[client] = CampMarkingTime.Value;
             }
         }
     }
@@ -240,8 +257,8 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
     {
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Initializing the client information.");
         playerPositionHistory[client] = new PlayerPositionHistory(
-            (int)(PluginSettings.m_CVAntiCampDetectionTime.Value /
-                  PluginSettings.m_CVAntiCampDetectionInterval.Value));
+            (int)(CampDetectionTime.Value /
+                  CampDetectionInterval.Value));
         playerCampingTime[client] = 0.0F;
         playerGlowingTime[client] = 0.0F;
         isPlayerWarned[client] = false;
@@ -250,7 +267,7 @@ public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : Plugin
 
     private void RecreateGlowingTimer(CCSPlayerController client)
     {
-        float timerInterval = PluginSettings.m_CVAntiCampDetectionInterval.Value;
+        float timerInterval = CampDetectionInterval.Value;
         isPlayerWarned[client] = true;
         SimpleLogging.LogDebug($"[Anti Camp] [Player {client.PlayerName}] Warned as camping.");
         client.PrintToCenterAlert(Plugin.Localizer["AntiCamp.Notification.DetectedAsCamping"]);

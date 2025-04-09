@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.model;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,27 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
     private readonly Dictionary<CCSPlayerController, bool> isWaitingForEventExecution = new();
 
+    
+    public readonly FakeConVar<int> EventWeightMisc = new("lp_mg_omikuji_event_weight_misc",
+        "Weight of misc event. You can set to any value.", 90);
+
+    public readonly FakeConVar<int> EventWeightBad = new("lp_mg_omikuji_event_weight_bad",
+        "Weight of bad event. You can set to any value.", 5);
+
+    public readonly FakeConVar<int> EventWeightLucky = new("lp_mg_omikuji_event_weight_lucky",
+        "Weight of lucky event. You can set to any value.", 5);
+
+    public readonly FakeConVar<double> CommandCooldown =
+        new("lp_mg_omikuji_command_cooldown", "Cooldown of omikuji command.", 60.0D);
+
+    public readonly FakeConVar<int> CommandExecutionDelayMin = new(
+        "lp_mg_omikuji_command_execution_delay_min",
+        "Minimum time of omikuji event executed after execution of command.", 5);
+
+    public readonly FakeConVar<int> CommandExecutionDelayMax = new(
+        "lp_mg_omikuji_command_execution_delay_max",
+        "Maximum time of omikuji event executed after execution of command.", 10);
+    
 
     public override void RegisterServices(IServiceCollection services)
     {
@@ -38,12 +60,19 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
 
     protected override void OnInitialize()
     {
+        TrackConVar(EventWeightMisc);
+        TrackConVar(EventWeightBad);
+        TrackConVar(EventWeightLucky);
+        TrackConVar(CommandCooldown);
+        TrackConVar(CommandExecutionDelayMin);
+        TrackConVar(CommandExecutionDelayMax);
+        
         Plugin.AddCommand("css_omikuji", "draw a fortune.", CommandOmikuji);
         Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
 
-        omikujiTypes.Add((OmikujiType.EventBad, PluginSettings.m_CVOmikujiEventWeightBad.Value));
-        omikujiTypes.Add((OmikujiType.EventLucky, PluginSettings.m_CVOmikujiEventWeightLucky.Value));
-        omikujiTypes.Add((OmikujiType.EventMisc, PluginSettings.m_CVOmikujiEventWeightMisc.Value));
+        omikujiTypes.Add((OmikujiType.EventBad, EventWeightBad.Value));
+        omikujiTypes.Add((OmikujiType.EventLucky, EventWeightLucky.Value));
+        omikujiTypes.Add((OmikujiType.EventMisc, EventWeightMisc.Value));
 
         // For hot reload and server startup
         Plugin.AddTimer(0.1F, () =>
@@ -102,10 +131,10 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
         }
 
         if (Server.EngineTime - lastCommandUseTime[client] <
-            PluginSettings.m_CVOmikujiCommandCooldown.Value)
+            CommandCooldown.Value)
         {
             
-            string currentCooldownText = (PluginSettings.m_CVOmikujiCommandCooldown.Value - (Server.EngineTime - lastCommandUseTime[client])).ToString("#.#");
+            string currentCooldownText = (CommandCooldown.Value - (Server.EngineTime - lastCommandUseTime[client])).ToString("#.#");
             
             client.PrintToChat(LocalizeWithModulePrefix("Omikuji.Command.Notification.Cooldown", currentCooldownText));
             return;
@@ -141,8 +170,8 @@ public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(servic
         isWaitingForEventExecution[client] = true;
         Server.PrintToChatAll(LocalizeWithModulePrefix("Omikuji.Command.Notification.Drawing", client.PlayerName));
         Plugin.AddTimer(
-            Random.Next(PluginSettings.m_CVOmikujiCommandExecutionDelayMin.Value,
-                PluginSettings.m_CVOmikujiCommandExecutionDelayMax.Value), () =>
+            Random.Next(CommandExecutionDelayMin.Value,
+                CommandExecutionDelayMax.Value), () =>
             {
                 SimpleLogging.LogTrace($"[Omikuji] [Player {client.PlayerName}] Executing omikuji...");
                 lastCommandUseTime[client] = Server.EngineTime;

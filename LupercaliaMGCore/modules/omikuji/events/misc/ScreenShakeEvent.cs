@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,33 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
 
     public override OmikujiCanInvokeWhen OmikujiCanInvokeWhen => OmikujiCanInvokeWhen.Anytime;
 
+    
+    public readonly FakeConVar<float> ScreenShakeAmplitude = new(
+        "lp_mg_omikuji_event_screen_shake_amplitude",
+        "How far away from the normal position the camera will wobble. Should be a range between 0 and 16.",
+        1000.0F);
+
+    public readonly FakeConVar<float> ShakeDuration = new(
+        "lp_mg_omikuji_event_screen_shake_duration", "The length of time in which to shake the player's screens.",
+        5.0F);
+
+    public readonly FakeConVar<float> ShakeFrequency = new(
+        "lp_mg_omikuji_event_screen_shake_frequency",
+        "How many times per second to change the direction of the camera wobble. 40 is generally enough; values higher are hardly distinguishable.",
+        1000.0F);
+
+    public readonly FakeConVar<double> EventSelectionWeight =
+        new("lp_mg_omikuji_event_screen_shake_selection_weight", "Selection weight of this event", 30.0D);
+
+    public override void Initialize()
+    {
+        TrackConVar(ScreenShakeAmplitude);
+        TrackConVar(ShakeDuration);
+        TrackConVar(ShakeFrequency);
+        TrackConVar(EventSelectionWeight);
+    }
+
+
     public override void Execute(CCSPlayerController client)
     {
         SimpleLogging.LogDebug("Player drew a omikuji and invoked Screen shake event");
@@ -26,9 +54,9 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
         }
 
         shakeEnt.Spawnflags = 5U;
-        shakeEnt.Amplitude = PluginSettings.m_CVOmikujiEventScreenShakeAmplitude.Value;
-        shakeEnt.Duration = PluginSettings.m_CVOmikujiEventScreenShakeDuration.Value;
-        shakeEnt.Frequency = PluginSettings.m_CVOmikujiEventScreenShakeFrequency.Value;
+        shakeEnt.Amplitude = ScreenShakeAmplitude.Value;
+        shakeEnt.Duration = ShakeDuration.Value;
+        shakeEnt.Frequency = ShakeFrequency.Value;
 
         shakeEnt.DispatchSpawn();
 
@@ -41,6 +69,6 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
 
     public override double GetOmikujiWeight()
     {
-        return PluginSettings.m_CVOmikujiEventScreenShakeSelectionWeight.Value;
+        return EventSelectionWeight.Value;
     }
 }
