@@ -4,11 +4,11 @@ using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class MiscCommands(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "MiscCommands";
 

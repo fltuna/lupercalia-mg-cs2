@@ -6,15 +6,15 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Timers;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NativeVoteAPI;
 using NativeVoteAPI.API;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class VoteRoundRestart(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     private bool isRoundRestarting = false;
     

@@ -1,12 +1,13 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.DependencyInjection;
+using TNCSSPluginFoundation.Configuration;
+using TNCSSPluginFoundation.Models.Logger;
 
 namespace LupercaliaMGCore;
 
-public sealed class SimpleDebugLogger : AbstractDebugLogger
+public sealed class SimpleDebugLogger : AbstractDebugLoggerBase
 {
     public readonly FakeConVar<int> DebugLogLevelConVar = new("lp_mg_debug_level",
         "0: Nothing, 1: Print info, warn, error message, 2: Print previous one and debug message, 3: Print previous one and trace message", 0, ConVarFlags.FCVAR_NONE,

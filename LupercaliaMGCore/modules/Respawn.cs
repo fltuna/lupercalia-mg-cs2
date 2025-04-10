@@ -5,12 +5,12 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class Respawn(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "Respawn";
     

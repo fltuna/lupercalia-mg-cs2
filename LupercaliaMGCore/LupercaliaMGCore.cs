@@ -1,14 +1,14 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NativeVoteAPI.API;
+using TNCSSPluginFoundation;
 
 namespace LupercaliaMGCore;
 
-public sealed class LupercaliaMGCore : AbstractTunaPluginBase
+public sealed class LupercaliaMGCore : TncssPluginBase
 {
     protected override string PluginPrefix =>
         $" {ChatColors.DarkRed}[{ChatColors.Blue}LPŘ MG{ChatColors.DarkRed}]{ChatColors.Default}";
@@ -25,7 +25,7 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
     
     public override string ConVarConfigPath => Path.Combine(BaseCfgDirectoryPath, "mgcore.cfg");
 
-    protected override void TunaOnPluginLoad(bool hotReload)
+    protected override void TncssOnPluginLoad(bool hotReload)
     {
         RegisterModule<TeamBasedBodyColor>();
         RegisterModule<DuckFix>();
@@ -48,7 +48,6 @@ public sealed class LupercaliaMGCore : AbstractTunaPluginBase
         RegisterModule<CourseWeapons>();
         RegisterModule<VelocityDisplay>();
         RegisterModule<Rocket>();
-        RebuildServiceProvider();
     }
 
     protected override void RegisterRequiredPluginServices(IServiceCollection collection, IServiceProvider services)

@@ -3,11 +3,11 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class TeamBasedBodyColor(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "TeamBasedBodyColor";
     

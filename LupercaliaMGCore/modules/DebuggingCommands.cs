@@ -1,12 +1,12 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace LupercaliaMGCore.modules;
 
-public class Debugging(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class Debugging(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "DebuggingCommands";
 

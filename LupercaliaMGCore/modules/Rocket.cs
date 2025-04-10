@@ -3,12 +3,12 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;
 
-public class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "Rocket";
 

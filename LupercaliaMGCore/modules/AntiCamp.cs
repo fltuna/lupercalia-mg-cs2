@@ -4,12 +4,12 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;
 
-public class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : PluginModuleBase(serviceProvider)
+public sealed class AntiCamp(IServiceProvider serviceProvider, bool hotReload) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "AntiCamp";
 

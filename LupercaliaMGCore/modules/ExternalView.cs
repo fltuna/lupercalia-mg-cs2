@@ -4,7 +4,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
@@ -36,7 +36,7 @@ record ExternalViewInfo(
  *
  * Check https://github.com/grrhn/ThirdPerson-WIP for more detail.
  */
-public class ExternalView(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class ExternalView(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "External View";
 

@@ -4,13 +4,13 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
+using TNCSSPluginFoundation.Models.Plugin;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;
 
-public class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "ScheduledShutdown";
     

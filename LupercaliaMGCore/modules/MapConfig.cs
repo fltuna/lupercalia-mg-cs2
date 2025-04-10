@@ -2,12 +2,12 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.Logging;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "MapConfig";
 
