@@ -20,6 +20,8 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
 
     public readonly FakeConVar<string> MapCommands = new("lp_mg_entity_output_hook_map_commands", "Definition of the map command to be hooked. Comma separated.", "");
 
+    public readonly FakeConVar<bool> AllowCheatCvar = new("lp_mg_entity_output_hook_allow_cheat_cvar", "Allow to execute the command that protected by sv_cheats.", false);
+
     protected override void OnInitialize()
     {
         TrackConVar(IsModuleEnabled);
@@ -58,7 +60,7 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
 
                     // Check if the command is in the allowed list from MapCommands ConVar
                     var allowedMapCommands = MapCommands.Value.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
-                    if (allowedMapCommands.Any() && !allowedMapCommands.Contains(commandName))
+                    if (allowedMapCommands.Count != 0 && !allowedMapCommands.Contains(commandName))
                     {
                         // If MapCommands is defined and the current command is not in the list, skip it.
                         continue;
@@ -66,9 +68,11 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
 
                     var cvar = ConVar.Find(commandName);
 
-                    // Only process if it's a ConVar and requires cheat flag
-                    if (cvar != null && cvar.Flags.HasFlag(ConVarFlags.FCVAR_CHEAT))
+                    if (cvar != null)
                     {
+                        // If the command is protected by sv_cheats and AllowCheatCvar is false, skip it.
+                        if (cvar.Flags.HasFlag(ConVarFlags.FCVAR_CHEAT) && !AllowCheatCvar.Value) continue;
+
                         cvarList[(cvar, commandArgs)] = delay;
                     }
                 }
