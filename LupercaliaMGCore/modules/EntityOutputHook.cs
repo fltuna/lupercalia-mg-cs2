@@ -22,6 +22,10 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
 
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        TrackConVar(ValidEntites);
+        TrackConVar(MapCommands);
+
         Plugin.HookEntityOutput("*", "*", Hook, HookMode.Post);
     }
 
