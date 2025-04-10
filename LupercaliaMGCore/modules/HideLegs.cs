@@ -4,11 +4,11 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class HideLegs(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class HideLegs(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "HideLegs";
 

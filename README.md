@@ -6,6 +6,7 @@ CounterStrikeSharp plugin for Lupercalia MG Server.
 
 You need install these to plugin work:
 - [NativeVoteAPI](https://github.com/fltuna/NativeVoteAPI-CS2/releases/latest)
+- [TNCSSPluginFoundation](https://github.com/fltuna/TNCSSPluginFoundation)
 
 
 # Features

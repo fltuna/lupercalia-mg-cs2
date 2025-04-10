@@ -1,14 +1,14 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using LupercaliaMGCore.model;
 using LupercaliaMGCore.modules;
 using Microsoft.Extensions.DependencyInjection;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore;
 
 public abstract class OmikujiEventBase(IServiceProvider serviceProvider) : PluginBasicFeatureBase(serviceProvider), IOmikujiEvent
 {
-    protected readonly Omikuji Omikuji = serviceProvider.GetRequiredService<Omikuji>();
+    private readonly Omikuji Omikuji = serviceProvider.GetRequiredService<Omikuji>();
     protected readonly Random Random = new();
     
     public abstract string EventName { get; }

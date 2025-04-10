@@ -3,11 +3,12 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.UI.CenterHud;
 
 namespace LupercaliaMGCore.modules;
 
-public class VelocityDisplay(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class VelocityDisplay(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     private readonly List<int> displayTarget = new();
 

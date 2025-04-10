@@ -1,4 +1,4 @@
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore;
 

@@ -3,12 +3,12 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
-using LupercaliaMGCore.model;
 using Microsoft.Extensions.DependencyInjection;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "Omikuji";
 

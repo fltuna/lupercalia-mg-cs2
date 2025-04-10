@@ -1,10 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class DuckFix(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class DuckFix(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "DuckFix";
 

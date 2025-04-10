@@ -1,11 +1,11 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using LupercaliaMGCore.model;
+using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore.modules;
 
-public class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public sealed class RoundEndWeaponStrip(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "RoundEndWeaponStrip";
 
