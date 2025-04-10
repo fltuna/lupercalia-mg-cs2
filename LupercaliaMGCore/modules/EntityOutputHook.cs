@@ -27,6 +27,7 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
         TrackConVar(IsModuleEnabled);
         TrackConVar(ValidEntites);
         TrackConVar(MapCommands);
+        TrackConVar(AllowCheatCvar);
 
         Plugin.HookEntityOutput("*", "*", Hook, HookMode.Post);
     }
