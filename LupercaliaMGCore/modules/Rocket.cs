@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace LupercaliaMGCore.modules;

@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
+using TNCSSPluginFoundation.Utils.Entity;
 
 namespace LupercaliaMGCore;
 

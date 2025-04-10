@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
 using TNCSSPluginFoundation.Utils.UI.CenterHud;
 
 namespace LupercaliaMGCore.modules;
@@ -74,15 +75,16 @@ public sealed class VelocityDisplay(IServiceProvider serviceProvider) : PluginMo
 
             if (PlayerUtil.IsPlayerAlive(player))
             {
-                StringBuilder hud = new();
-
-
-                hud.Append($"<font class='fontSize-{CenterHtmlSize.M.ToLowerString()}'>Speed</font>: <font color='#3791db' class='fontSize-{CenterHtmlSize.XL.ToLowerString()}'>{CalculateVelocity(pawn.Velocity):F2}</font>/s");
-                hud.Append("<br>");
-                hud.Append($"<font class='fontSize-{CenterHtmlSize.ML.ToLowerString()}'>" + GetPlayerPressedButtonText(player) + "</font>");
+                string hudText = CenterHtmlHudBuilder.Create()
+                    .Text("Speed: ", CenterHtmlSize.M)
+                    .Text($"{CalculateVelocity(pawn.Velocity):F2}", CenterHtmlSize.XL, "#3791db")
+                    .Text("/s")
+                    .NewLine()
+                    .Text(GetPlayerPressedButtonText(player), CenterHtmlSize.L)
+                    .Build();
                 
                 
-                player.PrintToCenterHtml(hud.ToString());
+                player.PrintToCenterHtml(hudText);
             }
             
             if (player.Team == CsTeam.Spectator || !PlayerUtil.IsPlayerAlive(player))
@@ -109,15 +111,17 @@ public sealed class VelocityDisplay(IServiceProvider serviceProvider) : PluginMo
                 if (observingPlayer.OriginalController.Value == null)
                     continue;
                 
-                StringBuilder hud = new();
-
-
-                hud.Append($"<font class='fontSize-{CenterHtmlSize.M.ToLowerString()}'>Speed</font>: <font color='#3791db' class='fontSize-{CenterHtmlSize.XL.ToLowerString()}'>{CalculateVelocity(observingPlayer.Velocity):F2}</font>/s");
-                hud.Append("<br>");
-                hud.Append($"<font class='fontSize-{CenterHtmlSize.ML.ToLowerString()}'>" + GetPlayerPressedButtonText(observingPlayer.OriginalController.Value) + "</font>");
+                
+                string hudText = CenterHtmlHudBuilder.Create()
+                    .Text("Speed: ", CenterHtmlSize.M)
+                    .Text($"{CalculateVelocity(observingPlayer.Velocity):F2}", CenterHtmlSize.XL, "#3791db")
+                    .Text("/s")
+                    .NewLine()
+                    .Text(GetPlayerPressedButtonText(observingPlayer.OriginalController.Value), CenterHtmlSize.L)
+                    .Build();
                 
                 
-                player.PrintToCenterHtml(hud.ToString());
+                player.PrintToCenterHtml(hudText);
             }
         }
     }

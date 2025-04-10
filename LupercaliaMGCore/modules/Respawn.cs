@@ -7,6 +7,8 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
+using TNCSSPluginFoundation.Utils.UI.Chat;
 
 namespace LupercaliaMGCore.modules;
 

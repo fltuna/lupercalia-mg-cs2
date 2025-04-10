@@ -5,6 +5,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
 
 namespace LupercaliaMGCore.modules;
 

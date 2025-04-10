@@ -3,7 +3,7 @@ using TNCSSPluginFoundation.Models.Plugin;
 
 namespace LupercaliaMGCore;
 
-public sealed class ModuleClassTemplate(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
+public class ModuleClassTemplate(IServiceProvider serviceProvider) : PluginModuleBase(serviceProvider)
 {
     public override string PluginModuleName => "ClassTemplate";
 

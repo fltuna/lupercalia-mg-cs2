@@ -2,6 +2,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace LupercaliaMGCore.modules;

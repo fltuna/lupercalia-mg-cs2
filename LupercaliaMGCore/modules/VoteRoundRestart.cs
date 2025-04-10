@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using NativeVoteAPI;
 using NativeVoteAPI.API;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Entity;
 
 namespace LupercaliaMGCore.modules;
 
