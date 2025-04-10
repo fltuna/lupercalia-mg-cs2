@@ -16,8 +16,8 @@ public abstract class AbstractTunaPluginBase: BasePlugin, ITunaPluginBase
     public abstract string ConVarConfigPath { get; }
 
     private ServiceCollection ServiceCollection { get; } = new();
-    
-    public ServiceProvider ServiceProvider = null!;
+
+    private ServiceProvider ServiceProvider { get; set; } = null!;
     
     protected abstract string PluginPrefix { get; }
 
