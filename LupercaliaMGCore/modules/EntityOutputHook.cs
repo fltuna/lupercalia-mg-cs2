@@ -165,7 +165,8 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
                     break;
                 default:
                     // Default to string if all parsing fails
-                    pair.Item1.StringValue = pair.Item2;
+                    // pair.Item1.StringValue = pair.Item2;
+                    Server.ExecuteCommand($"{pair.Item1.Name} {pair.Item2}");
                     DebugLogger.LogDebug($"[EntityOutputHook] {pair.Item1.Name} = {pair.Item2}");
                     break;
             }
