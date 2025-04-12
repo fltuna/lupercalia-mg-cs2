@@ -49,6 +49,12 @@ public sealed class AntiCamp(IServiceProvider serviceProvider, bool hotReload) :
     
     protected override void OnInitialize()
     {
+        TrackConVar(IsModuleEnabled);
+        TrackConVar(CampDetectionTime);
+        TrackConVar(CampDetectionRadius);
+        TrackConVar(CampDetectionInterval);
+        TrackConVar(CampMarkingTime);
+        
         Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect, HookMode.Pre);
         Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull, HookMode.Pre);
         Plugin.RegisterListener<Listeners.OnClientPutInServer>(OnClientPutInServer);
