@@ -35,6 +35,8 @@ You need install these to plugin work:
   - [x] Course Weapon
 - [x] Fun
   - [x] Omikuji
+- [x] Others
+  - [x] Entity Output Hook 
 
 ## General
 
@@ -166,6 +168,24 @@ Give pistols and hegrenade to prevent stuck while playing course map.
 ### Omikuji
 
 Probability based event system. When player type `!omikuji` in chat something good/bad/unknown event happens.
+
+## Others
+
+### EntityOutputHook
+
+This feature like a [BSP ConVar Allower](https://forums.alliedmods.net/showthread.php?p=2578442)
+
+This module is OFF by default as it is only useful for certain use cases.
+
+For example, when you have a multi-game kind of map with a skate mode, the map will try to change the CVAR of `sv_standable_normal`, but this is usually impossible to change because it is not in the Whitelist + requires `sv_cheats 1`.
+
+So, a workaround can be implemented by utilizing CSSharp's HookEntityOutput
+
+By hooking an arbitrary Entity and executing commands allowed on the server side, it is possible to safely modify a specific CVAR while bypassing the above restrictions.
+
+By default, three Entities are hooked: `logic_auto` `point_servercommand` `func_button` (most maps seem to issue commands via these).
+
+Also, by default, there are no allowed commands, so we need to change and set the CVAR for each map by cfg.
 
 # ConVars / Config
 
