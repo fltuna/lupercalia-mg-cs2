@@ -32,7 +32,7 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
         TrackConVar(ConfigExecutionTiming);
         TrackConVar(ConfigType);
         
-        configFolder = Path.GetFullPath(Path.Combine(Server.GameDirectory, Plugin.BaseCfgDirectoryPath, "map/"));
+        configFolder = Path.GetFullPath(Path.Combine(Plugin.BaseCfgDirectoryPath, "map/"));
         
         if (!checkDirectoryExists())
             throw new InvalidOperationException("Map config directory is not exists and failed to create.");
