@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.modules;
+using LupercaliaMGCore.modules.AntiCamp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NativeVoteAPI.API;
@@ -38,7 +39,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
         RegisterModule<ScheduledShutdown>();
         RegisterModule<Respawn>();
         RegisterModule<MapConfig>();
-        RegisterModule<AntiCamp>(hotReload);
+        RegisterModule<AntiCampModule>(hotReload);
         RegisterModule<Omikuji>();
         RegisterModule<Debugging>();
         RegisterModule<MiscCommands>();

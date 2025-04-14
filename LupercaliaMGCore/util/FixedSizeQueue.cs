@@ -1,17 +1,12 @@
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.util;
 
-public class FixedSizeQueue<T> : Queue<T>
+public class FixedSizeQueue<T>(int maxSize) : Queue<T>
 {
-    private int maxSize { get; }
-
-    public FixedSizeQueue(int maxSize)
-    {
-        this.maxSize = maxSize;
-    }
+    private int MaxSize { get; } = maxSize;
 
     public new void Enqueue(T item)
     {
-        if (Count >= maxSize)
+        if (Count >= MaxSize)
         {
             Dequeue();
         }
