@@ -384,7 +384,7 @@ public sealed class ExternalView(IServiceProvider serviceProvider) : PluginModul
         );
         ExternalViewUtils.UpdateTargetCamera(player, targetPlayer, entCamera, dist);
 
-        PrintLocalizedChatToAll("ExternalView.Command.Notification.WatchTarget", player.PlayerName, targetPlayer.PlayerName);
+        PrintLocalizedChatToAll("ExternalView.Notification.WatchTarget", player.PlayerName, targetPlayer.PlayerName);
     }
 }
 
