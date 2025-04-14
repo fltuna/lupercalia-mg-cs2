@@ -82,7 +82,10 @@ public sealed class TeamBasedBodyColor(IServiceProvider serviceProvider) : Plugi
             renderMode = RenderMode_t.kRenderTransColor;
         }
 
-        CBasePlayerPawn playerPawn = player.PlayerPawn.Value!;
+        CBasePlayerPawn? playerPawn = player.PlayerPawn.Value;
+
+        if (playerPawn == null)
+            return HookResult.Continue;
 
         if (playerPawn.Render != newColor || playerPawn.RenderMode != renderMode)
         {
