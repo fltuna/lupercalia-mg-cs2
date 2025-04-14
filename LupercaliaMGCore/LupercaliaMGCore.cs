@@ -17,7 +17,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
 
     public override string ModuleVersion => "1.5.0";
 
-    public override string ModuleAuthor => "faketuna, Spitice, uru";
+    public override string ModuleAuthor => "faketuna, Spitice, uru, zeisen";
 
     public override string ModuleDescription => "Provides core MG feature in CS2 with CounterStrikeSharp";
 
