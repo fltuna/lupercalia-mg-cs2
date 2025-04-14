@@ -161,6 +161,9 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
 
         if (!client.IsValid || /*client.IsBot ||*/ client.IsHLTV)
             return HookResult.Continue;
+        
+        if (client.Connected != PlayerConnectedState.PlayerConnected)
+            return HookResult.Continue;
 
         players[client.Slot].StopGlowing();
 
