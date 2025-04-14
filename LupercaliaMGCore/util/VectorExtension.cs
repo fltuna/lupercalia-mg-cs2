@@ -17,4 +17,14 @@ public static class VectorExtension
 
         return withinX && withinY && withinZ;
     }
+    
+    public static double Distance3D(this Vector vec1, Vector vec2)
+    {
+        double deltaX = vec1.X - vec2.X;
+        double deltaY = vec1.Y - vec2.Y;
+        double deltaZ = vec1.Z - vec2.Z;
+
+        double distanceSquared = Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2) + Math.Pow(deltaZ, 2);
+        return Math.Sqrt(distanceSquared);
+    }
 }
