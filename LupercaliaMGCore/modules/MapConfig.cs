@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
+using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
 using TNCSSPluginFoundation.Models.Plugin;
 
@@ -68,6 +69,9 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
 
         DebugLogger.LogDebug("[Map Config] Executing configs at map start.");
         ExecuteConfigs();
+        
+        // Wait a 1 frame to make sure all map entities spawned.
+        Server.NextFrame(ExecuteDeterminedGameModeConfig);
     }
 
     private void ExecuteConfigs()
@@ -93,7 +97,7 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
             return;
         }
 
-
+        
         DebugLogger.LogTrace("[Map Config] Iterating the config file");
         foreach (MapConfigFile conf in configs)
         {
@@ -107,10 +111,22 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
 
             if (!shouldExecute) 
                 continue;
-            
+
             DebugLogger.LogTrace($"[Map Config] Executing config {conf.name} located at {conf.path}");
             Server.ExecuteCommand($"exec {conf.path}");
         }
+
+
+    }
+
+    private void ExecuteDeterminedGameModeConfig()
+    {
+        string determinedGameMode = DetermineGameMode();
+        string relativeGameModeConfigPath =
+            Path.GetRelativePath(Path.GetFullPath(Path.Combine(Server.GameDirectory, "csgo/cfg/")), Path.Combine(configFolder, determinedGameMode + ".cfg"));
+        
+        DebugLogger.LogDebug($"[Map Config] GameMode determined: {determinedGameMode}");
+        Server.ExecuteCommand($"exec {relativeGameModeConfigPath}");
     }
 
     private void updateConfigsDictionary()
@@ -155,5 +171,49 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
         }
 
         return true;
+    }
+
+    private string DetermineGameMode()
+    {
+        if (IsSpawnPointOneSided())
+            return "course";
+
+        if (!HasBombTarget())
+            return "multigames";
+        
+        if(IsTSpawnPlacedWithinBuyZone())
+            return "defusal";
+
+        return "multigames";
+    }
+
+
+    private bool IsSpawnPointOneSided()
+    {
+        return Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_terrorist").ToList().Count == 0 ||
+               Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_counterterrorist").ToList().Count == 0;
+    }
+
+    private bool HasBombTarget()
+    {
+        return Utilities.FindAllEntitiesByDesignerName<CBombTarget>("func_bomb_target").ToList().Count > 0;
+    }
+
+    private bool IsTSpawnPlacedWithinBuyZone()
+    {
+        foreach (CBuyZone buyZone in Utilities.FindAllEntitiesByDesignerName<CBuyZone>("func_buyzone").ToList())
+        {
+            foreach (SpawnPoint tSpawn in Utilities.FindAllEntitiesByDesignerName<SpawnPoint>("info_player_terrorist").ToList())
+            {
+                Vector? spawnPos = tSpawn.AbsOrigin;
+                if (spawnPos == null)
+                    continue;
+
+                if (spawnPos.WithinAABox(buyZone.Collision.Mins, buyZone.Collision.Maxs))
+                    return true;
+            }
+        }
+
+        return false;
     }
 }
