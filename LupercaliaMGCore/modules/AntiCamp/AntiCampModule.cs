@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Timers;
 using LupercaliaMGCore.modules.AntiCamp.Models;
@@ -28,19 +29,23 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
 
     
     public readonly FakeConVar<bool> IsModuleEnabled = new("lp_mg_anti_camp_enabled",
-        "Anti camp enabled", true);
+        "Anti camp enabled", false);
 
     public readonly FakeConVar<float> CampDetectionTime = new("lp_mg_anti_camp_detection_time",
-        "How long to take detected as camping in seconds.", 10.0F);
+        "How long to take detected as camping in seconds.", 10.0F
+        ,ConVarFlags.FCVAR_NONE, new RangeValidator<float>(5.0F, 60.0F));
 
     public readonly FakeConVar<double> CampDetectionRadius = new("lp_mg_anti_camp_detection_radius",
-        "Range of area for player should move for avoiding the detected as camping.", 200.0F);
+        "Range of area for player should move for avoiding the detected as camping.", 200.0F
+        ,ConVarFlags.FCVAR_NONE, new RangeValidator<double>(1.0D, 2048.0D));
 
     public readonly FakeConVar<float> CampDetectionInterval = new("lp_mg_anti_camp_detection_interval",
-        "Interval to run camping check in seconds.", 0.1F);
+        "Interval to run camping check in seconds.", 0.1F
+        ,ConVarFlags.FCVAR_NONE, new RangeValidator<float>(0.1F, 10.0F));
 
     public readonly FakeConVar<float> CampMarkingTime = new("lp_mg_anti_camp_glowing_time",
-        "How long to detected player keep glowing.", 10.0F);
+        "How long to detected player keep glowing.", 10.0F
+        ,ConVarFlags.FCVAR_NONE, new RangeValidator<float>(1.0F, 30.0F));
     
     protected override void OnInitialize()
     {
