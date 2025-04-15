@@ -179,6 +179,9 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
         return HookResult.Continue;
     }
 
+
+    private const float SettingsValueChangeTolerance = 0.1F;
+    
     private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
         isRoundStarted = false;
@@ -192,8 +195,7 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
         settings.DetectionRadius = CampDetectionRadius.Value;
 
         
-        if (Math.Abs(settings.DetectionInterval - CampDetectionInterval.Value) > 0 ||
-            Math.Abs(settings.DetectionInterval - CampDetectionInterval.Value) < 0)
+        if (Math.Abs(settings.DetectionInterval - CampDetectionInterval.Value) > SettingsValueChangeTolerance)
         {
             settings.DetectionInterval = CampDetectionInterval.Value;
 
@@ -204,8 +206,7 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
             }
         }
 
-        if (Math.Abs(settings.DetectionTime - CampDetectionTime.Value) > 0 ||
-            Math.Abs(settings.DetectionTime - CampDetectionTime.Value) < 0)
+        if (Math.Abs(settings.DetectionTime - CampDetectionTime.Value) > SettingsValueChangeTolerance)
         {
             settings.DetectionTime = CampDetectionTime.Value;
 
