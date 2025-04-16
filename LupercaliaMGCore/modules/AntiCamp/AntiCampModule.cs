@@ -244,11 +244,13 @@ public sealed class AntiCampModule(IServiceProvider serviceProvider, bool hotRel
 
     private void DisposeClientInformation(int slot)
     {
-        AntiCampPlayer player = players[slot];
+        if (players.TryGetValue(slot, out var player))
+        {
+            player.StopGlowing();
+            player.CampingTime = 0.0F;
+            player.GlowingTime = 0.0F;
+        }
         
-        player.StopGlowing();
-        player.CampingTime = 0.0F;
-        player.GlowingTime = 0.0F;
         players.Remove(slot);
     }
 }
