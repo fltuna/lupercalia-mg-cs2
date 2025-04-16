@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NativeVoteAPI;
 using NativeVoteAPI.API;
 using TNCSSPluginFoundation.Models.Plugin;
+using TNCSSPluginFoundation.Utils.Other;
 
 namespace LupercaliaMGCore.modules;
 
@@ -168,7 +169,7 @@ public sealed class VoteMapRestart(IServiceProvider serviceProvider) : PluginMod
         Plugin.AddTimer(RestartTime.Value, () =>
         {
             DebugLogger.LogDebug("[Vote Map Restart] Changing map.");
-            Server.ExecuteCommand($"changelevel {Server.MapName}");
+            MapUtil.ReloadMap();
         }, TimerFlags.STOP_ON_MAPCHANGE);
     }
 
