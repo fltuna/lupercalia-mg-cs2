@@ -11,7 +11,7 @@ namespace LupercaliaMGCore;
 
 public sealed class LupercaliaMGCore : TncssPluginBase
 {
-    protected override string PluginPrefix =>
+    public override string PluginPrefix =>
         $" {ChatColors.DarkRed}[{ChatColors.Blue}LPŘ MG{ChatColors.DarkRed}]{ChatColors.Default}";
     
     public override string ModuleName => "Lupercalia MG Core";
