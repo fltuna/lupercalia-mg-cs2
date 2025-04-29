@@ -14,6 +14,7 @@ public sealed class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase
     public override string PluginModuleName => "Omikuji";
 
     public override string ModuleChatPrefix => $" {ChatColors.Gold}[Omikuji]{ChatColors.Default}";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private readonly Random Random = new();
 

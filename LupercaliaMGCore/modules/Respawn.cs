@@ -19,6 +19,7 @@ public sealed class Respawn(IServiceProvider serviceProvider) : PluginModuleBase
     public override string ModuleChatPrefix => "[Respawn]";
     
     private static readonly string ChatPrefix = $" {ChatColors.Green}[Respawn]{ChatColors.Default}";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private readonly Dictionary<int, double> playerLastRespawnTime = new();
     private bool repeatKillDetected = false;

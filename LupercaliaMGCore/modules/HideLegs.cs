@@ -13,6 +13,7 @@ public sealed class HideLegs(IServiceProvider serviceProvider) : PluginModuleBas
     public override string PluginModuleName => "HideLegs";
 
     public override string ModuleChatPrefix => "[Hide Legs]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private Dictionary<ulong, bool> m_steamIdToIsHideLegsActive = new();
 

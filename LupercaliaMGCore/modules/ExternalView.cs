@@ -41,6 +41,7 @@ public sealed class ExternalView(IServiceProvider serviceProvider) : PluginModul
     public override string PluginModuleName => "External View";
 
     public override string ModuleChatPrefix => "[External View]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private Dictionary<ulong, ExternalViewInfo> m_externalViewInfoMap = new();
 

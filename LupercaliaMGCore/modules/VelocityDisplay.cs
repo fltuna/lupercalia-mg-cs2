@@ -16,6 +16,7 @@ public sealed class VelocityDisplay(IServiceProvider serviceProvider) : PluginMo
     public override string PluginModuleName => "VelocityDisplay";
     
     public override string ModuleChatPrefix => "[VelocityDisplay]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     protected override void OnInitialize()
     {

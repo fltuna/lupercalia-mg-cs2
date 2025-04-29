@@ -12,6 +12,7 @@ public sealed class TeamBasedBodyColor(IServiceProvider serviceProvider) : Plugi
     public override string PluginModuleName => "TeamBasedBodyColor";
     
     public override string ModuleChatPrefix => "[TeamBasedBodyColor]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     public readonly FakeConVar<bool> IsModuleEnabled =
         new("lp_mg_teamcolor_enabled", "Should apply team color after respawn", true);

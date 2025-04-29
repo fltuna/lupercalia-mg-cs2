@@ -12,6 +12,7 @@ public class EntityOutputHook(IServiceProvider serviceProvider) : PluginModuleBa
     public override string PluginModuleName => "EntityOutputHook";
 
     public override string ModuleChatPrefix => $" {ChatColors.Gold}[EntityOutputHook]{ChatColors.Default}";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     public readonly FakeConVar<bool> IsModuleEnabled = new("lp_mg_entity_output_hook", "Is EntityOutputHook enabled?", false);
 

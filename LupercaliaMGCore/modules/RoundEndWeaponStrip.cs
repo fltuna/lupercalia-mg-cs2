@@ -10,6 +10,7 @@ public sealed class RoundEndWeaponStrip(IServiceProvider serviceProvider) : Plug
     public override string PluginModuleName => "RoundEndWeaponStrip";
 
     public override string ModuleChatPrefix => "[RoundEndWeaponStrip]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     
     public readonly FakeConVar<bool> IsModuleEnabled = new("lp_mg_rews_enabled",

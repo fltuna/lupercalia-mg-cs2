@@ -14,6 +14,7 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
     public override string PluginModuleName => "MiscCommands";
 
     public override string ModuleChatPrefix => "[Misc Commands]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     
     public readonly FakeConVar<bool> GiveKnifeEnabled = 

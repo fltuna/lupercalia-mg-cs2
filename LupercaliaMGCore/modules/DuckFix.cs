@@ -9,6 +9,7 @@ public sealed class DuckFix(IServiceProvider serviceProvider) : PluginModuleBase
     public override string PluginModuleName => "DuckFix";
 
     public override string ModuleChatPrefix => "[DuckFix]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     protected override void OnInitialize()
     {

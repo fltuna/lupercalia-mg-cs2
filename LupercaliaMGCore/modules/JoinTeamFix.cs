@@ -11,6 +11,7 @@ public sealed class JoinTeamFix(IServiceProvider serviceProvider) : PluginModule
     public override string PluginModuleName => "JoinTeamFix";
 
     public override string ModuleChatPrefix => "[Join Team Fix]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private static Random random = new();
 

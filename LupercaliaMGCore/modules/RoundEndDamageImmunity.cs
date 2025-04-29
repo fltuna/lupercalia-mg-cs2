@@ -9,6 +9,7 @@ public sealed class RoundEndDamageImmunity(IServiceProvider serviceProvider) : P
     public override string PluginModuleName => "RoundEndDamageImmunity";
     
     public override string ModuleChatPrefix => "[RoundEndDamageImmunity]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private bool damageImmunity = false;
 

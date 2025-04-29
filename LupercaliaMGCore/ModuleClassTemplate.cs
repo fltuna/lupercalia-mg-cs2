@@ -8,6 +8,7 @@ public class ModuleClassTemplate(IServiceProvider serviceProvider) : PluginModul
     public override string PluginModuleName => "ClassTemplate";
 
     public override string ModuleChatPrefix => "[ClassTemplate]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     // public FakeConVar<float> VariableName = new(
     //     "convar_name",

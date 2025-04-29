@@ -18,6 +18,7 @@ public sealed class VoteMapRestart(IServiceProvider serviceProvider) : PluginMod
     public override string PluginModuleName => "VoteMapRestart";
     
     public override string ModuleChatPrefix => "[VoteMapRestart]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private double mapStartTime = 0.0D;
     private bool isMapRestarting = false;

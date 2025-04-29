@@ -12,6 +12,7 @@ public sealed class Debugging(IServiceProvider serviceProvider) : PluginModuleBa
     public override string PluginModuleName => "DebuggingCommands";
 
     public override string ModuleChatPrefix => "[Debugging Commands]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private readonly Dictionary<CCSPlayerController, Vector> savedPlayerPos = new();
 

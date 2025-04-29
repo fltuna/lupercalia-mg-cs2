@@ -16,6 +16,7 @@ public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : Plugin
     public override string PluginModuleName => "ScheduledShutdown";
     
     public override string ModuleChatPrefix => "[ScheduledShutdown]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private Timer shutdownTimer = null!;
     private Timer? warningTimer;

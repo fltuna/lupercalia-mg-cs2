@@ -10,6 +10,7 @@ public sealed class RoundEndDeathMatch(IServiceProvider serviceProvider) : Plugi
     public override string PluginModuleName => "RoundEndDeathMatch";
     
     public override string ModuleChatPrefix => "[RoundEndDeathMatch]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private ConVar? mp_teammates_are_enemies = null;
 

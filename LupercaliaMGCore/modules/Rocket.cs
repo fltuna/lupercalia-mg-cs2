@@ -14,6 +14,7 @@ public sealed class Rocket(IServiceProvider serviceProvider) : PluginModuleBase(
     public override string PluginModuleName => "Rocket";
 
     public override string ModuleChatPrefix => $" {ChatColors.Gold}[Rocket]{ChatColors.Default}";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     private Dictionary<CCSPlayerController, bool> isRocketLaunched = new Dictionary<CCSPlayerController, bool>();
 

@@ -13,6 +13,7 @@ public sealed class MapConfig(IServiceProvider serviceProvider) : PluginModuleBa
     public override string PluginModuleName => "MapConfig";
 
     public override string ModuleChatPrefix => "[Map Config]";
+    protected override bool UseTranslationKeyInModuleChatPrefix => false;
 
     // Config name and path
     private readonly List<MapConfigFile> configs = new();
