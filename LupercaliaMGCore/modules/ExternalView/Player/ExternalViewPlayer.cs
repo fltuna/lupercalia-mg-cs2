@@ -7,7 +7,7 @@ namespace LupercaliaMGCore.modules.ExternalView.Player
 {
     /// <summary>
     /// An instance created for camera entity per player.
-    /// 
+    ///
     /// Observers are not instantiated for those players with
     /// the default view (i.e., the first-person camera).
     /// </summary>
@@ -94,7 +94,7 @@ namespace LupercaliaMGCore.modules.ExternalView.Player
                     Player.PrintToChat("ExternalView.FirstPerson.Revert");
                     return false;
                 }
-                
+
                 if (Config.PrimaryCameraMode == PrimaryCameraModes.FirstPerson)
                 {
                     // Primary mode is first person.
@@ -173,7 +173,7 @@ namespace LupercaliaMGCore.modules.ExternalView.Player
                 if (Api.ConVars.IsObserverViewEnabled)
                     return true;
 
-                if (Api.ConVars.IsAdminPrevilegesEnabled)
+                if (Api.ConVars.IsAdminPrivilegesEnabled)
                     return Player.IsAdmin;
 
                 return false;

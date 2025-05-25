@@ -10,6 +10,6 @@
         float FreeCameraSpeed { get; }
         float FreeCameraAltSpeed { get; }
         bool IsObserverViewEnabled { get; }
-        bool IsAdminPrevilegesEnabled { get; }
+        bool IsAdminPrivilegesEnabled { get; }
     }
 }
