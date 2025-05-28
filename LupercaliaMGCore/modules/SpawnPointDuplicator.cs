@@ -28,10 +28,10 @@ namespace LupercaliaMGCore.modules
     public sealed class SpawnPointDuplicator(IServiceProvider serviceProvider)
         : PluginModuleBase(serviceProvider)
     {
-        private static int MAX_PLAYERS = 64;
+        private static readonly int MAX_PLAYERS = 64;
 
-        private static string SPAWN_CT = "info_player_counterterrorist";
-        private static string SPAWN_T = "info_player_terrorist";
+        private static readonly string SPAWN_CT = "info_player_counterterrorist";
+        private static readonly string SPAWN_T = "info_player_terrorist";
 
         public override string PluginModuleName => "Spawn Point Duplicator";
         public override string ModuleChatPrefix => "[Spawn Point Duplicator]";
@@ -39,7 +39,11 @@ namespace LupercaliaMGCore.modules
 
         // ConVars
         public readonly FakeConVar<bool> IsModuleEnabled =
-            new("lp_mp_spawn_point_duplicator_enabled", "Spawn point duplicator is enabled.", true);
+            new("lp_mp_spawn_point_duplicator", "Spawn point duplicator is enabled. Required to reload map to apply.", true);
+        public readonly FakeConVar<int> MaxNumSpawnCT =
+            new("lp_mp_spawn_point_ct_max", "Maximum number of spawn point for CT. Only works for PvP maps.", MAX_PLAYERS);
+        public readonly FakeConVar<int> MaxNumSpawnT =
+            new("lp_mp_spawn_point_t_max", "Maximum number of spawn point for T. Only works for PvP maps.", MAX_PLAYERS);
 
         protected override void OnInitialize()
         {
@@ -53,6 +57,9 @@ namespace LupercaliaMGCore.modules
 
         private void OnMapStart(string mapName)
         {
+            if (!IsModuleEnabled.Value)
+                return;
+
             Server.NextFrame(ValidateSpawnPoints);
         }
 
@@ -63,9 +70,21 @@ namespace LupercaliaMGCore.modules
 
             if (ctSpawns.Count > 0 && tSpawns.Count > 0)
             {
+                var numSpawnsCT = Math.Min(MaxNumSpawnCT.Value, MAX_PLAYERS / 2);
+                var numSpawnsT = Math.Min(MaxNumSpawnT.Value, MAX_PLAYERS / 2);
+
+                if (MaxNumSpawnCT.Value < MaxNumSpawnT.Value)
+                {
+                    numSpawnsT = Math.Min(MaxNumSpawnT.Value, MAX_PLAYERS - numSpawnsCT);
+
+                } else if (MaxNumSpawnCT.Value > MaxNumSpawnT.Value)
+                {
+                    numSpawnsCT = Math.Min(MaxNumSpawnCT.Value, MAX_PLAYERS - numSpawnsT);
+                }
+
                 // Both sides have their spawn points
-                EnsureSpawnPoints(SPAWN_CT, MAX_PLAYERS / 2);
-                EnsureSpawnPoints(SPAWN_T, MAX_PLAYERS / 2);
+                EnsureSpawnPoints(SPAWN_CT, numSpawnsCT);
+                EnsureSpawnPoints(SPAWN_T, numSpawnsT);
             }
             else if (ctSpawns.Count > 0)
             {
