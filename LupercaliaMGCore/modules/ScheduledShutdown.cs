@@ -30,6 +30,8 @@ public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : Plugin
 
     public readonly FakeConVar<bool> ShouldShutdownAfterRoundEnd = new("lp_mg_scheduled_shutdown_round_end",
         "When set to true server will be shutdown after round end.", true);
+
+    private const float TimeCheckInterval = 30.0F;
     
     protected override void OnInitialize()
     {
@@ -41,9 +43,9 @@ public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : Plugin
         Plugin.AddCommand("css_startshutdown", "Initiate the shutdown.", CommandStartShutdown);
 
         Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
-        shutdownTimer = Plugin.AddTimer(60.0f, () =>
+        shutdownTimer = Plugin.AddTimer(TimeCheckInterval, () =>
         {
-            if (DateTime.Now.ToString("HHmm").Equals(ShutdownTime.Value))
+            if (DateTime.Now.ToString("HHmm").Equals(ShutdownTime.Value, StringComparison.InvariantCulture))
             {
                 initiateShutdown();
             }
@@ -107,7 +109,7 @@ public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : Plugin
         shutdownTimer.Kill();
         warningTimer?.Kill();
 
-        shutdownTimer = Plugin.AddTimer(60.0f, () =>
+        shutdownTimer = Plugin.AddTimer(TimeCheckInterval, () =>
         {
             if (DateTime.Now.ToString("HHmm").Equals(ShutdownTime.Value))
             {
