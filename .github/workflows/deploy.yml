@@ -51,18 +51,60 @@ jobs:
     - name: Create release artifacts
       run: |
         mkdir artifacts
-        Copy-Item -Path "LupercaliaMGCore\bin\Release\*\LupercaliaMGCore.dll" -Destination "artifacts\LupercaliaMGCore.dll" -Force
-        Copy-Item -Path "lang\" -Destination "artifacts\lang\" -Recurse -Force
+        mkdir artifacts\addons\counterstrikesharp\
+        mkdir artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\
+        mkdir artifacts\addons\counterstrikesharp\shared\
+        Copy-Item -Path "LupercaliaMGCore\bin\Release\*\LupercaliaMGCore.dll" -Destination "artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\LupercaliaMGCore.dll" -Force
+        Copy-Item -Path "lang\*" -Destination "artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\lang\" -Recurse -Force
+        
+    - name: Copy artifacts directory to make with dependencies artifacts
+      run: |
+        mkdir artifacts-with-dependencies\
+        Copy-Item -Path "artifacts\*" -Destination "artifacts-with-dependencies\" -Force -Recurse
+
+    - name: TNCSSPluginFoundation Download from GitHub
+      run: Invoke-WebRequest https://github.com/fltuna/TNCSSPluginFoundation/releases/latest/download/TNCSSPluginFoundation.zip -OutFile TNCSSPluginFoundation.zip
+
+    - name: TNCSSPluginFoundation Extract ZIP and put into artifacts
+      run: Expand-Archive -Path TNCSSPluginFoundation.zip -DestinationPath TNCSSPluginFoundation-Extracted\
+
+    - name: Copy TNCSSPluginFoundation to with dependencies artifacts
+      run: |
+        Copy-Item -Path "TNCSSPluginFoundation-Extracted\*" -Destination "artifacts-with-dependencies\addons\counterstrikesharp\" -Force -Recurse
+
+    - name: NativeVoteAPI Download from GitHub
+      run: Invoke-WebRequest https://github.com/fltuna/NativeVoteAPI-CS2/releases/latest/download/NativeVoteAPI.zip -OutFile NativeVoteAPI.zip
+
+    - name: NativeVoteAPI Extract ZIP and put into artifacts
+      run: Expand-Archive -Path NativeVoteAPI.zip -DestinationPath NativeVoteAPI-Extracted\
+
+    - name: Copy NativeVoteAPI to with dependencies artifacts
+      run: |
+        Copy-Item -Path "NativeVoteAPI-Extracted\*" -Destination "artifacts-with-dependencies\addons\counterstrikesharp\" -Force -Recurse
+        
+    # Use version specific URL, because "latest" is not work
+    - name: ExternalView Download from GitHub
+      run: Invoke-WebRequest https://github.com/spitice/cs2-external-view/releases/download/v2.0.2/ExternalView_HelperOnly.zip -OutFile NativeVoteAPI.zip
+      
+    - name: ExternalView Extract ZIP and put into artifacts 
+      run: Expand-Archive -Path .\ExternalView_HelperOnly.zip -DestinationPath .\
+
+    - name: Copy ExternalView to with dependencies artifacts
+      run: |
+        Copy-Item -Path "ExternalViewHelper\*" -Destination "artifacts-with-dependencies\" -Force -Recurse
 
     - name: Compress artifacts
-      run:
+      run: |
         Compress-Archive -Path artifacts/* -Destination LupercaliaMGCore.zip
+        Compress-Archive -Path artifacts-with-dependencies/* -Destination LupercaliaMGCore-with-dependencies.zip
 
     - name: Upload release assets
       uses: actions/upload-artifact@v4
       with:
         name: release-artifacts
-        path: LupercaliaMGCore.zip
+        path: |
+          LupercaliaMGCore.zip
+          LupercaliaMGCore-with-dependencies.zip
 
   release:
     runs-on: windows-latest
