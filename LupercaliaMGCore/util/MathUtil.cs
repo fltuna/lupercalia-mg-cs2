@@ -19,20 +19,4 @@ public static class MathUtil
 
         return powers;
     }
-
-    public static float ToRad(float value)
-    {
-        return value * (float)Math.PI / 180.0f;
-    }
-
-    public static Vector Normalized(this Vector v)
-    {
-        var length = v.Length();
-        if (length == 0)
-        {
-            return v;
-        }
-
-        return v / v.Length();
-    }
 }

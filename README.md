@@ -7,6 +7,7 @@ CounterStrikeSharp plugin for Lupercalia MG Server.
 You need install these to plugin work:
 - [NativeVoteAPI](https://github.com/fltuna/NativeVoteAPI-CS2/releases/latest)
 - [TNCSSPluginFoundation](https://github.com/fltuna/TNCSSPluginFoundation)
+- [ExternalViewHelper](https://github.com/spitice/cs2-external-view)
 
 
 # Features
@@ -27,7 +28,7 @@ You need install these to plugin work:
   - [x] Team Based Body Color
   - [x] Team Scramble
   - [x] Anti camp system
-  - [x] Round end damage immunity 
+  - [x] Round end damage immunity
   - [x] Round end weapon strip
   - [x] Round end death match
 - [x] Course
@@ -36,7 +37,7 @@ You need install these to plugin work:
 - [x] Fun
   - [x] Omikuji
 - [x] Others
-  - [x] Entity Output Hook 
+  - [x] Entity Output Hook
 
 ## General
 

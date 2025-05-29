@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.modules;
 using LupercaliaMGCore.modules.AntiCamp;
+using LupercaliaMGCore.modules.ExternalView;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NativeVoteAPI.API;
@@ -53,6 +54,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
         RegisterModule<Rocket>();
         RegisterModule<EntityOutputHook>();
         RegisterModule<SpawnPointDuplicator>();
+        RegisterModule<GrenadePickupFix>();
     }
 
     protected override void RegisterRequiredPluginServices(IServiceCollection collection, IServiceProvider services)
