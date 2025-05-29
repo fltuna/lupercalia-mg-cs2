@@ -53,6 +53,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
         RegisterModule<VelocityDisplay>();
         RegisterModule<Rocket>();
         RegisterModule<EntityOutputHook>();
+        RegisterModule<SpawnPointDuplicator>();
         RegisterModule<GrenadePickupFix>();
     }
 
