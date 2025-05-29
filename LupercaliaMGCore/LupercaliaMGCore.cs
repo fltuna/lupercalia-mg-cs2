@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.modules;
 using LupercaliaMGCore.modules.AntiCamp;
+using LupercaliaMGCore.modules.ExternalView;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NativeVoteAPI.API;
