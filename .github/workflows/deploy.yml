@@ -53,6 +53,7 @@ jobs:
         mkdir artifacts
         mkdir artifacts\addons\counterstrikesharp\
         mkdir artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\
+        mkdir artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\lang\
         mkdir artifacts\addons\counterstrikesharp\shared\
         Copy-Item -Path "LupercaliaMGCore\bin\Release\*\LupercaliaMGCore.dll" -Destination "artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\LupercaliaMGCore.dll" -Force
         Copy-Item -Path "lang\*" -Destination "artifacts\addons\counterstrikesharp\plugins\LupercaliaMGCore\lang\" -Recurse -Force
