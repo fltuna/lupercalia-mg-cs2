@@ -127,6 +127,6 @@ jobs:
 
     - name: Create Release and Upload Asset
       run: |
-        gh release create "${{ github.ref_name }}" --title "Release ${{ github.ref_name }}" --generate-notes --draft=false artifacts/LupercaliaMGCore.zip
+        gh release create "${{ github.ref_name }}" --title "Release ${{ github.ref_name }}" --generate-notes --draft=false artifacts/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
