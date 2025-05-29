@@ -52,6 +52,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
         RegisterModule<VelocityDisplay>();
         RegisterModule<Rocket>();
         RegisterModule<EntityOutputHook>();
+        RegisterModule<GrenadePickupFix>();
     }
 
     protected override void RegisterRequiredPluginServices(IServiceCollection collection, IServiceProvider services)
