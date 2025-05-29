@@ -47,6 +47,10 @@ namespace LupercaliaMGCore.modules
 
         protected override void OnInitialize()
         {
+            TrackConVar(IsModuleEnabled);
+            TrackConVar(MaxNumSpawnCT);
+            TrackConVar(MaxNumSpawnT);
+
             Plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
         }
 
@@ -68,7 +72,7 @@ namespace LupercaliaMGCore.modules
             var ctSpawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(SPAWN_CT).ToList();
             var tSpawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(SPAWN_T).ToList();
 
-            if (ctSpawns.Count > 0 && tSpawns.Count > 0)
+            if (ctSpawns.Any() && tSpawns.Any())
             {
                 var numSpawnsCT = Math.Min(MaxNumSpawnCT.Value, MAX_PLAYERS / 2);
                 var numSpawnsT = Math.Min(MaxNumSpawnT.Value, MAX_PLAYERS / 2);
@@ -86,12 +90,12 @@ namespace LupercaliaMGCore.modules
                 EnsureSpawnPoints(SPAWN_CT, numSpawnsCT);
                 EnsureSpawnPoints(SPAWN_T, numSpawnsT);
             }
-            else if (ctSpawns.Count > 0)
+            else if (ctSpawns.Any())
             {
                 // Only CT
                 EnsureSpawnPoints(SPAWN_CT, MAX_PLAYERS);
             }
-            else if (tSpawns.Count > 0)
+            else if (tSpawns.Any())
             {
                 // Only T
                 EnsureSpawnPoints(SPAWN_T, MAX_PLAYERS);
