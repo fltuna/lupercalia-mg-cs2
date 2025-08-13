@@ -73,7 +73,7 @@ namespace LupercaliaMGCore.modules.ExternalView
 
                 if (isReverting)
                 {
-                    player.Player.PrintToChat("ExternalView.FirstPerson.Revert");
+                    player.Player.PrintToChat("ExternalView.ThirdPerson.Revert");
                 }
             }
         }

@@ -117,13 +117,29 @@ namespace LupercaliaMGCore.modules.ExternalView.CSSharp
                 if (value)
                 {
                     pawn.Flags &= ~(uint)PlayerFlags.FL_ATCONTROLS;
+                    pawn.MoveType = MoveType_t.MOVETYPE_WALK;
                 }
                 else
                 {
+                    //
+                    // As of AnimGraph2 update, ATCONTROLS no longer works as expected;
+                    // once you rotate the camera, the player character sometimes starts moving w/ player's WASD input.
+                    // (might be a bug)
+                    // To prevent this, use ATCONTROLS flag with MOVETYPE_OBSERVER.
+                    //
+                    // NOTE: I've tried the following things but none of them worked:
+                    //
+                    // - Using `FL_ONTRAIN` flag
+                    // - Using `FL_FROZEN` flag (it completely stops the camera movement as well so we cannot use it)
+                    // - Setting `MOVETYPE_NONE`, or `MOVETYPE_LADDER`
+                    // - Setting `pawn.MovementServices.Maxspeed` as 0
+                    //
                     pawn.Flags |= (uint)PlayerFlags.FL_ATCONTROLS;
+                    pawn.MoveType = MoveType_t.MOVETYPE_OBSERVER;  // Somehow it worked, noice.
                 }
 
                 Utilities.SetStateChanged(pawn, "CBaseEntity", "m_fFlags");
+                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
             }
         }
 
