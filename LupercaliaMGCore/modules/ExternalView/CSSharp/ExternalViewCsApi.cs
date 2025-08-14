@@ -27,7 +27,10 @@ namespace LupercaliaMGCore.modules.ExternalView.CSSharp
 
         public IExternalViewCsPlayer? GetPlayer(ulong id)
         {
-            var controller = Utilities.GetPlayerFromSteamId(id);
+            // Don't use this.
+            //var controller = Utilities.GetPlayerFromSteamId(id);
+            var controller = Utilities.GetPlayers().FirstOrDefault(player => player.SteamID == id);
+
             if (controller == null)
                 return null;
             return CreatePlayer(controller);

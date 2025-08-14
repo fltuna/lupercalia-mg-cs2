@@ -85,7 +85,7 @@ jobs:
         
     # Use version specific URL, because "latest" is not work
     - name: ExternalView Download from GitHub
-      run: Invoke-WebRequest https://github.com/spitice/cs2-external-view/releases/download/v2.0.2/ExternalView_HelperOnly.zip -OutFile ExternalView_HelperOnly.zip
+      run: Invoke-WebRequest https://github.com/spitice/cs2-external-view/releases/download/v2.1.0/ExternalView_HelperOnly.zip -OutFile ExternalView_HelperOnly.zip
       
     - name: ExternalView Extract ZIP and put into artifacts 
       run: Expand-Archive -Path .\ExternalView_HelperOnly.zip -DestinationPath .\
