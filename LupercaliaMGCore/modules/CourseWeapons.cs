@@ -87,7 +87,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
         {
             DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Player is already dead");
             
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.ShouldBeAlive"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.ShouldBeAlive"));
             return false;
         }
 
@@ -96,7 +96,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
         if (!isCourseWeaponEnabled)
         {
             DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Course Weapon feature is disabled");
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.CourseMapOnly"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.CourseMapOnly"));
             return false;
         }
 
@@ -106,7 +106,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
     private void GiveItemToPlayer(CCSPlayerController client, CsItem item)
     {
         client.GiveNamedItem(item);
-        client.PrintToChat(LocalizeWithPluginPrefix("CourseWeapon.Command.Notification.Retrieved", item.ToString()));
+        client.PrintToChat(LocalizeWithPluginPrefix(client, "CourseWeapon.Command.Notification.Retrieved", item.ToString()));
         
         DebugLogger.LogDebug($"[Course Weapons] [{client.PlayerName}] Gave {item}");
     }
@@ -119,7 +119,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
         if (weaponServices == null)
         {
             DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to obtain a WeaponServices instance.");
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.UnknownError"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.UnknownError"));
             return false;
         }
 
@@ -135,7 +135,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
         if (itemName == null)
         {
             DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Failed to find weapon.");
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.UnknownError"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.UnknownError"));
             return false;
         }
         
@@ -143,7 +143,7 @@ public sealed class CourseWeapons(IServiceProvider serviceProvider) : PluginModu
         {
             DebugLogger.LogTrace($"[Course Weapons] [{client.PlayerName}] Player already have a {item.ToString()}.");
             
-            client.PrintToChat(LocalizeWithPluginPrefix("CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "CourseWeapon.Command.Notification.AlreadyHave", item.ToString()));
             return false;
         }
         

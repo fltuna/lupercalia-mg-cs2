@@ -25,7 +25,7 @@ public class PlayerWishingEvent(IServiceProvider serviceProvider) : OmikujiEvent
     {
         DebugLogger.LogDebug("Player drew a omikuji and invoked Player wishing event");
         
-        Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.PlayerWishingEvent.Notification.Wishing", client.PlayerName));
+        Server.PrintToChatAll(LocalizeWithPrefix(null, "Omikuji.MiscEvent.PlayerWishingEvent.Notification.Wishing", client.PlayerName));
     }
 
     public override double GetOmikujiWeight()

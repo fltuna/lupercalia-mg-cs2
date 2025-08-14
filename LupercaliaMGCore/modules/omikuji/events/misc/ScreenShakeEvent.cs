@@ -60,7 +60,7 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
 
         shakeEnt.AcceptInput("StartShake");
         
-        Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.ScreenShakeEvent.Notification.PrepareForImpact", client.PlayerName));
+        Server.PrintToChatAll(LocalizeWithPrefix(null, "Omikuji.MiscEvent.ScreenShakeEvent.Notification.PrepareForImpact", client.PlayerName));
 
         shakeEnt.Remove();
     }

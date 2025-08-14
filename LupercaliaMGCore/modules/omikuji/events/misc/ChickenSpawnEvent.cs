@@ -44,7 +44,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
                 CreateGamingChicken(cl);
         }
         
-        Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"));
+        Server.PrintToChatAll(LocalizeWithPrefix(null, "Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"));
     }
 
     public override double GetOmikujiWeight()

@@ -83,7 +83,7 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                cl.PrintToChat(LocalizeWithPrefix("Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity));
+                cl.PrintToChat(LocalizeWithPrefix(cl, "Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity));
                 isInGravityChangeEvent = false;
             }
         });

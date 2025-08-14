@@ -26,12 +26,12 @@ public abstract class OmikujiEventBase(IServiceProvider serviceProvider) : Plugi
 
     protected string LocalizeOmikujiResult(CCSPlayerController drawer, OmikujiType type, string languageKey, params object[] args)
     {
-        return $"{Omikuji.ModuleChatPrefix} {Omikuji.GetOmikujiLuckMessage(type, drawer)} {LocalizeString(languageKey, args)}";
+        return $"{Omikuji.ModuleChatPrefix} {Omikuji.GetOmikujiLuckMessage(type, drawer)} {LocalizeString(drawer, languageKey, args)}";
     }
 
-    protected string LocalizeWithPrefix(string languageKey, params object[] args)
+    protected string LocalizeWithPrefix(CCSPlayerController? translationTarget, string languageKey, params object[] args)
     {
-        return $"{Omikuji.ModuleChatPrefix} {LocalizeString(languageKey, args)}";
+        return $"{Omikuji.ModuleChatPrefix} {LocalizeString(translationTarget, languageKey, args)}";
     }
     
     /// <summary>

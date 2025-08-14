@@ -124,14 +124,14 @@ public sealed class VoteRoundRestart(IServiceProvider serviceProvider) : PluginM
         {
             DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Round is already restarting in progress.");
             
-            client.PrintToChat(LocalizeWithPluginPrefix("VoteRoundRestart.Command.Notification.AlreadyRestarting"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "VoteRoundRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (nativeVoteApi!.GetCurrentVoteState() != NativeVoteState.NoActiveVote)
         {
             DebugLogger.LogDebug($"[Vote Round Restart] [Player {client.PlayerName}] Already an active vote.");
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Vote.Notification.AnotherVoteInProgress"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Vote.Notification.AnotherVoteInProgress"));
             return;
         }
 
@@ -156,7 +156,7 @@ public sealed class VoteRoundRestart(IServiceProvider serviceProvider) : PluginM
         }
         else
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Vote.Notification.FailedToInitiate"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 

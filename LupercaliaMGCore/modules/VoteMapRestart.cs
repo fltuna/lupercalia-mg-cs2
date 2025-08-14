@@ -116,14 +116,14 @@ public sealed class VoteMapRestart(IServiceProvider serviceProvider) : PluginMod
         if (isMapRestarting)
         {
             DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] map is already restarting in progress.");
-            client.PrintToChat(LocalizeWithPluginPrefix("VoteMapRestart.Command.Notification.AlreadyRestarting"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "VoteMapRestart.Command.Notification.AlreadyRestarting"));
             return;
         }
 
         if (Server.EngineTime - mapStartTime > RestartAllowedTime.Value)
         {
             DebugLogger.LogDebug($"[Vote Map Restart] [Player {client.PlayerName}] restart time is ended");
-            client.PrintToChat(LocalizeWithPluginPrefix("VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "VoteMapRestart.Command.Notification.AllowedTimeIsEnded"));
             return;
         }
 
@@ -154,7 +154,7 @@ public sealed class VoteMapRestart(IServiceProvider serviceProvider) : PluginMod
         }
         else
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Vote.Notification.FailedToInitiate"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Vote.Notification.FailedToInitiate"));
         }
     }
 

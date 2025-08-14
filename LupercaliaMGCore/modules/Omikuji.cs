@@ -128,7 +128,7 @@ public sealed class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase
 
         if (isWaitingForEventExecution[client])
         {
-            client.PrintToChat(LocalizeWithModulePrefix("Omikuji.Command.Notification.NotReady"));
+            client.PrintToChat(LocalizeWithModulePrefix(client, "Omikuji.Command.Notification.NotReady"));
             return;
         }
 
@@ -138,7 +138,7 @@ public sealed class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase
             
             string currentCooldownText = (CommandCooldown.Value - (Server.EngineTime - lastCommandUseTime[client])).ToString("#.#");
             
-            client.PrintToChat(LocalizeWithModulePrefix("Omikuji.Command.Notification.Cooldown", currentCooldownText));
+            client.PrintToChat(LocalizeWithModulePrefix(client, "Omikuji.Command.Notification.Cooldown", currentCooldownText));
             return;
         }
 
@@ -170,7 +170,7 @@ public sealed class Omikuji(IServiceProvider serviceProvider) : PluginModuleBase
         }
 
         isWaitingForEventExecution[client] = true;
-        Server.PrintToChatAll(LocalizeWithModulePrefix("Omikuji.Command.Notification.Drawing", client.PlayerName));
+        Server.PrintToChatAll(LocalizeWithModulePrefix(client, "Omikuji.Command.Notification.Drawing", client.PlayerName));
         Plugin.AddTimer(
             Random.Next(CommandExecutionDelayMin.Value,
                 CommandExecutionDelayMax.Value), () =>

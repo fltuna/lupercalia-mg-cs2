@@ -73,7 +73,7 @@ namespace LupercaliaMGCore.modules.ExternalView
 
         string ILocalizer.LocalizeForPlayer(CCSPlayerController controller, string message, params object[] args)
         {
-            return LocalizeWithModulePrefixForPlayer(controller, message, args);
+            return LocalizeWithModulePrefix(controller, message, args);
         }
 
         protected override void OnInitialize()

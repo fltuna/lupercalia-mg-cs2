@@ -57,7 +57,7 @@ public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventB
             playerPawn.MoveType = MoveType_t.MOVETYPE_WALK;
             playerPawn.ActualMoveType = MoveType_t.MOVETYPE_WALK;
             DebugLogger.LogDebug("Player freeze event: Move type changed to MOVETYPE_WALK");
-            client.PrintToChat(LocalizeWithPrefix("Omikuji.BadEvent.PlayerFreezeEvent.Notification.UnFroze"));
+            client.PrintToChat(LocalizeWithPrefix(client, "Omikuji.BadEvent.PlayerFreezeEvent.Notification.UnFroze"));
         });
     }
 
