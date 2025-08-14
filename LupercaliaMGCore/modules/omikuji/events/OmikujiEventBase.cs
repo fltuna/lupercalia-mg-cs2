@@ -1,10 +1,9 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using LupercaliaMGCore.modules;
 using Microsoft.Extensions.DependencyInjection;
 using TNCSSPluginFoundation.Models.Plugin;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events;
 
 public abstract class OmikujiEventBase(IServiceProvider serviceProvider) : PluginBasicFeatureBase(serviceProvider), IOmikujiEvent
 {

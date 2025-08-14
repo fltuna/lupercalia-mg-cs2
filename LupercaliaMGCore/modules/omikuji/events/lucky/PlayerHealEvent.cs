@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using TNCSSPluginFoundation.Utils.Entity;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.lucky;
 
 public class PlayerHealEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

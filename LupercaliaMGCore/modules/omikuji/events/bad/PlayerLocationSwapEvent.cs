@@ -4,7 +4,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using TNCSSPluginFoundation.Utils.Entity;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.bad;
 
 public class PlayerLocationSwapEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

@@ -1,6 +1,9 @@
+using LupercaliaMGCore.modules.omikuji.events.bad;
+using LupercaliaMGCore.modules.omikuji.events.lucky;
+using LupercaliaMGCore.modules.omikuji.events.misc;
 using TNCSSPluginFoundation.Models.Plugin;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events;
 
 public class OmikujiEvents(IServiceProvider serviceProvider): PluginBasicFeatureBase(serviceProvider)
 {

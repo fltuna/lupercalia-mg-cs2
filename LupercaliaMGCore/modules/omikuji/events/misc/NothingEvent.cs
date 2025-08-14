@@ -2,7 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.misc;
 
 public class NothingEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

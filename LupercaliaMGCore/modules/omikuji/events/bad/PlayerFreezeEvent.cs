@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using TNCSSPluginFoundation.Utils.Entity;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.bad;
 
 public class PlayerFreezeEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

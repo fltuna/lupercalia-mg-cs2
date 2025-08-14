@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.bad;
 
 public class PlayerSlapEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

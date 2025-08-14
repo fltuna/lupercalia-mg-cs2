@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Microsoft.Extensions.Logging;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.misc;
 
 public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

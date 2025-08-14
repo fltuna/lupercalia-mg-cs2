@@ -1,4 +1,4 @@
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji;
 
 public enum OmikujiType
 {
