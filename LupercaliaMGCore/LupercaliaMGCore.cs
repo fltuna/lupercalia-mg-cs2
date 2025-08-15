@@ -21,7 +21,7 @@ public sealed class LupercaliaMGCore : TncssPluginBase
 
     public override string ModuleName => "Lupercalia MG Core";
 
-    public override string ModuleVersion => "1.7.0";
+    public override string ModuleVersion => "1.9.0";
 
     public override string ModuleAuthor => "faketuna, Spitice, uru, Zeisen";
 
