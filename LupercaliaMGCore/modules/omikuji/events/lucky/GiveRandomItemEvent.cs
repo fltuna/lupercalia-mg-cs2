@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Modules.Entities.Constants;
 using LupercaliaMGCore.util;
 using TNCSSPluginFoundation.Utils.Entity;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.lucky;
 
 public class GiveRandomItemEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {

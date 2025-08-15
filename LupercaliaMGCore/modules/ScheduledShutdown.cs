@@ -134,6 +134,6 @@ public sealed class ScheduledShutdown(IServiceProvider serviceProvider) : Plugin
         string executorName = PlayerUtil.GetPlayerName(client);
 
         initiateShutdown();
-        Server.PrintToChatAll(LocalizeWithPluginPrefix("ScheduledShutdown.Notification.InitiateShutdown", executorName));
+        Server.PrintToChatAll(LocalizeWithPluginPrefix(client, "ScheduledShutdown.Notification.InitiateShutdown", executorName));
     }
 }

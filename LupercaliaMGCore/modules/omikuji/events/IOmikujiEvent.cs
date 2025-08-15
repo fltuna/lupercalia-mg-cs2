@@ -1,6 +1,6 @@
 using CounterStrikeSharp.API.Core;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events;
 
 public interface IOmikujiEvent
 {

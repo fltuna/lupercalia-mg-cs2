@@ -3,7 +3,7 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using Microsoft.Extensions.Logging;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.misc;
 
 public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {
@@ -60,7 +60,7 @@ public class ScreenShakeEvent(IServiceProvider serviceProvider) : OmikujiEventBa
 
         shakeEnt.AcceptInput("StartShake");
         
-        Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.ScreenShakeEvent.Notification.PrepareForImpact", client.PlayerName));
+        Server.PrintToChatAll(LocalizeWithPrefix(null, "Omikuji.MiscEvent.ScreenShakeEvent.Notification.PrepareForImpact", client.PlayerName));
 
         shakeEnt.Remove();
     }

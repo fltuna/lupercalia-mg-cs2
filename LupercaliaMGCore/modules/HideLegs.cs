@@ -68,7 +68,7 @@ public sealed class HideLegs(IServiceProvider serviceProvider) : PluginModuleBas
 
         if (!IsEnabled)
         {
-            player.PrintToChat(LocalizeWithPluginPrefix("HideLegs.Command.Notification.NotAvailable"));
+            player.PrintToChat(LocalizeWithPluginPrefix(player, "HideLegs.Command.Notification.NotAvailable"));
             return;
         }
 
@@ -79,7 +79,7 @@ public sealed class HideLegs(IServiceProvider serviceProvider) : PluginModuleBas
             ? "HideLegs.Command.Notification.HideLegs"
             : "HideLegs.Command.Notification.ShowLegs";
         
-        player.PrintToChat(LocalizeWithPluginPrefix(messageName));
+        player.PrintToChat(LocalizeWithPluginPrefix(player, messageName));
 
         UpdateHideLegs(player);
     }

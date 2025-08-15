@@ -2,7 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.bad;
 
 public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {
@@ -83,7 +83,7 @@ public class GravityChangeEvent(IServiceProvider serviceProvider) : OmikujiEvent
                 if (!cl.IsValid || cl.IsBot || cl.IsHLTV)
                     continue;
 
-                cl.PrintToChat(LocalizeWithPrefix("Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity));
+                cl.PrintToChat(LocalizeWithPrefix(cl, "Omikuji.BadEvent.GravityChangeEvent.Notification.GravityRestored", oldGravity));
                 isInGravityChangeEvent = false;
             }
         });

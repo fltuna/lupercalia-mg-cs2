@@ -5,7 +5,7 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
 using TNCSSPluginFoundation.Utils.Entity;
 
-namespace LupercaliaMGCore;
+namespace LupercaliaMGCore.modules.omikuji.events.misc;
 
 public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventBase(serviceProvider)
 {
@@ -44,7 +44,7 @@ public class ChickenSpawnEvent(IServiceProvider serviceProvider) : OmikujiEventB
                 CreateGamingChicken(cl);
         }
         
-        Server.PrintToChatAll(LocalizeWithPrefix("Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"));
+        Server.PrintToChatAll(LocalizeWithPrefix(null, "Omikuji.MiscEvent.ChickenSpawnEvent.Notification.ChickenSpawned"));
     }
 
     public override double GetOmikujiWeight()

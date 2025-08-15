@@ -45,12 +45,12 @@ public sealed class VelocityDisplay(IServiceProvider serviceProvider) : PluginMo
         if (displayTarget.Contains(client.Slot))
         {
             displayTarget.Remove(client.Slot);
-            client.PrintToChat(LocalizeWithPluginPrefix("VelocityDisplay.Command.Notification.HudDisabled"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "VelocityDisplay.Command.Notification.HudDisabled"));
         }
         else
         {
             displayTarget.Add(client.Slot);
-            client.PrintToChat(LocalizeWithPluginPrefix("VelocityDisplay.Command.Notification.HudEnabled"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "VelocityDisplay.Command.Notification.HudEnabled"));
         }
     }
 

@@ -42,13 +42,13 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
         if (!PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.ShouldBeAlive"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.ShouldBeAlive"));
             return;
         }
 
         if (!GiveKnifeEnabled.Value)
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.FeatureEnabled"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.FeatureEnabled"));
             return;
         }
 
@@ -56,7 +56,7 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
         if (playerPawn == null)
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.NotUsableCurrently"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.NotUsableCurrently"));
             return;
         }
 
@@ -64,7 +64,7 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
         if (weaponServices == null)
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.NotUsableCurrently"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.NotUsableCurrently"));
             return;
         }
 
@@ -80,11 +80,11 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
         if (found)
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.AlreadyHave"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.AlreadyHave"));
         }
         else
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("General.Command.Notification.Retrieved"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "General.Command.Notification.Retrieved"));
             client.GiveNamedItem(CsItem.Knife);
         }
     }
@@ -101,13 +101,13 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
 
             client.ChangeTeam(CsTeam.Spectator);
-            client.PrintToChat(LocalizeWithPluginPrefix("Misc.Spectate.Command.Notification.MovedToSpectator"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "Misc.Spectate.Command.Notification.MovedToSpectator"));
             return;
         }
 
         if (PlayerUtil.IsPlayerAlive(client))
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("Misc.Spectate.Command.Notification.OnlyDeadOrSpectator"));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "Misc.Spectate.Command.Notification.OnlyDeadOrSpectator"));
             return;
         }
 
@@ -115,11 +115,11 @@ public sealed class MiscCommands(IServiceProvider serviceProvider) : PluginModul
 
         if (targets.Count() > 1)
         {
-            client.PrintToChat(LocalizeWithPluginPrefix("Misc.Spectate.Command.Notification.MultipleTargetsFound", targets.Count()));
+            client.PrintToChat(LocalizeWithPluginPrefix(client, "Misc.Spectate.Command.Notification.MultipleTargetsFound", targets.Count()));
             return;
         }
 
         client.ExecuteClientCommand($"spec_player {targets.First().PlayerName}");
-        client.PrintToChat(LocalizeWithPluginPrefix("Misc.Spectate.Command.Notification.NowSpectating", targets.First().PlayerName));
+        client.PrintToChat(LocalizeWithPluginPrefix(client, "Misc.Spectate.Command.Notification.NowSpectating", targets.First().PlayerName));
     }
 }
