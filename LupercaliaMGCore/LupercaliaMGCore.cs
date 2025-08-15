@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Utils;
 using LupercaliaMGCore.modules;
 using LupercaliaMGCore.modules.AntiCamp;
@@ -10,6 +11,7 @@ using TNCSSPluginFoundation;
 
 namespace LupercaliaMGCore;
 
+[MinimumApiVersion(334)]
 public sealed class LupercaliaMGCore : TncssPluginBase
 {
     public override string PluginPrefix =>
